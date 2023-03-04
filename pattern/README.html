@@ -1,0 +1,159 @@
+<h1 id="pattern">Pattern</h1>
+
+<p><a href="https://travis-ci.org/clips/pattern/branches"><img src="http://img.shields.io/travis/clips/pattern/master.svg?style=flat" alt="Build Status" /></a>
+<a href="https://coveralls.io/github/clips/pattern?branch=master"><img src="https://img.shields.io/coveralls/clips/pattern/master.svg?style=flat" alt="Coverage" /></a>
+<a href="https://pypi.python.org/pypi/pattern"><img src="http://img.shields.io/pypi/v/pattern.svg?style=flat" alt="PyPi version" /></a>
+<a href="https://github.com/clips/pattern/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/License-BSD%203--Clause-green.svg?style=flat" alt="License" /></a></p>
+
+<p>Pattern is a web mining module for Python. It has tools for:</p>
+
+<ul>
+<li>Data Mining: web services (Google, Twitter, Wikipedia), web crawler, HTML DOM parser</li>
+<li>Natural Language Processing: part-of-speech taggers, n-gram search, sentiment analysis, WordNet</li>
+<li>Machine Learning: vector space model, clustering, classification (KNN, SVM, Perceptron)</li>
+<li>Network Analysis: graph centrality and visualization.</li>
+</ul>
+
+<p>It is well documented, thoroughly tested with 350+ unit tests and comes bundled with 50+ examples. The source code is licensed under BSD.</p>
+
+<figure>
+<img src="https://raw.githubusercontent.com/clips/pattern/master/docs/g/pattern_schema.gif" alt="Example workflow" />
+<figcaption>Example workflow</figcaption>
+</figure>
+
+<h2 id="example">Example</h2>
+
+<p>This example trains a classifier on adjectives mined from Twitter using Python 3. First, tweets that contain hashtag #win or #fail are collected. For example: <em>&#8220;$20 tip off a sweet little old lady today #win&#8221;</em>. The word part-of-speech tags are then parsed, keeping only adjectives. Each tweet is transformed to a vector, a dictionary of adjective → count items, labeled <code>WIN</code> or <code>FAIL</code>. The classifier uses the vectors to learn which other tweets look more like <code>WIN</code> or more like <code>FAIL</code>.</p>
+
+<pre><code class="python">from pattern.web import Twitter
+from pattern.en import tag
+from pattern.vector import KNN, count
+
+twitter, knn = Twitter(), KNN()
+
+for i in range(1, 3):
+    for tweet in twitter.search('#win OR #fail', start=i, count=100):
+        s = tweet.text.lower()
+        p = '#win' in s and 'WIN' or 'FAIL'
+        v = tag(s)
+        v = [word for word, pos in v if pos == 'JJ'] # JJ = adjective
+        v = count(v) # {'sweet': 1}
+        if v:
+            knn.train(v, type=p)
+
+print(knn.classify('sweet potato burger'))
+print(knn.classify('stupid autocorrect'))
+</code></pre>
+
+<h2 id="installation">Installation</h2>
+
+<p>Pattern supports Python 2.7 and Python 3.6. To install Pattern so that it is available in all your scripts, unzip the download and from the command line do:
+<code>bash
+cd pattern-3.6
+python setup.py install
+</code></p>
+
+<p>If you have pip, you can automatically download and install from the <a href="https://pypi.python.org/pypi/pattern">PyPI repository</a>:
+<code>bash
+pip install pattern
+</code></p>
+
+<p>If none of the above works, you can make Python aware of the module in three ways:
+- Put the pattern folder in the same folder as your script.
+- Put the pattern folder in the standard location for modules so it is available to all scripts:
+ * <code>c:\python36\Lib\site-packages\</code> (Windows),
+ * <code>/Library/Python/3.6/site-packages/</code> (Mac OS X),
+ * <code>/usr/lib/python3.6/site-packages/</code> (Unix).
+- Add the location of the module to <code>sys.path</code> in your script, before importing it:</p>
+
+<pre><code class="python">MODULE = '/users/tom/desktop/pattern'
+import sys; if MODULE not in sys.path: sys.path.append(MODULE)
+from pattern.en import parsetree
+</code></pre>
+
+<h2 id="documentation">Documentation</h2>
+
+<p>For documentation and examples see the <a href="https://github.com/clips/pattern/wiki">user documentation</a>.</p>
+
+<h2 id="version">Version</h2>
+
+<p>3.6</p>
+
+<h2 id="license">License</h2>
+
+<p><strong>BSD</strong>, see <code>LICENSE.txt</code> for further details.</p>
+
+<h2 id="reference">Reference</h2>
+
+<p>De Smedt, T., Daelemans, W. (2012). Pattern for Python. <em>Journal of Machine Learning Research, 13</em>, 2031–2035.</p>
+
+<h2 id="contribute">Contribute</h2>
+
+<p>The source code is hosted on GitHub and contributions or donations are welcomed.</p>
+
+<h2 id="bundleddependencies">Bundled dependencies</h2>
+
+<p>Pattern is bundled with the following data sets, algorithms and Python packages:</p>
+
+<ul>
+<li><strong>Brill tagger</strong>, Eric Brill</li>
+<li><strong>Brill tagger for Dutch</strong>, Jeroen Geertzen</li>
+<li><strong>Brill tagger for German</strong>, Gerold Schneider &amp; Martin Volk</li>
+<li><strong>Brill tagger for Spanish</strong>, trained on Wikicorpus (Samuel Reese &amp; Gemma Boleda et al.)</li>
+<li><strong>Brill tagger for French</strong>, trained on Lefff (Benoît Sagot &amp; Lionel Clément et al.)</li>
+<li><strong>Brill tagger for Italian</strong>, mined from Wiktionary</li>
+<li><strong>English pluralization</strong>, Damian Conway</li>
+<li><strong>Spanish verb inflection</strong>, Fred Jehle</li>
+<li><strong>French verb inflection</strong>, Bob Salita</li>
+<li><strong>Graph JavaScript framework</strong>, Aslak Hellesoy &amp; Dave Hoover</li>
+<li><strong>LIBSVM</strong>, Chih-Chung Chang &amp; Chih-Jen Lin</li>
+<li><strong>LIBLINEAR</strong>, Rong-En Fan et al.</li>
+<li><strong>NetworkX centrality</strong>, Aric Hagberg, Dan Schult &amp; Pieter Swart</li>
+<li><strong>spelling corrector</strong>, Peter Norvig</li>
+</ul>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p><strong>Authors:</strong></p>
+
+<ul>
+<li>Tom De Smedt (tom@organisms.be)</li>
+<li>Walter Daelemans (walter.daelemans@ua.ac.be)</li>
+</ul>
+
+<p><strong>Contributors (chronological):</strong></p>
+
+<ul>
+<li>Frederik De Bleser</li>
+<li>Jason Wiener</li>
+<li>Daniel Friesen</li>
+<li>Jeroen Geertzen</li>
+<li>Thomas Crombez</li>
+<li>Ken Williams</li>
+<li>Peteris Erins</li>
+<li>Rajesh Nair</li>
+<li>F. De Smedt</li>
+<li>Radim Řehůřek</li>
+<li>Tom Loredo</li>
+<li>John DeBovis</li>
+<li>Thomas Sileo</li>
+<li>Gerold Schneider</li>
+<li>Martin Volk</li>
+<li>Samuel Joseph</li>
+<li>Shubhanshu Mishra</li>
+<li>Robert Elwell</li>
+<li>Fred Jehle</li>
+<li>Antoine Mazières + fabelier.org</li>
+<li>Rémi de Zoeten + closealert.nl</li>
+<li>Kenneth Koch</li>
+<li>Jens Grivolla</li>
+<li>Fabio Marfia</li>
+<li>Steven Loria</li>
+<li>Colin Molter + tevizz.com</li>
+<li>Peter Bull</li>
+<li>Maurizio Sambati</li>
+<li>Dan Fu</li>
+<li>Salvatore Di Dio</li>
+<li>Vincent Van Asch</li>
+<li>Frederik Elwert</li>
+</ul>
