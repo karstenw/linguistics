@@ -12,10 +12,15 @@ option: ::
     $ python -m textblob.download_corpora lite
 
 """
-import sys
+import sys, os
 
-import pdb
-pdb.set_trace()
+
+# nodebox fix
+filepath = os.path.abspath(__file__)
+folder, _ = os.path.split( filepath )
+parent, _ = os.path.split( folder )
+download_dir = os.path.join( parent, "nltk-data" )
+
 
 import nltk
 
@@ -35,12 +40,12 @@ ALL_CORPORA = MIN_CORPORA + ADDITIONAL_CORPORA
 
 def download_lite():
     for each in MIN_CORPORA:
-        nltk.download(each)
+        nltk.download(each, download_dir=download_dir)
 
 
 def download_all():
     for each in ALL_CORPORA:
-        nltk.download(each)
+        nltk.download(each, download_dir=download_dir)
 
 
 def main():
