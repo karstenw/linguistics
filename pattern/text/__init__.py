@@ -15,8 +15,8 @@ from builtins import str, bytes, dict, int
 from builtins import map, zip, filter
 from builtins import object, range
 
-import os
 import sys
+import os
 import re
 import string
 import types
