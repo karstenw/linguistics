@@ -6,8 +6,8 @@ from builtins import str, bytes, dict, int
 import os
 import sys
 import codecs
-# sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-pattern = ximport("pattern")
+
+import pattern
 
 import pattern.text as text_module
 from pattern.text.en.wordlist import STOPWORDS

@@ -6,8 +6,8 @@ from builtins import str, bytes, dict, int
 import os
 import sys
 import time
-# sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-pattern = ximport("pattern")
+
+import pattern
 
 from pattern.web import Crawler, DEPTH, BREADTH, FIFO, LIFO, crawl, asynchronous
 

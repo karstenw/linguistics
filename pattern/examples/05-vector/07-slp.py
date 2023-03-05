@@ -6,20 +6,21 @@ from builtins import str, bytes, dict, int
 from builtins import map, zip
 from builtins import range
 
-import os
 import sys
-# sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-pattern = ximport("pattern")
+import os
 
 import random
+from random import seed
 
 from collections import defaultdict
+
+import pattern
 from pattern.text import Model
 from pattern.vector import shuffled, SLP
 from pattern.en import lexicon, parsetree
-from random import seed
 
 from io import open
+
 
 # This example demonstrates how a Perceptron classifier
 # can be used to construct an English language model
@@ -103,7 +104,7 @@ for w, tags in f.items():
 # If you want it to run faster for experimentation,
 # use less iterations or less data in the code below:
 
-print("training model...")
+print("training model... (~5-10 minutes)")
 
 seed(0) # Lock random list shuffling so we can compare.
 

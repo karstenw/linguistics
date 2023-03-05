@@ -7,7 +7,7 @@ from builtins import range
 import os
 import sys
 
-pattern = ximport("pattern")
+import pattern
 
 from pattern.web import Google, plaintext
 from pattern.web import SEARCH

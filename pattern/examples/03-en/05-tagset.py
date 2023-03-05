@@ -7,8 +7,8 @@ from builtins import str, bytes, dict, int
 
 import os
 import sys
-# sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-pattern = ximport("pattern")
+
+import pattern
 
 # By default, parse() uses part-of-speech tags from the Penn Treebank tagset:
 # http://www.clips.ua.ac.be/pages/penn-treebank-tagset
