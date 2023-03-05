@@ -61,9 +61,10 @@ try:
     __path__.append(os.path.join(__path__[0], "text"))
 except:
     pass
-# from . import db
-# from . import graph
-# from . import text
-# from . import vector
-# from . import web
+
+from . import db
+from . import graph
+from . import text
+from . import vector
+from . import web
 
