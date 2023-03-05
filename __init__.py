@@ -9,29 +9,63 @@ import pdb
 #pdb.set_trace()
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+# print("PACKAGE_DIR:", PACKAGE_DIR)
 sys.path.insert(0, PACKAGE_DIR)
 
+
+
 from . import nltk
+# from . import nltk.wordnet
+wordnet = nltk.wordnet
+
+
+
 
 # TextBlob, Word, Sentence, Blobber, WordList
 from . import textblob
+
 # from . textblob import *
 # import textblob.Word
 
+
+
 from . import wn
+wn.config.data_directory = os.path.join( PACKAGE_DIR, './wn-data' )
+# wn.download("omw")
+# wn.download("odenet")
+# wn.download("cili")
+
+
+
+
 
 from . import pattern
 
 
+
+# for historical purposes only - halfway & errornesously py converted
 from . import en
 
 
 
-# from . import nltk.wordnet
-wordnet = nltk.wordnet
-
 # nltk.download( download_dir=nltk.data.path[0] )
+#
+# nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
+# nltk.download( "wordnet", download_dir=nltk.data.path[0] )
+#
+#
+# textblob downloads
+#
+# minimal
+# brown, punkt, wordnet, averaged_perceptron_tagger
+#
+# all
+# + conll2000, movie_reviews
 
+
+# pattern nltk downloads
+# 
+# wordnet_ic
 
 
 def _firstwordtags( wl ):
