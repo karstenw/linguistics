@@ -70,7 +70,7 @@ def connect() -> sqlite3.Connection:
     if dbpath not in pool:
         initialized = dbpath.is_file()
         conn = sqlite3.connect(
-            str(dbpath),
+            dbpath.as_posix(),
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=not wn.config.allow_multithreading,
         )
@@ -79,7 +79,7 @@ def connect() -> sqlite3.Connection:
         if DEBUG:
             conn.set_trace_callback(print)
         if not initialized:
-            logger.info('initializing database: %s', dbpath)
+            logger.info('initializing database: %s', dbpath.as_posix())
             _init_db(conn)
         _check_schema_compatibility(conn, dbpath)
 
