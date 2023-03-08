@@ -8,8 +8,8 @@ from builtins import str, bytes, dict, int
 import os
 import sys
 
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
 import pattern
-
 
 from pattern.db import Database, SQLITE, MYSQL
 from pattern.db import field, pk, STRING, INTEGER, DATE, NOW
