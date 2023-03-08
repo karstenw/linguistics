@@ -201,16 +201,6 @@ else:
 
 from nltk import ccg, chunk, classify, collocations
 from nltk import data, featstruct, grammar, help, inference, metrics
-
-# nodebox fix
-def makedatafolderpath():
-    filepath = os.path.abspath(__file__)
-    folder, _ = os.path.split( filepath )
-    parent, _ = os.path.split( folder )
-    return os.path.join( parent, "nltk-data" )
-data.path = [ makedatafolderpath() ]
-
-
 from nltk import misc, parse, probability, sem, stem, wsd
 from nltk import tag, tbl, text, tokenize, translate, tree, util
 
