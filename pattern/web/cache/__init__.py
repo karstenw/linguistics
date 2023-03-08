@@ -55,14 +55,18 @@ def date_modified(path):
 
 
 class Cache(object):
-
-    def __init__(self, path=os.path.join(MODULE, "tmp")):
+    # cachefolder = os.path.join(MODULE,  "tmp")
+    cachefolder = os.path.join(MODULE,  '..', '..', '..', '..',
+                        "linguistics-data", "pattern-data", "webcache-tmp")
+    cachefolder = os.path.abspath( cachefolder )
+    def __init__(self, path=cachefolder):
         """ Cache with data stored as files with hashed filenames.
             Content retrieved from URLs and search engines are stored in cache for performance.
             The path where the cache is stored can be given. This way you can manage persistent
             sets of downloaded data. If path=TMP, cached items are stored in a temporary folder.
         """
         self.path = path
+        # print("pattern.web.cache.Cache.path=", path)
 
     def _get_path(self):
         return self._path
