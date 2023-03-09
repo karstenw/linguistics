@@ -50,7 +50,7 @@ classifier = SVM()
 # which we use to randomly arrange the reviews in the list:
 
 print("loading data...")
-data = os.path.join(os.path.dirname(__file__), "..", "..", "test", "corpora", "polarity-nl-bol.com.csv")
+data = os.path.join(os.path.abspath('.'), "..", "..", "test", "corpora", "polarity-nl-bol.com.csv")
 data = Datasheet.load(data)
 data = shuffled(data)
 

@@ -11,6 +11,7 @@ import pattern
 
 from pattern.web import Wiktionary, DOM
 from pattern.db import csv, pd
+from pattern.vector import SVM, chngrams, count, kfoldcv
 
 # This example retrieves male and female given names from Wiktionary (http://en.wiktionary.org).
 # It then trains a classifier that can predict the gender of unknown names (about 78% correct).
@@ -35,7 +36,6 @@ for gender in ("male", "female"):
 
 # Create a classifier that predicts gender based on name.
 
-from pattern.vector import SVM, chngrams, count, kfoldcv
 
 
 class GenderByName(SVM):

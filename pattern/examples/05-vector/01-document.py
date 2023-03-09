@@ -63,7 +63,6 @@ print()
 # Loading a document from a text file:
 f = os.path.abspath(".")
 f = os.path.join(f, "corpus", "wolf.txt")
-# f = os.path.join(os.path.dirname(__file__), "corpus", "wolf.txt")
 s = open(f, encoding="utf-8").read()
 document = Document(s, name="wolf", stemmer=PORTER)
 print(document)

@@ -83,7 +83,7 @@ while len(crawler1.visited) < 5:  # Crawler.visited is a dictionary of all URL's
 # A higher delay (in a real-world scenario, say 30 seconds) is better:
 
 crawler2 = SimpleCrawler1(
-    links=["https://scripting.com/"],
+    links=["http://scripting.com/"],
     domains=["scripting.com"],
       delay=0.1
 )

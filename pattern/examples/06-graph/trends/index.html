@@ -15,15 +15,15 @@
 				canvas.fps = 30;
 				g = new Graph(canvas.element, 10.0);
 				var n = {
-					"jimin": {},
-					"face": {},
-					"grv": {},
-					"brand": {}
+					"black.”": {},
+					"black": {},
+					"death": {},
+					"orange": {}
 				};
 				var e = [
-					["brand", "jimin", {weight:0.90}],
-					["face", "grv", {weight:0.90}],
-					["face", "jimin", {weight:0.90}]
+					["black", "death", {weight:0.90}],
+					["black", "orange", {weight:1.80}],
+					["black.”", "orange", {weight:0.90}]
 				];
 				for (var id in n) {
 					g.addNode(id, n[id]);
