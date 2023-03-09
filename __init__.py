@@ -6,7 +6,8 @@ import os
 import pprint
 pp = pprint.pprint
 import pdb
-#pdb.set_trace()
+
+
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
@@ -22,6 +23,13 @@ from . import nltk
 # from . import nltk.wordnet
 wordnet = nltk.wordnet
 nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+
+# nltk.download( download_dir=nltk.data.path[0] )
+#
+# nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
+# nltk.download( "wordnet", download_dir=nltk.data.path[0] )
+#
+
 
 
 
@@ -47,16 +55,12 @@ from . import pattern
 # pattern webcache setting in pattern/web/cache/__init__.py
 
 
-# for historical purposes only - halfway & errornesously py converted
-from . import en
 
 
 
-# nltk.download( download_dir=nltk.data.path[0] )
-#
-# nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
-# nltk.download( "wordnet", download_dir=nltk.data.path[0] )
-#
+
+
+
 #
 # textblob downloads
 #
