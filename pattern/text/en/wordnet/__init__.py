@@ -342,9 +342,9 @@ class Synset(object):
 
     @property
     def weight(self):
-        return sentiwordnet is not None \
-           and sentiwordnet.synset(self.id, self.pos)[:2] \
-            or None
+        return (    sentiwordnet is not None
+                and sentiwordnet.synset(self.id, self.pos)[:2]
+                or  None )
 
 
 def similarity(synset1, synset2):
