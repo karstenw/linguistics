@@ -11,11 +11,14 @@ import pdb
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
+
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
 if not os.path.exists( DATA_DIR ):
     os.makedirs( DATA_DIR )
+
 # print("PACKAGE_DIR:", PACKAGE_DIR)
-sys.path.insert(0, PACKAGE_DIR)
+if PACKAGE_DIR not in sys.path:
+    sys.path.insert(0, PACKAGE_DIR)
 
 
 
@@ -28,8 +31,6 @@ nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
 #
 # nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
 # nltk.download( "wordnet", download_dir=nltk.data.path[0] )
-#
-
 
 
 
@@ -49,20 +50,12 @@ wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
 
 
-
-
 from . import pattern
 # pattern webcache setting in pattern/web/cache/__init__.py
 
 
 
-
-
-
-
-
-#
-# textblob downloads
+# textblob downloads via nltk
 #
 # minimal
 # brown, punkt, wordnet, averaged_perceptron_tagger
