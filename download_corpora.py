@@ -27,6 +27,7 @@ nltk.data.path = [ nltk_data_dir ]
 
 nltk.download( "wordnet_ic", download_dir=nltk_data_dir )
 nltk.download( "wordnet", download_dir=nltk_data_dir )
+nltk.download( "sentiwordnet", download_dir=nltk_data_dir )
 
 # textblob downloads
 nltk.download( "brown", download_dir=nltk_data_dir )
