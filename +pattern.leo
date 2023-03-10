@@ -1383,13 +1383,14 @@
 <v t="karstenw.20230303132747.1" a="E"><vh>@clean pattern/text/en/__init__.py</vh>
 <v t="karstenw.20230303132805.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303132805.2"><vh>find_lemmata</vh></v>
-<v t="karstenw.20230303132805.3"><vh>class Parser</vh>
+<v t="karstenw.20230303132805.3" a="E"><vh>class Parser</vh>
 <v t="karstenw.20230303132805.4"><vh>find_lemmata</vh></v>
 <v t="karstenw.20230303132805.5"><vh>find_tags</vh></v>
 </v>
 <v t="karstenw.20230303132805.6"><vh>class Sentiment</vh>
 <v t="karstenw.20230303132805.7"><vh>load</vh></v>
 </v>
+<v t="karstenw.20230310124020.1"><vh>setup Parser</vh></v>
 <v t="karstenw.20230303132805.8"><vh>tokenize</vh></v>
 <v t="karstenw.20230303132805.9"><vh>parse</vh></v>
 <v t="karstenw.20230303132805.10"><vh>parsetree</vh></v>
@@ -3551,11 +3552,12 @@ try:
     __path__.append(os.path.join(__path__[0], "text"))
 except:
     pass
-# from . import db
-# from . import graph
-# from . import text
-# from . import vector
-# from . import web
+
+from . import db
+from . import graph
+from . import text
+from . import vector
+from . import web
 
 </t>
 <t tx="karstenw.20230303123040.1"></t>
@@ -12145,8 +12147,8 @@ from builtins import str, bytes, dict, int
 from builtins import map, zip, filter
 from builtins import object, range
 
-import os
 import sys
+import os
 import re
 import string
 import types
@@ -19538,34 +19540,6 @@ split = tree # Backwards compatibility.
 <t tx="karstenw.20230303132805.6">class Sentiment(_Sentiment):
 
     @others
-parser = Parser(
-     lexicon = os.path.join(MODULE, "en-lexicon.txt"),    # A dict of known words =&gt; most frequent tag.
-   frequency = os.path.join(MODULE, "en-frequency.txt"),  # A dict of word frequency.
-       model = os.path.join(MODULE, "en-model.slp"),      # A SLP classifier trained on WSJ (01-07).
-  morphology = os.path.join(MODULE, "en-morphology.txt"), # A set of suffix rules (e.g., -ly = adverb).
-     context = os.path.join(MODULE, "en-context.txt"),    # A set of contextual rules.
-    entities = os.path.join(MODULE, "en-entities.txt"),   # A dict of named entities: John = NNP-PERS.
-     default = ("NN", "NNP", "CD"),
-    language = "en"
-)
-
-lexicon = parser.lexicon # Expose lexicon.
-
-sentiment = Sentiment(
-        path = os.path.join(MODULE, "en-sentiment.xml"),
-      synset = "wordnet_id",
-   negations = ("no", "not", "n't", "never"),
-   modifiers = ("RB",),
-   modifier = lambda w: w.endswith("ly"),
-   tokenizer = parser.find_tokens,
-    language = "en"
-)
-
-spelling = Spelling(
-        path=os.path.join(MODULE, "en-spelling.txt")
-)
-
-
 </t>
 <t tx="karstenw.20230303132805.7">def load(self, path=None):
     _Sentiment.load(self, path)
@@ -46345,6 +46319,35 @@ RE_SYNSET = re.compile(r"^[acdnrv][-_][0-9]+$")
 LANGUAGES = ["en", "es", "de", "fr", "it", "nl"]
 
 _modules = {}
+
+
+</t>
+<t tx="karstenw.20230310124020.1">parser = Parser(
+     lexicon = os.path.join(MODULE, "en-lexicon.txt"),    # A dict of known words =&gt; most frequent tag.
+   frequency = os.path.join(MODULE, "en-frequency.txt"),  # A dict of word frequency.
+       model = os.path.join(MODULE, "en-model.slp"),      # A SLP classifier trained on WSJ (01-07).
+  morphology = os.path.join(MODULE, "en-morphology.txt"), # A set of suffix rules (e.g., -ly = adverb).
+     context = os.path.join(MODULE, "en-context.txt"),    # A set of contextual rules.
+    entities = os.path.join(MODULE, "en-entities.txt"),   # A dict of named entities: John = NNP-PERS.
+     default = ("NN", "NNP", "CD"),
+    language = "en"
+)
+
+lexicon = parser.lexicon # Expose lexicon.
+
+sentiment = Sentiment(
+        path = os.path.join(MODULE, "en-sentiment.xml"),
+      synset = "wordnet_id",
+   negations = ("no", "not", "n't", "never"),
+   modifiers = ("RB",),
+   modifier = lambda w: w.endswith("ly"),
+   tokenizer = parser.find_tokens,
+    language = "en"
+)
+
+spelling = Spelling(
+        path=os.path.join(MODULE, "en-spelling.txt")
+)
 
 
 </t>
