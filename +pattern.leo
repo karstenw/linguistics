@@ -1380,7 +1380,7 @@
 </v>
 </v>
 <v t="karstenw.20230303132745.1" a="E"><vh>en</vh>
-<v t="karstenw.20230303132747.1" a="E"><vh>@clean pattern/text/en/__init__.py</vh>
+<v t="karstenw.20230303132747.1"><vh>@clean pattern/text/en/__init__.py</vh>
 <v t="karstenw.20230303132805.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303132805.2"><vh>find_lemmata</vh></v>
 <v t="karstenw.20230303132805.3" a="E"><vh>class Parser</vh>
@@ -1470,10 +1470,11 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303133026.1"><vh>wordnet</vh>
+<v t="karstenw.20230303133026.1" a="E"><vh>wordnet</vh>
 <v t="karstenw.20230303133031.1" a="E"><vh>@clean pattern/text/en/wordnet/__init__.py</vh>
 <v t="karstenw.20230303133045.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303133045.2"><vh>normalize</vh></v>
+<v t="karstenw.20230310152332.1" a="E"><vh>Synsets</vh>
 <v t="karstenw.20230303133045.3"><vh>synsets</vh></v>
 <v t="karstenw.20230303133045.4"><vh>class _synset</vh>
 <v t="karstenw.20230303133045.5"><vh>__getitem__</vh></v>
@@ -1503,7 +1504,12 @@
 </v>
 <v t="karstenw.20230303133045.28"><vh>similarity</vh></v>
 <v t="karstenw.20230303133045.29"><vh>ancestor</vh></v>
+</v>
+<v t="karstenw.20230310152428.1"><vh>Information Content</vh></v>
+<v t="karstenw.20230310152508.1"><vh>WordNet3 to WordNet2</vh>
 <v t="karstenw.20230303133045.30"><vh>map32</vh></v>
+</v>
+<v t="karstenw.20230310152553.1" a="E"><vh>SentiWordNet</vh>
 <v t="karstenw.20230303133045.31"><vh>class SentiWordNet</vh>
 <v t="karstenw.20230303133045.32"><vh>__init__</vh></v>
 <v t="karstenw.20230303133045.33"><vh>load</vh></v>
@@ -1516,6 +1522,7 @@
 <v t="karstenw.20230303133045.39"><vh>load</vh></v>
 <v t="karstenw.20230303133045.40"><vh>__getitem__</vh></v>
 <v t="karstenw.20230303133045.41"><vh>__contains__</vh></v>
+</v>
 </v>
 </v>
 </v>
@@ -21720,22 +21727,6 @@ def antonym(self):
 
     return word
 
-### SYNSET #########################################################################################
-
-NOUNS = lambda: wn.all_lemma_names(wn.NOUN)
-VERBS = lambda: wn.all_lemma_names(wn.VERB)
-ADJECTIVES = lambda: wn.all_lemma_names(wn.ADJ)
-ADVERBS = lambda: wn.all_lemma_names(wn.ADV)
-
-NOUN, VERB, ADJECTIVE, ADVERB = \
-    NN, VB, JJ, RB = \
-        "NN", "VB", "JJ", "RB"
-
-_pattern2wordnet = {NN : wn.NOUN, VB : wn.VERB, JJ : wn.ADJ, RB: wn.ADV}
-_wordnet2pattern = {v : k for k, v in _pattern2wordnet.items()}
-_wordnet2pattern[wn.ADJ_SAT] = JJ
-
-
 </t>
 <t tx="karstenw.20230303133045.20">def holonyms(self):
     """ Yields a list of synsets of which this synset is a member/part, for example:
@@ -21827,9 +21818,9 @@ def ic(self):
 </t>
 <t tx="karstenw.20230303133045.27">@property
 def weight(self):
-    return sentiwordnet is not None \
-       and sentiwordnet.synset(self.id, self.pos)[:2] \
-        or None
+    return (    sentiwordnet is not None
+            and sentiwordnet.synset(self.id, self.pos)[:2]
+            or  None )
 
 
 </t>
@@ -21850,48 +21841,6 @@ def weight(self):
             return s
 
 least_common_subsumer = lcs = ancestor
-
-### INFORMATION CONTENT ############################################################################
-# Information Content (IC) is used to calculate semantic similarity in Synset.similarity().
-# Information Content values for each synset are derived from word frequency in a given corpus.
-# The idea is that less frequent words convey more information.
-# Semantic similarity depends on the amount of information two concepts (synsets) have in common,
-# given by the Most Speciﬁc Common Abstraction (MSCA), i.e. the shared ancestor in the taxonomy.
-# http://www.d.umn.edu/~tpederse/Pubs/AAAI04PedersenT.pdf
-# http://afflatus.ucd.ie/papers/ecai2004b.pdf
-
-#IC = {} # Switch data file according to WordNet version:
-#IC_CORPUS = os.path.join(MODULE, "resnik-ic" + VERSION[0] + ".txt")
-#IC_MAX = 0
-
-# def information_content(synset):
-#     """ Returns the IC value for the given Synset (trained on the Brown corpus).
-#     """
-#     global IC_MAX
-#     if not IC:
-#         IC[NOUN] = {}
-#         IC[VERB] = {}
-#         for s in open(IC_CORPUS).readlines()[1:]: # Skip the header.
-#             s = s.split()
-#             id, w, pos = (
-#                 int(s[0][:-1]),
-#                 float(s[1]),
-#                 s[0][-1] == "n" and NOUN or VERB)
-#             if len(s) == 3 and s[2] == "ROOT":
-#                 IC[pos][0] = IC[pos].get(0,0) + w
-#             if w != 0:
-#                 IC[pos][id] = w
-#             if w &gt; IC_MAX:
-#                 IC_MAX = w
-#     return IC.get(synset.pos, {}).get(synset.id, 0.0) / IC_MAX
-
-### WORDNET3 TO WORDNET2 ###########################################################################
-# Map WordNet3 synset id's to WordNet2 synset id's.
-
-_map32_pos1 = {NN: "n", VB: "v", JJ: "a", RB: "r"}
-_map32_pos2 = {"n": NN, "v": VB, "a": JJ, "s" : JJ, "r": RB}
-_map32_cache = None
-
 
 </t>
 <t tx="karstenw.20230303133045.3">def synsets(word, pos=NOUN):
@@ -21933,21 +21882,6 @@ _map32_cache = None
     if k is not None:
         return int(k[1:]), _map32_pos2[k[0]]
     return None
-
-#### SENTIWORDNET ##################################################################################
-# http://nmis.isti.cnr.it/sebastiani/Publications/LREC06.pdf
-# http://nmis.isti.cnr.it/sebastiani/Publications/LREC10.pdf
-
-sys.path.insert(0, os.path.join(MODULE, "..", ".."))
-
-try:
-    from pattern.text import Sentiment
-except:
-    class Sentiment(object):
-        PLACEHOLDER = True
-
-sys.path.pop(0)
-
 
 </t>
 <t tx="karstenw.20230303133045.31">class SentiWordNet(Sentiment):
@@ -46348,6 +46282,83 @@ sentiment = Sentiment(
 spelling = Spelling(
         path=os.path.join(MODULE, "en-spelling.txt")
 )
+
+
+</t>
+<t tx="karstenw.20230310152332.1">### SYNSET #########################################################################################
+
+NOUNS = lambda: wn.all_lemma_names(wn.NOUN)
+VERBS = lambda: wn.all_lemma_names(wn.VERB)
+ADJECTIVES = lambda: wn.all_lemma_names(wn.ADJ)
+ADVERBS = lambda: wn.all_lemma_names(wn.ADV)
+
+NOUN, VERB, ADJECTIVE, ADVERB = \
+    NN, VB, JJ, RB = \
+        "NN", "VB", "JJ", "RB"
+
+_pattern2wordnet = {NN : wn.NOUN, VB : wn.VERB, JJ : wn.ADJ, RB: wn.ADV}
+_wordnet2pattern = {v : k for k, v in _pattern2wordnet.items()}
+_wordnet2pattern[wn.ADJ_SAT] = JJ
+
+
+</t>
+<t tx="karstenw.20230310152428.1">### INFORMATION CONTENT ############################################################################
+# Information Content (IC) is used to calculate semantic similarity in Synset.similarity().
+# Information Content values for each synset are derived from word frequency in a given corpus.
+# The idea is that less frequent words convey more information.
+# Semantic similarity depends on the amount of information two concepts (synsets) have in common,
+# given by the Most Speciﬁc Common Abstraction (MSCA), i.e. the shared ancestor in the taxonomy.
+# http://www.d.umn.edu/~tpederse/Pubs/AAAI04PedersenT.pdf
+# http://afflatus.ucd.ie/papers/ecai2004b.pdf
+
+#IC = {} # Switch data file according to WordNet version:
+#IC_CORPUS = os.path.join(MODULE, "resnik-ic" + VERSION[0] + ".txt")
+#IC_MAX = 0
+
+# def information_content(synset):
+#     """ Returns the IC value for the given Synset (trained on the Brown corpus).
+#     """
+#     global IC_MAX
+#     if not IC:
+#         IC[NOUN] = {}
+#         IC[VERB] = {}
+#         for s in open(IC_CORPUS).readlines()[1:]: # Skip the header.
+#             s = s.split()
+#             id, w, pos = (
+#                 int(s[0][:-1]),
+#                 float(s[1]),
+#                 s[0][-1] == "n" and NOUN or VERB)
+#             if len(s) == 3 and s[2] == "ROOT":
+#                 IC[pos][0] = IC[pos].get(0,0) + w
+#             if w != 0:
+#                 IC[pos][id] = w
+#             if w &gt; IC_MAX:
+#                 IC_MAX = w
+#     return IC.get(synset.pos, {}).get(synset.id, 0.0) / IC_MAX
+
+</t>
+<t tx="karstenw.20230310152508.1">### WORDNET3 TO WORDNET2 ###########################################################################
+# Map WordNet3 synset id's to WordNet2 synset id's.
+
+_map32_pos1 = {NN: "n", VB: "v", JJ: "a", RB: "r"}
+_map32_pos2 = {"n": NN, "v": VB, "a": JJ, "s" : JJ, "r": RB}
+_map32_cache = None
+
+
+</t>
+<t tx="karstenw.20230310152553.1">#### SENTIWORDNET ##################################################################################
+# http://nmis.isti.cnr.it/sebastiani/Publications/LREC06.pdf
+# http://nmis.isti.cnr.it/sebastiani/Publications/LREC10.pdf
+
+sys.path.insert(0, os.path.join(MODULE, "..", ".."))
+
+try:
+    from pattern.text import Sentiment
+except:
+    class Sentiment(object):
+        PLACEHOLDER = True
+
+sys.path.pop(0)
 
 
 </t>
