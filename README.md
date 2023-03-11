@@ -4,10 +4,11 @@
 
 Several accumulated linguistics modules ([pattern](https://github.com/clips/pattern), [wn](https://github.com/goodmami/wn), [textblob](https://pypi.org/project/textblob/) & [nltk](https://www.nltk.org/) ) for Nodebox 1 to replace the "en" library.
 
+These are the installed sources of the libraries. I am currently using Python 3.8.12
 
 ## First Run
 
-Rename the downloaded folder "linguistics" and place it inside the "Library" folder.
+Rename the downloaded folder "linguistics" and place it inside the Nodebox "Library" folder.
 
 Before the first run, open and run `download_corpora.py` inside the linguistics folder. This downloads the needed corpora to run. The data folder `linguistics-data` will be placed in the same folder as the `linguistics` folder.
 
@@ -16,6 +17,7 @@ Before the first run, open and run `download_corpora.py` inside the linguistics 
 
 This is a work in progress, a moving target.
 
+Goals:
 
 1. Make it available to Nodebox1
 
