@@ -1,5 +1,3 @@
-
-
 import sys
 import os
 
@@ -41,20 +39,6 @@ from . import textblob
 # import textblob.Word
 
 
-
-from . import wn
-wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
-# wn.download("omw")
-# wn.download("odenet")
-# wn.download("cili")
-
-
-
-from . import pattern
-# pattern webcache setting in pattern/web/cache/__init__.py
-
-
-
 # textblob downloads via nltk
 #
 # minimal
@@ -68,32 +52,73 @@ from . import pattern
 # 
 # wordnet_ic
 
+"""
+This is the wn interface for NodeBox and possibly others.
 
-def _firstwordtags( wl ):
-    tb = TextBlob( wl )
-    if not tb:
-        return ""
-    for word,tag in tb.tags:
-        return word,tag
+"""
+
+from . import wn
+
+wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+
+# wn.download("omw")
+# wn.download("odenet")
+# wn.download("oewn")
+# wn.download("cili")
 
 
-def is_noun( w ):
-    _,tag = _firstwordtags( w )
-    if tag in ('NN','NNP'):
-        return True
-    return False
+# not suere what to use yet
+if 0:
+    # check if english lexicon is loaded
+    try:
+        prj = wn.config.get_project_info("oewn")
+    except TypeError as err:
+        print( err )
+    
+    en = wn.wordnet("oewn")
+
+    lexicons = {}
+    for lexicon in wn.lexicons():
+        lang = lexicon.language
+        lid = lexicon.id
+        label = lexicon.label
+        if lang not in lexicons:
+            lexicons[lang] = []
+        lexicons[lang].append( (lang, lid, label, lexicon) )
+    
 
 
-def is_verb( v ):
-    _,tag = _firstwordtags( w )
-    return wordnet.is_verb( v )
+from . import pattern
+# change pattern webcache setting in pattern/web/cache/__init__.py
 
-def is_adjective( a ):
-    _,tag = _firstwordtags( w )
-    return wordnet.is_adjective( a )
 
-def is_adverb( a ):
-    _,tag = _firstwordtags( w )
-    return wordnet.is_adverb( a )
+
+if 0:
+    def _firstwordtags( wl ):
+        tb = TextBlob( wl )
+        if not tb:
+            return ""
+        for word,tag in tb.tags:
+            return word,tag
+    
+    
+    def is_noun( w ):
+        _,tag = _firstwordtags( w )
+        if tag in ('NN','NNP'):
+            return True
+        return False
+    
+    
+    def is_verb( v ):
+        _,tag = _firstwordtags( w )
+        return wordnet.is_verb( v )
+    
+    def is_adjective( a ):
+        _,tag = _firstwordtags( w )
+        return wordnet.is_adjective( a )
+    
+    def is_adverb( a ):
+        _,tag = _firstwordtags( w )
+        return wordnet.is_adverb( a )
 
 
