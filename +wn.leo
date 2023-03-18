@@ -9,16 +9,7 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="karstenw.20230225122938.2"><vh>NewHeadline</vh></v>
-<v t="karstenw.20230225123024.1" a="E"><vh>nbwn</vh>
-<v t="karstenw.20230225125605.1"><vh>@clean __init__.py</vh>
-<v t="karstenw.20230225125903.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230225132527.1"><vh>Check for english lexicon</vh></v>
-<v t="karstenw.20230226150232.1"><vh>en init</vh></v>
-</v>
-<v t="karstenw.20230303121258.1" a="E"><vh>@clean _init_wn.py</vh>
-<v t="karstenw.20230303121318.1"><vh>Declarations</vh></v>
-</v>
+<v t="karstenw.20230225123024.1" a="E"><vh>WN-Library</vh>
 <v t="karstenw.20230225125511.1"><vh>wn</vh>
 <v t="karstenw.20230225123039.1" a="E"><vh>@clean wn/__init__.py</vh>
 <v t="karstenw.20230225123108.1"><vh>Declarations</vh></v>
@@ -529,7 +520,6 @@
 </v>
 </vnodes>
 <tnodes>
-<t tx="karstenw.20230225122938.2"></t>
 <t tx="karstenw.20230225123024.1"></t>
 <t tx="karstenw.20230225123039.1">@language python
 @tabwidth -4
@@ -4206,7 +4196,7 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
     if dbpath not in pool:
         initialized = dbpath.is_file()
         conn = sqlite3.connect(
-            str(dbpath),
+            dbpath.as_posix(),
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=not wn.config.allow_multithreading,
         )
@@ -4215,7 +4205,7 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
         if DEBUG:
             conn.set_trace_callback(print)
         if not initialized:
-            logger.info('initializing database: %s', dbpath)
+            logger.info('initializing database: %s', dbpath.as_posix())
             _init_db(conn)
         _check_schema_compatibility(conn, dbpath)
 
@@ -8904,113 +8894,5 @@ _codes: Dict[str, _CheckFunction] = {
 </t>
 <t tx="karstenw.20230225125423.1"></t>
 <t tx="karstenw.20230225125511.1"></t>
-<t tx="karstenw.20230225125605.1">@language python
-@tabwidth -4
-@others
-</t>
-<t tx="karstenw.20230225125903.1">
-
-import sys
-import os
-
-import pprint
-pp = pprint.pprint
-import pdb
-#pdb.set_trace()
-
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, PACKAGE_DIR)
-
-</t>
-<t tx="karstenw.20230225132527.1">from . import nltk
-
-</t>
-<t tx="karstenw.20230226150232.1"># TextBlob, Word, Sentence, Blobber, WordList
-from . import textblob
-from . textblob import *
-# import textblob.Word
-
-
-# from . import nltk.wordnet
-wordnet = nltk.wordnet
-
-# nltk.download( download_dir=nltk.data.path[0] )
-
-
-
-def _firstwordtags( wl ):
-    tb = TextBlob( wl )
-    if not tb:
-        return ""
-    for word,tag in tb.tags:
-        return word,tag
-
-
-def is_noun( w ):
-    _,tag = _firstwordtags( w )
-    if tag in ('NN','NNP'):
-        return True
-    return False
-
-
-def is_verb( v ):
-    _,tag = _firstwordtags( w )
-    return wordnet.is_verb( v )
-
-def is_adjective( a ):
-    _,tag = _firstwordtags( w )
-    return wordnet.is_adjective( a )
-
-def is_adverb( a ):
-    _,tag = _firstwordtags( w )
-    return wordnet.is_adverb( a )
-
-
-</t>
-<t tx="karstenw.20230303121258.1">@language python
-@tabwidth -4
-@others
-
-</t>
-<t tx="karstenw.20230303121318.1">
-"""
-This is the wn interface for NodeBox and possibly others.
-
-The goal is to have a replacement for the "en" library
-
-"""
-
-import sys
-import os
-
-from . import wn
-
-# set data path
-wn.config.data_directory = os.path.abspath( './wn-data' )
-
-# check if english lexicon is loaded 
-try:
-    prj = wn.config.get_project_info("oewn")
-except TypeError as err:
-    print( err )
-
-en = wn.wordnet("oewn")
-
-# import
-# cili
-# omw
-# oewn
-# odenet
-
-
-lexicons = {}
-for lexicon in wn.lexicons():
-    lang = lexicon.language
-    lid = lexicon.id
-    label = lexicon.label
-    if lang not in lexicons:
-        lexicons[lang] = []
-    lexicons[lang].append( (lang, lid, label, lexicon) )
-</t>
 </tnodes>
 </leo_file>

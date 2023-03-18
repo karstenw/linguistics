@@ -9,7 +9,7 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="karstenw.20230306115851.2" a="E"><vh>textblob</vh>
+<v t="karstenw.20230306115851.2" a="E"><vh>textblob-Library</vh>
 <v t="karstenw.20230306115915.1"><vh>@clean textblob/__init__.py</vh>
 <v t="karstenw.20230306115933.1"><vh>Declarations</vh></v>
 </v>

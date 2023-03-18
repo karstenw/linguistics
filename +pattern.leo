@@ -9,7 +9,7 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="karstenw.20230303121029.2" a="E"><vh>pattern</vh>
+<v t="karstenw.20230303121029.2"><vh>pattern-Library</vh>
 <v t="karstenw.20230303122029.1"><vh>@clean pattern/__init__.py</vh>
 <v t="karstenw.20230303122044.1"><vh>Declarations</vh></v>
 </v>
@@ -532,7 +532,7 @@
 <v t="karstenw.20230303123309.2"><vh>decode_string</vh></v>
 <v t="karstenw.20230303123309.3"><vh>encode_string</vh></v>
 </v>
-<v t="karstenw.20230303123315.1" a="E"><vh>@clean pattern/metrics.py</vh>
+<v t="karstenw.20230303123315.1"><vh>@clean pattern/metrics.py</vh>
 <v t="karstenw.20230303123322.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123322.2"><vh>class freq</vh>
 <v t="karstenw.20230303123322.3"><vh>__init__</vh></v>
@@ -797,7 +797,7 @@
 <v t="karstenw.20230303125114.1"><vh>+ dead code +</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303132600.1" a="E"><vh>text</vh>
+<v t="karstenw.20230303132600.1"><vh>text</vh>
 <v t="karstenw.20230303131659.1"><vh>@clean pattern/text/__init__.py</vh>
 <v t="karstenw.20230303131711.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303131711.2"><vh>ngrams</vh></v>
