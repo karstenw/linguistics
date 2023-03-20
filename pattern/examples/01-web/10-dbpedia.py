@@ -41,7 +41,8 @@ select ?actor where {
     ?actor a dbo:Actor.
 }
 """
-for result in dbp.search(q, start=1, count=10):
+print("1 actor search")
+for result in dbp.search(q, start=1, count=20):
     print(result.actor)
 print("")
 
@@ -60,7 +61,8 @@ select ?actor ?place where {
 }
 order by ?actor
 """
-for r in dbp.search(q, start=1, count=10):
+print("2 actor+birthplace search")
+for r in dbp.search(q, start=1, count=20):
     print("%s (%s)" % (r.actor.name, r.place.name))
 print("")
 
@@ -84,7 +86,8 @@ select ?actor ?date where {
 }
 order by ?date
 """
-for r in dbp.search(q, start=1, count=10):
+print("3 actor born in 1970 search")
+for r in dbp.search(q, start=1, count=20):
     print("%s (%s)" % (r.actor.name, r.date))
 print("")
 
@@ -106,7 +109,8 @@ select ?actor ?place where {
 }
 order by ?actor
 """
-for r in dbp.search(q, start=1, count=10):
+print("4 actor+birthplace lang:de search")
+for r in dbp.search(q, start=1, count=20):
     print("%s (%s)" % (r.actor, r.place))
 print("")
 
@@ -138,7 +142,9 @@ select ?cat ?relation ?concept where {
     filter(lang(?relation) = "en" && lang(?concept) = "en")
 } order by ?cat
 """
-for r in dbp.search(q, start=1, count=10):
+
+print("5 Find triples involving cats" )
+for r in dbp.search(q, start=1, count=20):
     print("%s ---%s--> %s" % (r.cat.name, r.relation.ljust(10, "-"), r.concept))
 print("")
 
@@ -153,6 +159,7 @@ select ?person ?name where {
     filter(regex(?name, "Édouard"))
 }
 """
-for result in dbp.search(q, start=1, count=10, cached=False):
+print("6 People whose first name includes 'Édouard' " )
+for result in dbp.search(q, start=1, count=20, cached=False):
     print("%s (%s)" % (result.person.name, result.name))
 print("")
