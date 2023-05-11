@@ -9,11 +9,11 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="karstenw.20230303121029.2"><vh>pattern-Library</vh>
+<v t="karstenw.20230303121029.2" a="E"><vh>pattern-Library</vh>
 <v t="karstenw.20230303122029.1"><vh>@clean pattern/__init__.py</vh>
 <v t="karstenw.20230303122044.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230303123040.1"><vh>db</vh>
+<v t="karstenw.20230303123040.1" a="E"><vh>db</vh>
 <v t="karstenw.20230303123043.1"><vh>@clean pattern/db/__init__.py</vh>
 <v t="karstenw.20230303123103.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123103.2"><vh>_import_db</vh></v>
@@ -348,10 +348,11 @@
 <v t="karstenw.20230303123103.307"><vh>pprint</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303123122.1"><vh>graph</vh>
+<v t="karstenw.20230303123122.1" a="E"><vh>graph</vh>
 <v t="karstenw.20230303123127.1"><vh>@clean pattern/graph/__init__.py</vh>
 <v t="karstenw.20230303123148.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123148.2"><vh>unique</vh></v>
+<v t="karstenw.20230324114612.1"><vh>newHeadline</vh>
 <v t="karstenw.20230303123148.3"><vh>line</vh></v>
 <v t="karstenw.20230303123148.4"><vh>ellipse</vh></v>
 <v t="karstenw.20230303123148.5"><vh>class Text</vh>
@@ -363,7 +364,10 @@
 <v t="karstenw.20230303123148.10"><vh>__init__</vh></v>
 </v>
 <v t="karstenw.20230303123148.11"><vh>coordinates</vh></v>
+</v>
+<v t="karstenw.20230324114641.1"><vh>newHeadline</vh></v>
 <v t="karstenw.20230303123148.12"><vh>deepcopy</vh></v>
+<v t="karstenw.20230324114654.1"><vh>+ NODE +</vh>
 <v t="karstenw.20230303123148.13"><vh>class Node</vh>
 <v t="karstenw.20230303123148.14"><vh>__init__</vh></v>
 <v t="karstenw.20230303123148.15"><vh>_distance</vh></v>
@@ -389,6 +393,8 @@
 <v t="karstenw.20230303123148.34"><vh>remove</vh></v>
 <v t="karstenw.20230303123148.35"><vh>edge</vh></v>
 </v>
+</v>
+<v t="karstenw.20230324114735.1"><vh>+ EDGE +</vh>
 <v t="karstenw.20230303123148.36"><vh>class Edge</vh>
 <v t="karstenw.20230303123148.37"><vh>__init__</vh></v>
 <v t="karstenw.20230303123148.38"><vh>_get_weight</vh></v>
@@ -397,6 +403,8 @@
 <v t="karstenw.20230303123148.41"><vh>draw_arrow</vh></v>
 <v t="karstenw.20230303123148.42"><vh>__repr__</vh></v>
 </v>
+</v>
+<v t="karstenw.20230324114833.1"><vh>+ GRAPH +</vh>
 <v t="karstenw.20230303123148.43"><vh>class nodedict</vh>
 <v t="karstenw.20230303123148.44"><vh>__init__</vh></v>
 <v t="karstenw.20230303123148.45"><vh>__contains__</vh></v>
@@ -442,6 +450,8 @@
 <v t="karstenw.20230303123148.83"><vh>bounds</vh></v>
 <v t="karstenw.20230303123148.84"><vh>copy</vh></v>
 </v>
+</v>
+<v t="karstenw.20230324114855.1"><vh>+ GRAPH ANALYSIS +</vh>
 <v t="karstenw.20230303123148.85"><vh>class GraphSpringLayout</vh>
 <v t="karstenw.20230303123148.86"><vh>__init__</vh></v>
 <v t="karstenw.20230303123148.87"><vh>_distance</vh></v>
@@ -468,10 +478,14 @@
 <v t="karstenw.20230303123148.107"><vh>is_clique</vh></v>
 <v t="karstenw.20230303123148.108"><vh>clique</vh></v>
 <v t="karstenw.20230303123148.109"><vh>cliques</vh></v>
+</v>
+<v t="karstenw.20230324114943.1"><vh>+ GRAPH UTILITY FUNCTIONS +</vh>
 <v t="karstenw.20230303123148.110"><vh>unlink</vh></v>
 <v t="karstenw.20230303123148.111"><vh>redirect</vh></v>
 <v t="karstenw.20230303123148.112"><vh>cut</vh></v>
 <v t="karstenw.20230303123148.113"><vh>insert</vh></v>
+</v>
+<v t="karstenw.20230324115018.1"><vh>+ GRAPH EXPORT +</vh>
 <v t="karstenw.20230303123148.114"><vh>class GraphRenderer</vh>
 <v t="karstenw.20230303123148.115"><vh>__init__</vh></v>
 <v t="karstenw.20230303123148.116"><vh>serialize</vh></v>
@@ -499,8 +513,10 @@
 <v t="karstenw.20230303123148.135"><vh>export</vh></v>
 <v t="karstenw.20230303123148.136"><vh>serialize</vh></v>
 </v>
+</v>
 <v t="karstenw.20230303123158.1"><vh>@clean pattern/graph/commonsense.py</vh>
 <v t="karstenw.20230303123206.1"><vh>Declarations</vh></v>
+<v t="karstenw.20230324115334.1" a="E"><vh>+ COMMONSENSE SEMANTIC NETWORK +</vh>
 <v t="karstenw.20230303123206.2"><vh>class Concept</vh>
 <v t="karstenw.20230303123206.3"><vh>__init__</vh></v>
 <v t="karstenw.20230303123206.4"><vh>halo</vh></v>
@@ -511,6 +527,7 @@
 <v t="karstenw.20230303123206.8"><vh>class Relation</vh>
 <v t="karstenw.20230303123206.9"><vh>__init__</vh></v>
 </v>
+<v t="karstenw.20230324122147.1"><vh>+ HEURISTICS +</vh></v>
 <v t="karstenw.20230303123206.10"><vh>class Commonsense</vh>
 <v t="karstenw.20230303123206.11"><vh>__init__</vh></v>
 <v t="karstenw.20230303123206.12"><vh>concepts</vh></v>
@@ -523,8 +540,11 @@
 <v t="karstenw.20230303123206.19"><vh>nearest_neighbors</vh></v>
 <v t="karstenw.20230303123206.20"><vh>taxonomy</vh></v>
 </v>
+</v>
+<v t="karstenw.20230324115357.1" a="E"><vh>+ COMMON SENSE DATA +</vh>
 <v t="karstenw.20230303123206.21"><vh>download</vh></v>
 <v t="karstenw.20230303123206.22"><vh>json</vh></v>
+</v>
 </v>
 </v>
 <v t="karstenw.20230303123256.1"><vh>@clean pattern/helpers.py</vh>
@@ -1163,7 +1183,7 @@
 <v t="karstenw.20230303131812.12"><vh>__len__</vh></v>
 <v t="karstenw.20230303131812.13"><vh>__iter__</vh></v>
 </v>
-<v t="karstenw.20230303131812.14"><vh>class Word</vh>
+<v t="karstenw.20230303131812.14" a="E"><vh>class Word</vh>
 <v t="karstenw.20230303131812.15"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.16"><vh>copy</vh></v>
 <v t="karstenw.20230303131812.17"><vh>_get_tag</vh></v>
@@ -1379,7 +1399,7 @@
 <v t="karstenw.20230303132723.20"><vh>superlative</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303132745.1" a="E"><vh>en</vh>
+<v t="karstenw.20230303132745.1"><vh>en</vh>
 <v t="karstenw.20230303132747.1"><vh>@clean pattern/text/en/__init__.py</vh>
 <v t="karstenw.20230303132805.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303132805.2"><vh>find_lemmata</vh></v>
@@ -1451,8 +1471,8 @@
 <v t="karstenw.20230303132921.14"><vh>modality</vh></v>
 <v t="karstenw.20230303132921.15"><vh>uncertain</vh></v>
 </v>
-<v t="karstenw.20230303132932.1"><vh>wordlist</vh>
-<v t="karstenw.20230303132938.1"><vh>@clean pattern/text/en/wordlist/__init__.py</vh>
+<v t="karstenw.20230303132932.1" a="E"><vh>wordlist</vh>
+<v t="karstenw.20230303132938.1" a="E"><vh>@clean pattern/text/en/wordlist/__init__.py</vh>
 <v t="karstenw.20230303132956.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303132956.2"><vh>class Wordlist</vh>
 <v t="karstenw.20230303132956.3"><vh>__init__</vh></v>
@@ -2181,7 +2201,7 @@
 <v t="karstenw.20230303141230.7"><vh>class HTTP429TooMayRequests</vh></v>
 <v t="karstenw.20230303141230.8"><vh>class HTTP500InternalServerError</vh></v>
 <v t="karstenw.20230303141230.9"><vh>class HTTP503ServiceUnavailable</vh></v>
-<v t="karstenw.20230303141230.10"><vh>class URL</vh>
+<v t="karstenw.20230303141230.10" a="E"><vh>class URL</vh>
 <v t="karstenw.20230303141230.11"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.12"><vh>_parse</vh></v>
 <v t="karstenw.20230303141230.13"><vh>_get_string</vh></v>
@@ -2264,7 +2284,7 @@
 <v t="karstenw.20230303141230.83"><vh>class SearchEngineError</vh></v>
 <v t="karstenw.20230303141230.84"><vh>class SearchEngineTypeError</vh></v>
 <v t="karstenw.20230303141230.85"><vh>class SearchEngineLimitError</vh></v>
-<v t="karstenw.20230303141230.86"><vh>class Google</vh>
+<v t="karstenw.20230303141230.86" a="E"><vh>class Google</vh>
 <v t="karstenw.20230303141230.87"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.88"><vh>search</vh></v>
 <v t="karstenw.20230303141230.89"><vh>translate</vh></v>
@@ -2599,6 +2619,27 @@
 <v t="karstenw.20230303141255.5"><vh>get_form_action</vh></v>
 <v t="karstenw.20230303141255.6"><vh>censor_access_token</vh></v>
 </v>
+<v t="karstenw.20230508125637.1" a="E"><vh>cache</vh>
+<v t="karstenw.20230508125640.1" a="E"><vh>@clean pattern/web/cache/__init__.py</vh>
+<v t="karstenw.20230508125701.1"><vh>Declarations</vh></v>
+<v t="karstenw.20230508125701.2"><vh>date_now</vh></v>
+<v t="karstenw.20230508125701.3"><vh>date_modified</vh></v>
+<v t="karstenw.20230508125701.4"><vh>class Cache</vh>
+<v t="karstenw.20230508125701.5"><vh>__init__</vh></v>
+<v t="karstenw.20230508125701.6"><vh>_get_path</vh></v>
+<v t="karstenw.20230508125701.7"><vh>_set_path</vh></v>
+<v t="karstenw.20230508125701.8"><vh>_hash</vh></v>
+<v t="karstenw.20230508125701.9"><vh>__len__</vh></v>
+<v t="karstenw.20230508125701.10"><vh>__contains__</vh></v>
+<v t="karstenw.20230508125701.11"><vh>__getitem__</vh></v>
+<v t="karstenw.20230508125701.12"><vh>__setitem__</vh></v>
+<v t="karstenw.20230508125701.13"><vh>__delitem__</vh></v>
+<v t="karstenw.20230508125701.14"><vh>get</vh></v>
+<v t="karstenw.20230508125701.15"><vh>age</vh></v>
+<v t="karstenw.20230508125701.16"><vh>clear</vh></v>
+</v>
+</v>
+</v>
 <v t="karstenw.20230303142559.1" a="E"><vh>imap</vh>
 <v t="karstenw.20230303142620.1"><vh>@clean pattern/web/imap/__init__.py</vh>
 <v t="karstenw.20230303142634.1"><vh>Declarations</vh></v>
@@ -2643,7 +2684,7 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303142603.1" a="E"><vh>locale</vh>
+<v t="karstenw.20230303142603.1"><vh>locale</vh>
 <v t="karstenw.20230303142647.1"><vh>@clean pattern/web/locale/__init__.py</vh>
 <v t="karstenw.20230303142655.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303142655.2"><vh>encode_language</vh></v>
@@ -2657,7 +2698,7 @@
 <v t="karstenw.20230303142655.10"><vh>geocode</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303142608.1" a="E"><vh>oauth</vh>
+<v t="karstenw.20230303142608.1"><vh>oauth</vh>
 <v t="karstenw.20230303142657.1"><vh>@clean pattern/web/oauth/__init__.py</vh>
 <v t="karstenw.20230303142704.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303142704.2"><vh>HMAC_SHA1</vh></v>
@@ -6890,9 +6931,6 @@ INFINITE = 1e20
         (y + distance * sin(radians(angle)))
     )
 
-#--- DEEPCOPY --------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303123148.110">def unlink(graph, node1, node2=None):
     """ Removes the edges between node1 and node2.
@@ -7042,11 +7080,6 @@ GRAPHML = "graphml"
     if isinstance(o, dict):
         return dict((deepcopy(k), deepcopy(v)) for k, v in o.items())
     raise Exception("don't know how to copy %s" % o.__class__.__name__)
-
-#### NODE ##########################################################################################
-
-#--- NODE ------------------------------------------------------------------------------------------
-
 
 </t>
 <t tx="karstenw.20230303123148.120">def __init__(self, graph, **kwargs):
@@ -7551,11 +7584,6 @@ y = property(_get_y, _set_y)
     """
     seen = set()
     return [x for x in iterable if x not in seen and not seen.add(x)]
-
-#--- DRAWING FUNCTIONS -----------------------------------------------------------------------------
-# This module is standalone (i.e., it is not a graph rendering package).
-# If you want to call Graph.draw() then line(), ellipse() and Text.draw() must be implemented.
-
 
 </t>
 <t tx="karstenw.20230303123148.20">@property
@@ -8559,23 +8587,16 @@ if sys.version &gt; "3":
 else:
     BOM_UTF8 = BOM_UTF8.decode("utf-8")
 
-#### COMMONSENSE SEMANTIC NETWORK ##################################################################
-
-#--- CONCEPT ---------------------------------------------------------------------------------------
-
-
 </t>
-<t tx="karstenw.20230303123206.10">class Commonsense(Graph):
+<t tx="karstenw.20230303123206.10">#--- COMMONSENSE -----------------------------------------------------------------------------------
+
+
+class Commonsense(Graph):
 
     @others
 #g = Commonsense()
 #print(g.nn("party", g.field("animal")))
 #print(g.nn("creepy", g.field("animal")))
-
-#### COMMONSENSE DATA ##############################################################################
-
-#--- NODEBOX.NET/PERCEPTION ------------------------------------------------------------------------
-
 
 </t>
 <t tx="karstenw.20230303123206.11">def __init__(self, data=os.path.join(MODULE, "commonsense.csv"), **kwargs):
@@ -8683,7 +8704,10 @@ def properties(self):
 similar = neighbors = nn = nearest_neighbors
 
 </t>
-<t tx="karstenw.20230303123206.2">class Concept(Node):
+<t tx="karstenw.20230303123206.2">#--- CONCEPT ---------------------------------------------------------------------------------------
+
+
+class Concept(Node):
 
     @others
 </t>
@@ -8816,30 +8840,13 @@ def properties(self):
     p = [n.id for n in reversed(sorted(p, key=lambda n: getattr(n, centrality)))]
     return p
 
-#--- RELATION --------------------------------------------------------------------------------------
-
-
 </t>
-<t tx="karstenw.20230303123206.8">class Relation(Edge):
+<t tx="karstenw.20230303123206.8">#--- RELATION --------------------------------------------------------------------------------------
+
+
+class Relation(Edge):
 
     @others
-#--- HEURISTICS ------------------------------------------------------------------------------------
-# Similarity between concepts is measured using a featural approach:
-# a comparison of the features/properties that are salient in each concept's halo.
-# Commonsense.similarity() takes an optional "heuristic" parameter to tweak this behavior.
-# It is a tuple of two functions:
-# 1) function(concept) returns a list of salient properties (or other),
-# 2) function(concept1, concept2) returns the cost to traverse this edge (0.0-1.0).
-
-COMMONALITY = (
-    # Similarity heuristic that only traverses relations between properties.
-    lambda concept: concept.properties,
-    lambda edge: 1 - int(edge.context == "properties" and \
-                         edge.type != "is-opposite-of"))
-
-#--- COMMONSENSE -----------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303123206.9">def __init__(self, *args, **kwargs):
     """ A relation between two concepts, with an optional context.
@@ -21849,6 +21856,8 @@ least_common_subsumer = lcs = ancestor
         each of which is part of a set of synonyms (= Synset).
     """
     word, pos = normalize(word), pos.lower()
+    # import pdb
+    # pdb.set_trace()
     try:
         if pos.startswith(NOUN.lower()): # "NNS" or "nn" will also pass.
             w = wn.synsets(word, pos = wn.NOUN)
@@ -39275,7 +39284,8 @@ TWITTER_RETWEET = re.compile(r"(\s|^RT )(@[a-z0-9_\-]+)", re.I) # Word starts wi
 
 
 </t>
-<t tx="karstenw.20230303141230.13">def _get_string(self): return str(self)
+<t tx="karstenw.20230303141230.13">def _get_string(self):
+    return str(self)
 
 </t>
 <t tx="karstenw.20230303141230.130">def __init__(self, scope='offline', access_token='', timeout=10, **method_default_args):
@@ -42957,9 +42967,11 @@ YAHOO_LICENSE = api.license["Yahoo"]
           "num": min(count, 10),
           "alt": "json"
     })
+
     # 2) Restrict language.
     if self.language is not None:
         url.query["lr"] = "lang_" + self.language
+
     # 3) Parse JSON response.
     kwargs.setdefault("unicode", True)
     kwargs.setdefault("throttle", self.throttle)
@@ -46360,6 +46372,207 @@ except:
 
 sys.path.pop(0)
 
+
+</t>
+<t tx="karstenw.20230324114612.1">#--- DRAWING FUNCTIONS -----------------------------------------------------------------------------
+# This module is standalone (i.e., it is not a graph rendering package).
+# If you want to call Graph.draw() then line(), ellipse() and Text.draw() must be implemented.
+
+
+</t>
+<t tx="karstenw.20230324114641.1">#--- DEEPCOPY --------------------------------------------------------------------------------------
+
+
+</t>
+<t tx="karstenw.20230324114654.1">#### NODE ##########################################################################################
+
+#--- NODE ------------------------------------------------------------------------------------------
+
+
+</t>
+<t tx="karstenw.20230324114735.1"></t>
+<t tx="karstenw.20230324114833.1"></t>
+<t tx="karstenw.20230324114855.1"></t>
+<t tx="karstenw.20230324114943.1"></t>
+<t tx="karstenw.20230324115018.1"></t>
+<t tx="karstenw.20230324115334.1">#### COMMONSENSE SEMANTIC NETWORK ##################################################################
+
+</t>
+<t tx="karstenw.20230324115357.1">#### COMMONSENSE DATA ##############################################################################
+
+#--- NODEBOX.NET/PERCEPTION ------------------------------------------------------------------------
+
+
+</t>
+<t tx="karstenw.20230324122147.1">#--- HEURISTICS ------------------------------------------------------------------------------------
+# Similarity between concepts is measured using a featural approach:
+# a comparison of the features/properties that are salient in each concept's halo.
+# Commonsense.similarity() takes an optional "heuristic" parameter to tweak this behavior.
+# It is a tuple of two functions:
+# 1) function(concept) returns a list of salient properties (or other),
+# 2) function(concept1, concept2) returns the cost to traverse this edge (0.0-1.0).
+
+COMMONALITY = (
+    # Similarity heuristic that only traverses relations between properties.
+    lambda concept: concept.properties,
+    lambda edge: 1 - int(edge.context == "properties" and \
+                         edge.type != "is-opposite-of"))
+
+</t>
+<t tx="karstenw.20230508125637.1"></t>
+<t tx="karstenw.20230508125640.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230508125701.1">#### PATTERN | CACHE ###############################################################################
+# Copyright (c) 2010 University of Antwerp, Belgium
+# Author: Tom De Smedt &lt;tom@organisms.be&gt;
+# License: BSD (see LICENSE.txt for details).
+# http://www.clips.ua.ac.be/pages/pattern
+
+from __future__ import unicode_literals
+from __future__ import division
+
+from builtins import str, bytes, dict, int
+from builtins import map, zip, filter
+from builtins import object, range
+
+from io import open
+
+try:
+    import hashlib
+    md5 = hashlib.md5
+except:
+    import md5
+    md5 = md5.new
+
+from pattern.helpers import encode_string, decode_string
+
+decode_utf8 = decode_string
+encode_utf8 = encode_string
+
+#### CACHE #########################################################################################
+# Caching is implemented in URL.download(), which is used by all other downloaders.
+
+import os
+import glob
+import tempfile
+import datetime
+
+from io import open
+
+from codecs import BOM_UTF8
+BOM_UTF8 = BOM_UTF8.decode('utf-8')
+
+try:
+    MODULE = os.path.dirname(os.path.realpath(__file__))
+except:
+    MODULE = ""
+
+TMP = os.path.join(tempfile.gettempdir(), "pattern_web")
+
+
+</t>
+<t tx="karstenw.20230508125701.10">def __contains__(self, k):
+    return os.path.exists(self._hash(k))
+
+</t>
+<t tx="karstenw.20230508125701.11">def __getitem__(self, k):
+    return self.get(k)
+
+</t>
+<t tx="karstenw.20230508125701.12">def __setitem__(self, k, v):
+    f = open(self._hash(k), "w", encoding = "utf-8")
+    f.write(BOM_UTF8)
+    v = decode_utf8(v)
+    f.write(v)
+    f.close()
+
+</t>
+<t tx="karstenw.20230508125701.13">def __delitem__(self, k):
+    try:
+        os.unlink(self._hash(k))
+    except OSError:
+        pass
+
+</t>
+<t tx="karstenw.20230508125701.14">def get(self, k, unicode=True):
+    """ Returns the data stored with the given id.
+        With unicode=True, returns a Unicode string.
+    """
+    if k in self:
+        f = open(self._hash(k), "rb")
+        v = f.read().lstrip(BOM_UTF8.encode("utf-8"))
+        f.close()
+        if unicode is True:
+            return decode_utf8(v)
+        else:
+            return v
+    raise KeyError(k)
+
+</t>
+<t tx="karstenw.20230508125701.15">def age(self, k):
+    """ Returns the age of the cached item, in days.
+    """
+    p = self._hash(k)
+    return os.path.exists(p) and (date_now() - date_modified(p)).days or 0
+
+</t>
+<t tx="karstenw.20230508125701.16">def clear(self, age=None):
+    """ Clears all items from the cache (whose age is the given amount of days or older).
+    """
+    n = date_now()
+    for p in glob.glob(os.path.join(self.path, "*")):
+        if age is None or (n - date_modified(p)).days &gt;= age:
+            os.unlink(p)
+
+</t>
+<t tx="karstenw.20230508125701.2">def date_now():
+    return datetime.datetime.today()
+
+
+</t>
+<t tx="karstenw.20230508125701.3">def date_modified(path):
+    return datetime.datetime.fromtimestamp(os.stat(path)[8])
+
+
+</t>
+<t tx="karstenw.20230508125701.4">class Cache(object):
+    # cachefolder = os.path.join(MODULE,  "tmp")
+    cachefolder = os.path.join(MODULE,  '..', '..', '..', '..',
+                        "linguistics-data", "pattern-data", "webcache-tmp")
+    cachefolder = os.path.abspath( cachefolder )
+    @others
+cache = Cache()
+</t>
+<t tx="karstenw.20230508125701.5">def __init__(self, path=cachefolder):
+    """ Cache with data stored as files with hashed filenames.
+        Content retrieved from URLs and search engines are stored in cache for performance.
+        The path where the cache is stored can be given. This way you can manage persistent
+        sets of downloaded data. If path=TMP, cached items are stored in a temporary folder.
+    """
+    self.path = path
+    # print("pattern.web.cache.Cache.path=", path)
+
+</t>
+<t tx="karstenw.20230508125701.6">def _get_path(self):
+    return self._path
+
+</t>
+<t tx="karstenw.20230508125701.7">def _set_path(self, path):
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    self._path = path
+path = property(_get_path, _set_path)
+
+</t>
+<t tx="karstenw.20230508125701.8">def _hash(self, k):
+    k = encode_utf8(k) # MD5 works on Python byte strings.
+    return os.path.join(self.path, md5(k).hexdigest())
+
+</t>
+<t tx="karstenw.20230508125701.9">def __len__(self):
+    return len(glob.glob(os.path.join(self.path, "*")))
 
 </t>
 </tnodes>
