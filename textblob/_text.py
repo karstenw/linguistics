@@ -20,8 +20,8 @@ try:
 except:
     MODULE = ""
 
-SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = \
-    "&slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma"
+SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = (
+    "&slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma" )
 
 
 # String functions
