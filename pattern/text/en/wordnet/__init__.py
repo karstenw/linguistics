@@ -132,6 +132,8 @@ def synsets(word, pos=NOUN):
         each of which is part of a set of synonyms (= Synset).
     """
     word, pos = normalize(word), pos.lower()
+    # import pdb
+    # pdb.set_trace()
     try:
         if pos.startswith(NOUN.lower()): # "NNS" or "nn" will also pass.
             w = wn.synsets(word, pos = wn.NOUN)
