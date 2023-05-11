@@ -2,12 +2,21 @@
 
 import sys
 import os
-
+# import pdb
 import pprint
+import time
 
+# pdb.set_trace()
 
+start = time.time()
 
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+try:
+    PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError as err:
+    print(err)
+    PACKAGE_DIR = os.path.abspath( './' )
+
+print("PACKAGE_DIR:", PACKAGE_DIR)
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
 
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
@@ -37,11 +46,11 @@ nltk.download( "conll2000", download_dir=nltk_data_dir )
 nltk.download( "movie_reviews", download_dir=nltk_data_dir )
 
 
-
 import wn
 wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 wn.download("omw")
 wn.download("odenet")
 wn.download("cili")
 
-
+stop = time.time()
+print("nltk & wn in %.3fsec" % (stop-start,) )
