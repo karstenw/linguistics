@@ -10,10 +10,10 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230306115851.2" a="E"><vh>textblob-Library</vh>
-<v t="karstenw.20230306115915.1"><vh>@clean textblob/__init__.py</vh>
+<v t="karstenw.20230306115915.1" a="E"><vh>@clean textblob/__init__.py</vh>
 <v t="karstenw.20230306115933.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230306120052.1"><vh>@clean textblob/_text.py</vh>
+<v t="karstenw.20230306120052.1" a="E"><vh>@clean textblob/_text.py</vh>
 <v t="karstenw.20230306120100.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230306120100.2"><vh>decode_string</vh></v>
 <v t="karstenw.20230306120100.3"><vh>encode_string</vh></v>
@@ -572,11 +572,10 @@ try:
 except:
     MODULE = ""
 
-SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = \
-    "&amp;slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma"
+SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = (
+    "&amp;slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma" )
 
 
-# String functions
 </t>
 <t tx="karstenw.20230306120100.10">def __iter__(self):
     return self._lazy("__iter__")
@@ -695,7 +694,8 @@ def train(self, s, path="spelling.txt"):
 <t tx="karstenw.20230306120100.19">def update(self, *args):
     return self._lazy("update", *args)
 </t>
-<t tx="karstenw.20230306120100.2">def decode_string(v, encoding="utf-8"):
+<t tx="karstenw.20230306120100.2"># String functions
+def decode_string(v, encoding="utf-8"):
     """ Returns the given value as a Unicode string (if possible).
     """
     if isinstance(encoding, basestring):
@@ -721,24 +721,6 @@ def train(self, s, path="spelling.txt"):
 <t tx="karstenw.20230306120100.22">class lazylist(list):
 
     @others
-#--- UNIVERSAL TAGSET ------------------------------------------------------------------------------
-# The default part-of-speech tagset used in Pattern is Penn Treebank II.
-# However, not all languages are well-suited to Penn Treebank (which was developed for English).
-# As more languages are implemented, this is becoming more problematic.
-#
-# A universal tagset is proposed by Slav Petrov (2012):
-# http://www.petrovi.de/data/lrec.pdf
-#
-# Subclasses of Parser should start implementing
-# Parser.parse(tagset=UNIVERSAL) with a simplified tagset.
-# The names of the constants correspond to Petrov's naming scheme, while
-# the value of the constants correspond to Penn Treebank.
-
-UNIVERSAL = "universal"
-
-NOUN, VERB, ADJ, ADV, PRON, DET, PREP, ADP, NUM, CONJ, INTJ, PRT, PUNC, X = \
-    "NN", "VB", "JJ", "RB", "PR", "DT", "PP", "PP", "NO", "CJ", "UH", "PT", ".", "X"
-
 </t>
 <t tx="karstenw.20230306120100.23">def load(self):
     # Must be overridden in a subclass.
@@ -803,7 +785,25 @@ encode_utf8 = encode_string
     return self._lazy("pop", *args)
 
 </t>
-<t tx="karstenw.20230306120100.34">def penntreebank2universal(token, tag):
+<t tx="karstenw.20230306120100.34">#--- UNIVERSAL TAGSET ------------------------------------------------------------------------------
+# The default part-of-speech tagset used in Pattern is Penn Treebank II.
+# However, not all languages are well-suited to Penn Treebank (which was developed for English).
+# As more languages are implemented, this is becoming more problematic.
+#
+# A universal tagset is proposed by Slav Petrov (2012):
+# http://www.petrovi.de/data/lrec.pdf
+#
+# Subclasses of Parser should start implementing
+# Parser.parse(tagset=UNIVERSAL) with a simplified tagset.
+# The names of the constants correspond to Petrov's naming scheme, while
+# the value of the constants correspond to Penn Treebank.
+
+UNIVERSAL = "universal"
+
+NOUN, VERB, ADJ, ADV, PRON, DET, PREP, ADP, NUM, CONJ, INTJ, PRT, PUNC, X = \
+    "NN", "VB", "JJ", "RB", "PR", "DT", "PP", "PP", "NO", "CJ", "UH", "PT", ".", "X"
+
+def penntreebank2universal(token, tag):
     """ Returns a (token, tag)-tuple with a simplified universal part-of-speech tag.
     """
     if tag.startswith(("NNP-", "NNPS-")):
@@ -1035,11 +1035,6 @@ EOS = "END-OF-SENTENCE"
         return False
     return True
 
-#--- LAZY DICTIONARY -------------------------------------------------------------------------------
-# A lazy dictionary is empty until one of its methods is called.
-# This way many instances (e.g., lexicons) can be created without using memory until used.
-
-
 </t>
 <t tx="karstenw.20230306120100.40">@property
 def path(self):
@@ -1127,7 +1122,12 @@ def path(self):
     return token
 
 </t>
-<t tx="karstenw.20230306120100.5">class lazydict(dict):
+<t tx="karstenw.20230306120100.5">#--- LAZY DICTIONARY -------------------------------------------------------------------------------
+# A lazy dictionary is empty until one of its methods is called.
+# This way many instances (e.g., lexicons) can be created without using memory until used.
+
+
+class lazydict(dict):
 
     @others
 </t>
