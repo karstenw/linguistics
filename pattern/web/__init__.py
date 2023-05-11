@@ -455,7 +455,8 @@ class URL(object):
 
     # URL.string yields unicode(URL) by joining the different parts,
     # if the URL parts have been modified.
-    def _get_string(self): return str(self)
+    def _get_string(self):
+        return str(self)
 
     def _set_string(self, v):
         self.__dict__["_string"] = u(v)
@@ -1274,9 +1275,11 @@ class Google(SearchEngine):
               "num": min(count, 10),
               "alt": "json"
         })
+
         # 2) Restrict language.
         if self.language is not None:
             url.query["lr"] = "lang_" + self.language
+
         # 3) Parse JSON response.
         kwargs.setdefault("unicode", True)
         kwargs.setdefault("throttle", self.throttle)
