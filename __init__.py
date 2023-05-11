@@ -1,11 +1,12 @@
 import sys
 import os
+import time
 
 import pprint
 pp = pprint.pprint
 import pdb
 
-
+t1 = time.time()
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
@@ -20,51 +21,60 @@ if PACKAGE_DIR not in sys.path:
 
 
 
-from . import nltk
-# from . import nltk.wordnet
-wordnet = nltk.wordnet
-nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+t2 = time.time()
+
+if 1:
+    import pattern
+
+# no data path init - instead
+# change pattern webcache setting in pattern/web/cache/__init__.py
+
+t3 = time.time()
+print("import pattern: %.3f" % (t3-t2)  )
+
+# make a function
+if 1:
+    import nltk
+    # wordnet = nltk.wordnet
+    
+    # data path init
+    nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+
+t4 = time.time()
+print("import nltk: %.3f" % (t4-t3)  )
+
+
 
 # nltk.download( download_dir=nltk.data.path[0] )
 #
 # nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
 # nltk.download( "wordnet", download_dir=nltk.data.path[0] )
 
+# seems interesting
+# nltk.download( "framenet_v17", download_dir=nltk.data.path[0] )
 
 
-# TextBlob, Word, Sentence, Blobber, WordList
-from . import textblob
-
-# from . textblob import *
-# import textblob.Word
-
-
-# textblob downloads via nltk
-#
-# minimal
-# brown, punkt, wordnet, averaged_perceptron_tagger
-#
-# all
-# + conll2000, movie_reviews
-
-
-# pattern nltk downloads
-# 
-# wordnet_ic
 
 """
 This is the wn interface for NodeBox and possibly others.
 
 """
 
-from . import wn
+if 1:
+    import wn
+    
+    # data path init
+    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
-wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
-
+def init_wn():
+    import wn
+    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 # wn.download("omw")
 # wn.download("odenet")
 # wn.download("oewn")
 # wn.download("cili")
+t5 = time.time()
+print("import wn: %.3f" % (t5-t4)  )
 
 
 # not suere what to use yet
@@ -88,10 +98,43 @@ if 0:
     
 
 
-from . import pattern
-# change pattern webcache setting in pattern/web/cache/__init__.py
+# perhaps delete ? havent used this
+
+# TextBlob, Word, Sentence, Blobber, WordList
+if 1:
+    import textblob
+
+t6 = time.time()
+print("import textblob: %.3f" % (t6-t5)  )
+
+# from . textblob import *
+# import textblob.Word
 
 
+# textblob downloads via nltk
+#
+# minimal
+# brown, punkt, wordnet, averaged_perceptron_tagger
+#
+# all
+# + conll2000, movie_reviews
+
+
+# pattern nltk downloads
+# 
+# wordnet_ic
+
+# conceptnet
+# from . import conceptnetreader
+# package path should be valid by now
+import conceptnetreader
+
+t7 = time.time()
+print("import conceptnetreader: %.3f" % (t7-t6)  )
+
+# data path init
+conceptnetreader.databasefile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
+conceptnetreader.initlib()
 
 if 0:
     def _firstwordtags( wl ):
