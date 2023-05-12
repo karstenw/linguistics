@@ -25,7 +25,8 @@
 <v t="karstenw.20230511095450.1" a="E"><vh>@clean install-conceptnet-database.py</vh>
 <v t="karstenw.20230511095516.1"><vh>Declarations 1</vh></v>
 <v t="karstenw.20230511095550.1"><vh>Globals</vh></v>
-<v t="karstenw.20230511100003.1"><vh>handleDataArchive</vh></v>
+<v t="karstenw.20230511100003.1"><vh>handleDataArchive_OLD</vh></v>
+<v t="karstenw.20230512014754.1"><vh>handleDataArchive</vh></v>
 <v t="karstenw.20230511121040.1"><vh>readstatic</vh></v>
 <v t="karstenw.20230511095516.2"><vh>importConceptnetTables</vh></v>
 </v>
@@ -346,7 +347,8 @@ inited = False
 @others
 if 1: # __name__ == '__main__':
     print()
-    handleDataArchive( ZIPARCHIVE, basefolder )
+    # pdb.set_trace()
+    handleDataArchive( sqlitezifile, basefolder )
     print()
     importConceptnetTables(conceptsdump, edgesdump)
 
@@ -360,7 +362,7 @@ import io
 import time
 
 import zipfile
-
+import gzip
 
 import pdb
 import pprint
@@ -410,7 +412,9 @@ getTableFieldnames = sdb.getTableFieldnames
         start = time.time()
         i = 0
         folder, filename = os.path.split( name )
-        tablename, _ = os.path.splitext( filename )
+        
+        # tablename, _ = os.path.splitext( filename )
+        tablename = filename.split( '.' )[0]
         fieldnames = getTableFieldnames( conn, tablename )
         for items in readstatic( name ):
             # record = dict(zip(fieldnames, items) )
@@ -458,14 +462,15 @@ if not os.path.exists( DATA_DIR ):
     os.makedirs( DATA_DIR )
 
 
-ZIPARCHIVE = os.path.join( PACKAGE_DIR, "conceptnetreader/data/data.zip" )
+ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
+sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
+conceptsdump = os.path.join( ZIPFOLDER, "concept.tab.gz" )
+edgesdump = os.path.join( ZIPFOLDER, "edge.tab.gz" )
 
 basefolder = os.path.join( DATA_DIR, "conceptnet-data" )
 if not os.path.exists( basefolder ):
     os.makedirs( basefolder )
 
-conceptsdump = os.path.join( basefolder, "concept.tab" )
-edgesdump = os.path.join( basefolder, "edge.tab" )
 databasefile =  os.path.join( basefolder, "conceptnet.sqlite3" )
 if 1:
     print("conceptsdump:", conceptsdump )
@@ -477,9 +482,9 @@ exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
 exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
 </t>
-<t tx="karstenw.20230511100003.1">def handleDataArchive( zipfilepath, extractdir ):
-    """
-    """
+<t tx="karstenw.20230511100003.1">def handleDataArchive_OLD( zipfilepath, extractdir ):
+    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
+
     with zipfile.ZipFile( zipfilepath ) as archivezip:
         zipmembers = archivezip.infolist()
         for zipmember in zipmembers:
@@ -499,18 +504,51 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
 </t>
 <t tx="karstenw.20230511121040.1">def readstatic( path ):
-    """read a tabtext export.
+    """read a tabtext or gzipped tabtext export.
     
     Yield per record
     """
-    
-    f = io.open(path, 'r', encoding="utf-8")
+    path = os.path.abspath( path )
+    folder, filename = os.path.split( path )
+    basename, ext = os.path.splitext( filename )
+
+    if ext == ".gz":
+        # check the gzip file for .tab
+        if basename.endswith(".tab"):
+            f = gzip.open(path, 'rt', encoding="utf-8")
+        else:
+            return 0
+    elif ext == ".tab":
+        f = io.open(path, 'r', encoding="utf-8")
+    else:
+        return 0
     i = 0
     for line in f:
         items = tabline2items( line )
         yield items
         i += 1
     return i
+
+</t>
+<t tx="karstenw.20230512014754.1">def handleDataArchive( zipfilepath, extractdir ):
+    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
+
+    with zipfile.ZipFile( zipfilepath ) as archivezip:
+        zipmembers = archivezip.infolist()
+        for zipmember in zipmembers:
+            filename = zipmember.filename
+            if filename.startswith('_'):
+                print("SKIPPED ZIFILEMEMBER:", filename)
+                continue
+            basename, ext = os.path.splitext( filename )
+            if ext not in (".sqlite3", ): #".tab", 
+                print("SKIPPED:", filename)
+                continue
+            zipmember.filename = zipmember.filename.replace( "data/", "")
+            print("EXTRACT zipfilename:", zipmember.filename )
+            archivezip.extract( zipmember, extractdir )
+    print("EXTRACT DONE!")
+
 
 </t>
 </tnodes>
