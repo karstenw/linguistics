@@ -25,6 +25,7 @@ print("PARENT_DIR:", PARENT_DIR)
 sys.path.insert(0, PARENT_DIR)
 
 
+import sqlite3
 import sdb
 getconnection = sdb.getconnection
 createRecord = sdb.createRecord
@@ -187,6 +188,149 @@ def importConceptnetTables( conceptpath, edgepath):
         print("\n%s    in %.3f" % (index, stop-start) )
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
 
+
+
+def dotprinter( count, scale=1000, lineitems=100 ):
+    """Non-interactive terminal video game ;-)"""
+
+    # how many counted things ( count) per line
+    line = scale * lineitems
+
+    # make an empty line every 5 lines
+    block = line * 5
+
+    sys.stdout.write(".")
+    if count % line == 0:
+        # end of line; print count up to here
+        sys.stdout.write( f"  {count:,}" )
+        sys.stdout.write("\n")
+        if count % block == 0:
+            sys.stdout.write("\n")
+    sys.stdout.flush()
+
+
+def tabline2items( line ):
+    line = line.strip(" \r\n")
+    line = makeunicode( line )
+    items = line.split( u"\t" )
+    return items
+
+
+def getconnection( filepath ):
+    """open sqlite db at filepath.
+
+    returns either:
+        connection to database OR
+        0: parent folder does not exists. Something is wrong.
+    """
+
+    filepath = os.path.abspath( filepath )
+    folder, filename = os.path.split( filepath )
+    if not os.path.exists( folder ):
+        return 0
+    
+    conn = sqlite3.connect( filepath,
+                            detect_types=  sqlite3.PARSE_DECLTYPES
+                                         | sqlite3.PARSE_COLNAMES)
+
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA automatic_index=1;")
+
+    return conn
+
+
+def commit( conn ):
+    ok = False
+    i = 0
+    while not ok:
+        if i > 20:
+            break
+        try:
+            conn.commit()
+            ok = True
+        except sqlite3.OperationalError as err:
+            debugprint("")
+            debugprint( "ERR: " + repr(err) )
+            time.sleep( 0.01 )
+            i += 1
+
+
+def getTableFieldnames(conn, tablename):
+
+    oldfactory = conn.row_factory
+    conn.row_factory = dict_factory
+
+    c = conn.cursor()
+    q = "PRAGMA table_info(%s);" % tablename
+    c.execute(q)
+
+    # extract fieldname from description
+    fieldnames = []
+    for rec in c:
+        fieldnames.append( rec['name' ] )
+
+    c.close()
+    conn.row_factory = oldfactory
+    return fieldnames
+
+
+def createStatement( tablename, fieldnames ):
+    """
+    Create SELECT, INSERT and UPDATE statements from tablename and
+    fieldname list.
+    """
+    u = u"UPDATE %s SET " % (tablename,)
+    nkeys = len(fieldnames)
+
+    lfieldnames = u",".join(fieldnames)
+    ifieldnames = u'(' + lfieldnames + u')'
+    qfieldnames = lfieldnames
+
+    repmarks = [u'?'] * nkeys
+    repmarks = u','.join( repmarks )
+
+    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
+    if nkeys > 1:
+        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
+    
+    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
+    
+    ufielditems = []
+    s = u"%s=?"
+    for f in fieldnames:
+        ufielditems.append( s % f )
+    ufieldnames = u",".join( ufielditems )
+    u = u + ufieldnames
+
+    result = []
+    return (q,i,u)
+
+
+def createRecord( conn, tablename, recordDict, docommit=True):
+
+    fieldnames = []
+    fieldvalues = []
+
+    tablefieldnames = getTableFieldnames(conn, tablename)
+
+    for item in recordDict.items():
+        k,v= item
+        if k in tablefieldnames:
+            fieldnames.append( k )
+            fieldvalues.append( v )
+
+    q,i,u = createStatement( tablename, fieldnames )
+    c = conn.cursor()
+
+    if not fieldnames:
+        i = "INSERT INTO `%s` DEFAULT VALUES;" % tablename
+        c.execute( i )
+    else:
+        c.execute( i, fieldvalues )
+    last = c.lastrowid
+    if docommit:
+        commit( conn )
+    return last
 
 
 if 1: # __name__ == '__main__':
