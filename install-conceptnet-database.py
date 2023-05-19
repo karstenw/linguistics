@@ -5,6 +5,9 @@ import os
 import io
 import time
 
+import sqlite3
+import unicodedata
+
 import zipfile
 import gzip
 
@@ -25,14 +28,13 @@ print("PARENT_DIR:", PARENT_DIR)
 sys.path.insert(0, PARENT_DIR)
 
 
-import sqlite3
-import sdb
-getconnection = sdb.getconnection
-createRecord = sdb.createRecord
-commit = sdb.commit
-dotprinter = sdb.dotprinter
-tabline2items = sdb.tabline2items
-getTableFieldnames = sdb.getTableFieldnames
+# import sdb
+# getconnection = sdb.getconnection
+# createRecord = sdb.createRecord
+# commit = sdb.commit
+# dotprinter = sdb.dotprinter
+# tabline2items = sdb.tabline2items
+# getTableFieldnames = sdb.getTableFieldnames
 
 
 
@@ -187,6 +189,9 @@ def importConceptnetTables( conceptpath, edgepath):
         stop = time.time()
         print("\n%s    in %.3f" % (index, stop-start) )
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
+
+
+###
 
 
 

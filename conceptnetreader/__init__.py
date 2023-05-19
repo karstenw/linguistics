@@ -9,7 +9,6 @@ import time
 import datetime
 
 import sqlite3
-
 import unicodedata
 
 import json
@@ -24,15 +23,15 @@ kwerr = 1
 import pprint
 pp = pprint.pprint
 
-import sdb
-makeunicode = sdb.makeunicode
-fetchAllRecords = sdb.fetchAllRecords
-dict_factory = sdb.dict_factory
-getconnection = sdb.getconnection
-executeQuery = sdb.executeQuery
-commit = sdb.commit
-dotprinter = sdb.dotprinter
-createRecord = sdb.createRecord
+# import sdb
+# makeunicode = sdb.makeunicode
+# fetchAllRecords = sdb.fetchAllRecords
+# dict_factory = sdb.dict_factory
+# getconnection = sdb.getconnection
+# executeQuery = sdb.executeQuery
+# commit = sdb.commit
+# dotprinter = sdb.dotprinter
+# createRecord = sdb.createRecord
 
 
 
@@ -287,6 +286,179 @@ def query_concept( concept, relation=None, context=None, maxedges=None, lang="en
         edges.append( (cn1lang,cn1name,rel,cn2lang,cn2name,w,rev,sym) )
         
     return concepts, edges, loadedConcepts
+
+def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
+    """Make input string normalized unicode."""
+    
+    if type(s) not in (pstr, punicode):
+        # apart from str/unicode/bytes we just need the repr
+        s = str( s )
+    if type(s) != punicode:
+        s = punicode(s, srcencoding)
+    s = unicodedata.normalize(normalizer, s)
+    return s
+
+
+def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
+    """Make an ISO datestring."""
+    if not dt:
+        now = str(datetime.datetime.now())
+    else:
+        now = str(dt)
+    if not dateonly:
+        now = now[:19]
+    else:
+        now = now[:10]
+    if nospaces:
+        now = now.replace(" ", "_")
+    if nocolons:
+        now = now.replace(":", "")
+    return now
+
+
+def dotprinter( count, scale=1000, lineitems=100 ):
+    """Non-interactive terminal video game ;-)"""
+
+    # how many counted things ( count) per line
+    line = scale * lineitems
+
+    # make an empty line every 5 lines
+    block = line * 5
+
+    sys.stdout.write(".")
+    if count % line == 0:
+        # end of line; print count up to here
+        sys.stdout.write( f"  {count:,}" )
+        sys.stdout.write("\n")
+        if count % block == 0:
+            sys.stdout.write("\n")
+    sys.stdout.flush()
+
+
+def tabline2items( line ):
+    line = line.strip(" \r\n")
+    line = makeunicode( line )
+    items = line.split( u"\t" )
+    return items
+
+
+def getconnection( filepath ):
+    """open sqlite db at filepath.
+
+    returns either:
+        connection to database OR
+        0: parent folder does not exists. Something is wrong.
+    """
+
+    filepath = os.path.abspath( filepath )
+    folder, filename = os.path.split( filepath )
+    if not os.path.exists( folder ):
+        return 0
+    
+    conn = sqlite3.connect( filepath,
+                            detect_types=  sqlite3.PARSE_DECLTYPES
+                                         | sqlite3.PARSE_COLNAMES)
+
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA automatic_index=1;")
+
+    return conn
+
+
+def commit( conn ):
+    ok = False
+    i = 0
+    while not ok:
+        if i > 20:
+            break
+        try:
+            conn.commit()
+            ok = True
+        except sqlite3.OperationalError as err:
+            debugprint("")
+            debugprint( "ERR: " + repr(err) )
+            time.sleep( 0.01 )
+            i += 1
+
+
+def getTableFieldnames(conn, tablename):
+
+    oldfactory = conn.row_factory
+    conn.row_factory = dict_factory
+
+    c = conn.cursor()
+    q = "PRAGMA table_info(%s);" % tablename
+    c.execute(q)
+
+    # extract fieldname from description
+    fieldnames = []
+    for rec in c:
+        fieldnames.append( rec['name' ] )
+
+    c.close()
+    conn.row_factory = oldfactory
+    return fieldnames
+
+
+def createStatement( tablename, fieldnames ):
+    """
+    Create SELECT, INSERT and UPDATE statements from tablename and
+    fieldname list.
+    """
+    u = u"UPDATE %s SET " % (tablename,)
+    nkeys = len(fieldnames)
+
+    lfieldnames = u",".join(fieldnames)
+    ifieldnames = u'(' + lfieldnames + u')'
+    qfieldnames = lfieldnames
+
+    repmarks = [u'?'] * nkeys
+    repmarks = u','.join( repmarks )
+
+    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
+    if nkeys > 1:
+        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
+    
+    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
+    
+    ufielditems = []
+    s = u"%s=?"
+    for f in fieldnames:
+        ufielditems.append( s % f )
+    ufieldnames = u",".join( ufielditems )
+    u = u + ufieldnames
+
+    result = []
+    return (q,i,u)
+
+
+def createRecord( conn, tablename, recordDict, docommit=True):
+
+    fieldnames = []
+    fieldvalues = []
+
+    tablefieldnames = getTableFieldnames(conn, tablename)
+
+    for item in recordDict.items():
+        k,v= item
+        if k in tablefieldnames:
+            fieldnames.append( k )
+            fieldvalues.append( v )
+
+    q,i,u = createStatement( tablename, fieldnames )
+    c = conn.cursor()
+
+    if not fieldnames:
+        i = "INSERT INTO `%s` DEFAULT VALUES;" % tablename
+        c.execute( i )
+    else:
+        c.execute( i, fieldvalues )
+    last = c.lastrowid
+    if docommit:
+        commit( conn )
+    return last
+
+
 
 
 if __name__ == "__main__":
