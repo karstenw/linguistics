@@ -9,11 +9,11 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="karstenw.20230303121029.2" a="E"><vh>pattern-Library</vh>
+<v t="karstenw.20230303121029.2"><vh>pattern-Library</vh>
 <v t="karstenw.20230303122029.1"><vh>@clean pattern/__init__.py</vh>
 <v t="karstenw.20230303122044.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230303123040.1" a="E"><vh>db</vh>
+<v t="karstenw.20230303123040.1"><vh>db</vh>
 <v t="karstenw.20230303123043.1"><vh>@clean pattern/db/__init__.py</vh>
 <v t="karstenw.20230303123103.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123103.2"><vh>_import_db</vh></v>
@@ -348,7 +348,7 @@
 <v t="karstenw.20230303123103.307"><vh>pprint</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303123122.1" a="E"><vh>graph</vh>
+<v t="karstenw.20230303123122.1"><vh>graph</vh>
 <v t="karstenw.20230303123127.1"><vh>@clean pattern/graph/__init__.py</vh>
 <v t="karstenw.20230303123148.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123148.2"><vh>unique</vh></v>
@@ -2165,7 +2165,7 @@
 <v t="karstenw.20230303140457.1"><vh>windows</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303140246.1" a="E"><vh>web</vh>
+<v t="karstenw.20230303140246.1"><vh>web</vh>
 <v t="karstenw.20230303141215.1"><vh>@clean pattern/web/__init__.py</vh>
 <v t="karstenw.20230303141229.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303141229.2"><vh>fix</vh></v>
@@ -4794,9 +4794,6 @@ else:
 <t tx="karstenw.20230303123103.196">class CSV(list):
 
     @others
-#--- DATASHEET -------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303123103.197">def __new__(cls, rows=[], fields=None, **kwargs):
     """ A list of lists that can be imported and exported as a comma-separated text file (CSV).
@@ -4886,7 +4883,7 @@ headers = property(_get_headers, _set_headers)
 
 </t>
 <t tx="karstenw.20230303123103.203">@classmethod
-def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preprocess=None, password=None, **kwargs):
+def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preprocess=None, password=None, encoding="utf-8", **kwargs):
     """ Returns a table from the data in the given text file.
         Rows are expected to be separated by a newline.
         Columns are expected to be separated by the given separator (by default, comma).
@@ -4897,7 +4894,7 @@ def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preproces
     # Date objects are saved and loaded as strings, but it is easy to convert these back to dates:
     # - set a DATE field type for the column,
     # - or do Table.columns[x].map(lambda s: date(s))
-    data = open(path, "rU", encoding="utf-8")
+    data = open(path, "rU", encoding=encoding)
     data = data if not password else decrypt_string(data.read(), password)
     data.seek(data.readline().startswith(BOM_UTF8) and 3 or 0)
     data = data if not password else BytesIO(data.replace("\r\n", "\n").replace("\r", "\n"))
@@ -4946,7 +4943,10 @@ def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preproces
     return cls(rows=data, fields=fields, **kwargs)
 
 </t>
-<t tx="karstenw.20230303123103.204">class Datasheet(CSV):
+<t tx="karstenw.20230303123103.204">#--- DATASHEET -------------------------------------------------------------------------------------
+
+
+class Datasheet(CSV):
 
     @others
 </t>
