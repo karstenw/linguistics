@@ -1953,7 +1953,7 @@ class CSV(list):
         f.close()
 
     @classmethod
-    def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preprocess=None, password=None, **kwargs):
+    def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preprocess=None, password=None, encoding="utf-8", **kwargs):
         """ Returns a table from the data in the given text file.
             Rows are expected to be separated by a newline.
             Columns are expected to be separated by the given separator (by default, comma).
@@ -1964,7 +1964,7 @@ class CSV(list):
         # Date objects are saved and loaded as strings, but it is easy to convert these back to dates:
         # - set a DATE field type for the column,
         # - or do Table.columns[x].map(lambda s: date(s))
-        data = open(path, "rU", encoding="utf-8")
+        data = open(path, "rU", encoding=encoding)
         data = data if not password else decrypt_string(data.read(), password)
         data.seek(data.readline().startswith(BOM_UTF8) and 3 or 0)
         data = data if not password else BytesIO(data.replace("\r\n", "\n").replace("\r", "\n"))
