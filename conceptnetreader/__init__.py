@@ -287,6 +287,20 @@ def query_concept( concept, relation=None, context=None, maxedges=None, lang="en
         
     return concepts, edges, loadedConcepts
 
+# py3 stuff
+py3 = False
+try:
+    unicode('')
+    punicode = unicode
+    pstr = str
+    punichr = unichr
+except NameError:
+    punicode = str
+    pstr = bytes
+    py3 = True
+    punichr = chr
+    long = int
+
 def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
     """Make input string normalized unicode."""
     
@@ -314,7 +328,6 @@ def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
     if nocolons:
         now = now.replace(":", "")
     return now
-
 
 def dotprinter( count, scale=1000, lineitems=100 ):
     """Non-interactive terminal video game ;-)"""
@@ -379,6 +392,62 @@ def commit( conn ):
             debugprint( "ERR: " + repr(err) )
             time.sleep( 0.01 )
             i += 1
+
+
+def executeQuery(conn, query, values=False, many=False):
+    """Catch a query on a locked database."""
+    query = makeunicode( query )
+    if 0: #kwlog:
+        debugprint( "executeQuery( '%s' )" % bquery )
+        
+    if values == False:
+        values = []
+
+    cursor = conn.cursor()
+    count = 0
+    ok = error = False
+    last = 0
+    while not ok:
+        try:
+            if many:
+                last = cursor.executemany( query, values )
+            else:
+                last = cursor.execute( query, values )
+            ok = True
+        except sqlite3.OperationalError as v:
+            debugprint( v )
+            error = True
+            time.sleep(0.1)
+            count += 1
+            if count > 10:
+                break
+    if error and count:
+        pass
+    return cursor
+
+
+def commit( conn ):
+    ok = False
+    i = 0
+    while not ok:
+        if i > 20:
+            break
+        try:
+            conn.commit()
+            ok = True
+        except sqlite3.OperationalError as err:
+            debugprint("")
+            debugprint( "ERR: " + repr(err) )
+            time.sleep( 0.01 )
+            i += 1
+
+
+def dict_factory(cursor, row):
+    # from pysqlite code examples
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def getTableFieldnames(conn, tablename):
@@ -459,6 +528,28 @@ def createRecord( conn, tablename, recordDict, docommit=True):
     return last
 
 
+def fetchAllRecords(conn, tablename, sort1="", sort1dir="ASC",  sort2="", sort2dir="ASC"):
+    """Return a list with all record dicts from table tablename."""
+
+    result = []
+
+    old_factory = conn.row_factory
+    conn.row_factory = dict_factory
+
+    fieldnames = getTableFieldnames(conn, tablename)
+    q, _, _ = createStatement( tablename, fieldnames )
+
+    if sort1:
+        q = q + u" ORDER BY %s %s" % (sort1, sort1dir)
+
+        if sort2:
+            q = q + u", %s %s" % (sort2, sort2dir)
+    
+    cursor = executeQuery(conn, q)
+    result = cursor.fetchall()
+
+    conn.row_factory = old_factory
+    return result
 
 
 if __name__ == "__main__":
