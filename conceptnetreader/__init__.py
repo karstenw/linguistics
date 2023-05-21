@@ -23,17 +23,6 @@ kwerr = 1
 import pprint
 pp = pprint.pprint
 
-# import sdb
-# makeunicode = sdb.makeunicode
-# fetchAllRecords = sdb.fetchAllRecords
-# dict_factory = sdb.dict_factory
-# getconnection = sdb.getconnection
-# executeQuery = sdb.executeQuery
-# commit = sdb.commit
-# dotprinter = sdb.dotprinter
-# createRecord = sdb.createRecord
-
-
 
 analyzed = False
 

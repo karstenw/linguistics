@@ -37,7 +37,7 @@
 <v t="karstenw.20230521140441.1"><vh>newHeadline</vh></v>
 </v>
 </v>
-<v t="karstenw.20230511095450.1"><vh>@clean install-conceptnet-database.py</vh>
+<v t="karstenw.20230511095450.1" a="E"><vh>@clean install-conceptnet-database.py</vh>
 <v t="karstenw.20230511095516.1"><vh>Declarations 1</vh></v>
 <v t="karstenw.20230511095550.1"><vh>Globals</vh></v>
 <v t="karstenw.20230511100003.1"><vh>handleDataArchive_OLD</vh></v>
@@ -129,17 +129,6 @@ kwerr = 1
 
 import pprint
 pp = pprint.pprint
-
-# import sdb
-# makeunicode = sdb.makeunicode
-# fetchAllRecords = sdb.fetchAllRecords
-# dict_factory = sdb.dict_factory
-# getconnection = sdb.getconnection
-# executeQuery = sdb.executeQuery
-# commit = sdb.commit
-# dotprinter = sdb.dotprinter
-# createRecord = sdb.createRecord
-
 
 
 </t>
@@ -405,15 +394,6 @@ print("PACKAGE_DIR:", PACKAGE_DIR)
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
 print("PARENT_DIR:", PARENT_DIR)
 sys.path.insert(0, PARENT_DIR)
-
-
-# import sdb
-# getconnection = sdb.getconnection
-# createRecord = sdb.createRecord
-# commit = sdb.commit
-# dotprinter = sdb.dotprinter
-# tabline2items = sdb.tabline2items
-# getTableFieldnames = sdb.getTableFieldnames
 
 
 </t>

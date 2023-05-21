@@ -28,15 +28,6 @@ print("PARENT_DIR:", PARENT_DIR)
 sys.path.insert(0, PARENT_DIR)
 
 
-# import sdb
-# getconnection = sdb.getconnection
-# createRecord = sdb.createRecord
-# commit = sdb.commit
-# dotprinter = sdb.dotprinter
-# tabline2items = sdb.tabline2items
-# getTableFieldnames = sdb.getTableFieldnames
-
-
 
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
 if not os.path.exists( DATA_DIR ):
