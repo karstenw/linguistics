@@ -191,10 +191,6 @@ def importConceptnetTables( conceptpath, edgepath):
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
 
 
-###
-
-
-
 def dotprinter( count, scale=1000, lineitems=100 ):
     """Non-interactive terminal video game ;-)"""
 
@@ -258,6 +254,14 @@ def commit( conn ):
             debugprint( "ERR: " + repr(err) )
             time.sleep( 0.01 )
             i += 1
+
+
+def dict_factory(cursor, row):
+    # from pysqlite code examples
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def getTableFieldnames(conn, tablename):
