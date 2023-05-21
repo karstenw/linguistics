@@ -37,7 +37,11 @@ if not os.path.exists( DATA_DIR ):
 ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
 sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
 conceptsdump = os.path.join( ZIPFOLDER, "concept.tab.gz" )
-edgesdump = os.path.join( ZIPFOLDER, "edge.tab.gz" )
+edgesdump1 = os.path.join( ZIPFOLDER, "edge_aa.tab.gz" )
+edgesdump2 = os.path.join( ZIPFOLDER, "edge_ab.tab.gz" )
+edgesdump3 = os.path.join( ZIPFOLDER, "edge_ac.tab.gz" )
+
+importfiles = (conceptsdump, edgesdump1, edgesdump2, edgesdump3 )
 
 basefolder = os.path.join( DATA_DIR, "conceptnet-data" )
 if not os.path.exists( basefolder ):
@@ -46,7 +50,10 @@ if not os.path.exists( basefolder ):
 databasefile =  os.path.join( basefolder, "conceptnet.sqlite3" )
 if 1:
     print("conceptsdump:", conceptsdump )
-    print("edgesdump:", edgesdump )
+    print("edgesdump1:", edgesdump1 )
+    print("edgesdump2:", edgesdump2 )
+    print("edgesdump3:", edgesdump3 )
+    print("importfiles:", importfiles )
     print("databasefile:", databasefile )
 
 
@@ -119,7 +126,7 @@ def readstatic( path ):
         i += 1
     return i
 
-def importConceptnetTables( conceptpath, edgepath):
+def importConceptnetTables( importfiles ):
     total = time.time()    
     # side effect - create sqlite database and fill it with the contant tables (language, relation, context)
     conn = getconnection( databasefile )
@@ -136,13 +143,23 @@ def importConceptnetTables( conceptpath, edgepath):
     
     # pdb.set_trace()
     
-    for name in (conceptpath, edgepath):
+    for name in importfiles:
         start = time.time()
         i = 0
         folder, filename = os.path.split( name )
+        basename, ext = os.path.splitext( filename )
         
-        # tablename, _ = os.path.splitext( filename )
-        tablename = filename.split( '.' )[0]
+        if '_' in basename:
+            tablename = basename.split('_')[0]
+        else:
+            # use this - there are multiple dots in there
+            tablename = filename.split( '.' )[0]
+        
+        print()
+        print("tablename:", tablename)
+        print(name)
+        print()
+        
         fieldnames = getTableFieldnames( conn, tablename )
         for items in readstatic( name ):
             # record = dict(zip(fieldnames, items) )
@@ -181,6 +198,48 @@ def importConceptnetTables( conceptpath, edgepath):
         print("\n%s    in %.3f" % (index, stop-start) )
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
 
+
+# py3 stuff
+py3 = False
+try:
+    unicode('')
+    punicode = unicode
+    pstr = str
+    punichr = unichr
+except NameError:
+    punicode = str
+    pstr = bytes
+    py3 = True
+    punichr = chr
+    long = int
+
+def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
+    """Make input string normalized unicode."""
+    
+    if type(s) not in (pstr, punicode):
+        # apart from str/unicode/bytes we just need the repr
+        s = str( s )
+    if type(s) != punicode:
+        s = punicode(s, srcencoding)
+    s = unicodedata.normalize(normalizer, s)
+    return s
+
+
+def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
+    """Make an ISO datestring."""
+    if not dt:
+        now = str(datetime.datetime.now())
+    else:
+        now = str(dt)
+    if not dateonly:
+        now = now[:19]
+    else:
+        now = now[:10]
+    if nospaces:
+        now = now.replace(" ", "_")
+    if nocolons:
+        now = now.replace(":", "")
+    return now
 
 def dotprinter( count, scale=1000, lineitems=100 ):
     """Non-interactive terminal video game ;-)"""
@@ -338,6 +397,6 @@ if 1: # __name__ == '__main__':
     # pdb.set_trace()
     handleDataArchive( sqlitezifile, basefolder )
     print()
-    importConceptnetTables(conceptsdump, edgesdump)
+    importConceptnetTables( importfiles )
 
 
