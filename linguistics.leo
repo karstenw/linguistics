@@ -10,7 +10,7 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230317172542.2" a="E"><vh>linguistics</vh>
-<v t="karstenw.20230317172648.1"><vh>@clean __init__.py</vh>
+<v t="karstenw.20230317172648.1" a="E"><vh>@clean __init__.py</vh>
 <v t="karstenw.20230317172648.2"><vh>Declarations</vh></v>
 <v t="karstenw.20230317172816.1"><vh>pattern init</vh></v>
 <v t="karstenw.20230317172648.3"><vh>nltk init</vh></v>
@@ -22,20 +22,22 @@
 <v t="karstenw.20230518135525.1"><vh>@clean download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230518135541.1" a="E"><vh>@clean install-conceptnet-database.py</vh>
-<v t="karstenw.20230518135559.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230518135559.2"><vh>handleDataArchive_OLD</vh></v>
-<v t="karstenw.20230518135559.3"><vh>handleDataArchive</vh></v>
-<v t="karstenw.20230518135559.4"><vh>readstatic</vh></v>
-<v t="karstenw.20230518135559.5"><vh>importConceptnetTables</vh></v>
-<v t="karstenw.20230518135715.1" a="E"><vh>simple DB</vh>
-<v t="karstenw.20230518140210.1"><vh>dotprinter</vh></v>
-<v t="karstenw.20230518140227.1"><vh>tabline2items</vh></v>
-<v t="karstenw.20230518135723.1"><vh>getconnection</vh></v>
-<v t="karstenw.20230518140139.1"><vh>commit</vh></v>
-<v t="karstenw.20230518140042.1"><vh>getTableFieldnames</vh></v>
-<v t="karstenw.20230518140100.1"><vh>createStatement</vh></v>
-<v t="karstenw.20230518135941.1"><vh>createRecord</vh></v>
+<v t="karstenw.20230521225929.1"><vh>@clean install-conceptnet-database.py</vh>
+<v t="karstenw.20230521225929.2"><vh>Declarations 1</vh></v>
+<v t="karstenw.20230521225929.3"><vh>Globals</vh></v>
+<v t="karstenw.20230521225929.4"><vh>handleDataArchive_OLD</vh></v>
+<v t="karstenw.20230521225929.5"><vh>handleDataArchive</vh></v>
+<v t="karstenw.20230521225929.6"><vh>readstatic</vh></v>
+<v t="karstenw.20230521225929.7"><vh>importConceptnetTables</vh></v>
+<v t="karstenw.20230521225929.8" a="E"><vh>sdb</vh>
+<v t="karstenw.20230521225929.9"><vh>dotprinter</vh></v>
+<v t="karstenw.20230521225929.10"><vh>tabline2items</vh></v>
+<v t="karstenw.20230521225929.11"><vh>getconnection</vh></v>
+<v t="karstenw.20230521225929.12"><vh>commit</vh></v>
+<v t="karstenw.20230521225929.13"><vh>dict_factory</vh></v>
+<v t="karstenw.20230521225929.14"><vh>getTableFieldnames</vh></v>
+<v t="karstenw.20230521225929.15"><vh>createStatement</vh></v>
+<v t="karstenw.20230521225929.16"><vh>createRecord</vh></v>
 </v>
 </v>
 </v>
@@ -226,18 +228,6 @@ conceptnetreader.initlib()
 @language python
 @tabwidth -4
 </t>
-<t tx="karstenw.20230518135541.1">@language python
-@tabwidth -4
-@others
-if 1: # __name__ == '__main__':
-    print()
-    # pdb.set_trace()
-    handleDataArchive( sqlitezifile, basefolder )
-    print()
-    importConceptnetTables(conceptsdump, edgesdump)
-
-
-</t>
 <t tx="karstenw.20230518135556.1">import sys
 import os
 # import pdb
@@ -293,12 +283,166 @@ wn.download("cili")
 stop = time.time()
 print("nltk &amp; wn in %.3fsec" % (stop-start,) )
 </t>
-<t tx="karstenw.20230518135559.1">
+<t tx="karstenw.20230521225929.1">@language python
+@tabwidth -4
+@others
+if 1: # __name__ == '__main__':
+    print()
+    # pdb.set_trace()
+    handleDataArchive( sqlitezifile, basefolder )
+    print()
+    importConceptnetTables( importfiles )
+
+
+</t>
+<t tx="karstenw.20230521225929.10">def tabline2items( line ):
+    line = line.strip(" \r\n")
+    line = makeunicode( line )
+    items = line.split( u"\t" )
+    return items
+
+
+</t>
+<t tx="karstenw.20230521225929.11">def getconnection( filepath ):
+    """open sqlite db at filepath.
+
+    returns either:
+        connection to database OR
+        0: parent folder does not exists. Something is wrong.
+    """
+
+    filepath = os.path.abspath( filepath )
+    folder, filename = os.path.split( filepath )
+    if not os.path.exists( folder ):
+        return 0
+    
+    conn = sqlite3.connect( filepath,
+                            detect_types=  sqlite3.PARSE_DECLTYPES
+                                         | sqlite3.PARSE_COLNAMES)
+
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA automatic_index=1;")
+
+    return conn
+
+
+</t>
+<t tx="karstenw.20230521225929.12">def commit( conn ):
+    ok = False
+    i = 0
+    while not ok:
+        if i &gt; 20:
+            break
+        try:
+            conn.commit()
+            ok = True
+        except sqlite3.OperationalError as err:
+            debugprint("")
+            debugprint( "ERR: " + repr(err) )
+            time.sleep( 0.01 )
+            i += 1
+
+
+</t>
+<t tx="karstenw.20230521225929.13">def dict_factory(cursor, row):
+    # from pysqlite code examples
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
+</t>
+<t tx="karstenw.20230521225929.14">def getTableFieldnames(conn, tablename):
+
+    oldfactory = conn.row_factory
+    conn.row_factory = dict_factory
+
+    c = conn.cursor()
+    q = "PRAGMA table_info(%s);" % tablename
+    c.execute(q)
+
+    # extract fieldname from description
+    fieldnames = []
+    for rec in c:
+        fieldnames.append( rec['name' ] )
+
+    c.close()
+    conn.row_factory = oldfactory
+    return fieldnames
+
+
+</t>
+<t tx="karstenw.20230521225929.15">def createStatement( tablename, fieldnames ):
+    """
+    Create SELECT, INSERT and UPDATE statements from tablename and
+    fieldname list.
+    """
+    u = u"UPDATE %s SET " % (tablename,)
+    nkeys = len(fieldnames)
+
+    lfieldnames = u",".join(fieldnames)
+    ifieldnames = u'(' + lfieldnames + u')'
+    qfieldnames = lfieldnames
+
+    repmarks = [u'?'] * nkeys
+    repmarks = u','.join( repmarks )
+
+    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
+    if nkeys &gt; 1:
+        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
+    
+    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
+    
+    ufielditems = []
+    s = u"%s=?"
+    for f in fieldnames:
+        ufielditems.append( s % f )
+    ufieldnames = u",".join( ufielditems )
+    u = u + ufieldnames
+
+    result = []
+    return (q,i,u)
+
+
+</t>
+<t tx="karstenw.20230521225929.16">def createRecord( conn, tablename, recordDict, docommit=True):
+
+    fieldnames = []
+    fieldvalues = []
+
+    tablefieldnames = getTableFieldnames(conn, tablename)
+
+    for item in recordDict.items():
+        k,v= item
+        if k in tablefieldnames:
+            fieldnames.append( k )
+            fieldvalues.append( v )
+
+    q,i,u = createStatement( tablename, fieldnames )
+    c = conn.cursor()
+
+    if not fieldnames:
+        i = "INSERT INTO `%s` DEFAULT VALUES;" % tablename
+        c.execute( i )
+    else:
+        c.execute( i, fieldvalues )
+    last = c.lastrowid
+    if docommit:
+        commit( conn )
+    return last
+
+
+</t>
+<t tx="karstenw.20230521225929.2">
 
 import sys
 import os
 import io
 import time
+
+import sqlite3
+import unicodedata
 
 import zipfile
 import gzip
@@ -320,17 +464,8 @@ print("PARENT_DIR:", PARENT_DIR)
 sys.path.insert(0, PARENT_DIR)
 
 
-import sqlite3
-import sdb
-getconnection = sdb.getconnection
-createRecord = sdb.createRecord
-commit = sdb.commit
-dotprinter = sdb.dotprinter
-tabline2items = sdb.tabline2items
-getTableFieldnames = sdb.getTableFieldnames
-
-
-
+</t>
+<t tx="karstenw.20230521225929.3">
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
 if not os.path.exists( DATA_DIR ):
     os.makedirs( DATA_DIR )
@@ -339,7 +474,11 @@ if not os.path.exists( DATA_DIR ):
 ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
 sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
 conceptsdump = os.path.join( ZIPFOLDER, "concept.tab.gz" )
-edgesdump = os.path.join( ZIPFOLDER, "edge.tab.gz" )
+edgesdump1 = os.path.join( ZIPFOLDER, "edge_aa.tab.gz" )
+edgesdump2 = os.path.join( ZIPFOLDER, "edge_ab.tab.gz" )
+edgesdump3 = os.path.join( ZIPFOLDER, "edge_ac.tab.gz" )
+
+importfiles = (conceptsdump, edgesdump1, edgesdump2, edgesdump3 )
 
 basefolder = os.path.join( DATA_DIR, "conceptnet-data" )
 if not os.path.exists( basefolder ):
@@ -348,7 +487,10 @@ if not os.path.exists( basefolder ):
 databasefile =  os.path.join( basefolder, "conceptnet.sqlite3" )
 if 1:
     print("conceptsdump:", conceptsdump )
-    print("edgesdump:", edgesdump )
+    print("edgesdump1:", edgesdump1 )
+    print("edgesdump2:", edgesdump2 )
+    print("edgesdump3:", edgesdump3 )
+    print("importfiles:", importfiles )
     print("databasefile:", databasefile )
 
 
@@ -356,7 +498,7 @@ exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
 exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
 </t>
-<t tx="karstenw.20230518135559.2">def handleDataArchive_OLD( zipfilepath, extractdir ):
+<t tx="karstenw.20230521225929.4">def handleDataArchive_OLD( zipfilepath, extractdir ):
     """Obsolete. Switched to single .gz files due to 100MB limit for github."""
 
     with zipfile.ZipFile( zipfilepath ) as archivezip:
@@ -377,7 +519,7 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
 
 </t>
-<t tx="karstenw.20230518135559.3">def handleDataArchive( zipfilepath, extractdir ):
+<t tx="karstenw.20230521225929.5">def handleDataArchive( zipfilepath, extractdir ):
     """Obsolete. Switched to single .gz files due to 100MB limit for github."""
 
     with zipfile.ZipFile( zipfilepath ) as archivezip:
@@ -398,7 +540,7 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
 
 </t>
-<t tx="karstenw.20230518135559.4">def readstatic( path ):
+<t tx="karstenw.20230521225929.6">def readstatic( path ):
     """read a tabtext or gzipped tabtext export.
     
     Yield per record
@@ -425,7 +567,7 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
     return i
 
 </t>
-<t tx="karstenw.20230518135559.5">def importConceptnetTables( conceptpath, edgepath):
+<t tx="karstenw.20230521225929.7">def importConceptnetTables( importfiles ):
     total = time.time()    
     # side effect - create sqlite database and fill it with the contant tables (language, relation, context)
     conn = getconnection( databasefile )
@@ -442,13 +584,23 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
     
     # pdb.set_trace()
     
-    for name in (conceptpath, edgepath):
+    for name in importfiles:
         start = time.time()
         i = 0
         folder, filename = os.path.split( name )
+        basename, ext = os.path.splitext( filename )
         
-        # tablename, _ = os.path.splitext( filename )
-        tablename = filename.split( '.' )[0]
+        if '_' in basename:
+            tablename = basename.split('_')[0]
+        else:
+            # use this - there are multiple dots in there
+            tablename = filename.split( '.' )[0]
+        
+        print()
+        print("tablename:", tablename)
+        print(name)
+        print()
+        
         fieldnames = getTableFieldnames( conn, tablename )
         for items in readstatic( name ):
             # record = dict(zip(fieldnames, items) )
@@ -488,132 +640,51 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
 
 
+# py3 stuff
+py3 = False
+try:
+    unicode('')
+    punicode = unicode
+    pstr = str
+    punichr = unichr
+except NameError:
+    punicode = str
+    pstr = bytes
+    py3 = True
+    punichr = chr
+    long = int
 
-</t>
-<t tx="karstenw.20230518135715.1"></t>
-<t tx="karstenw.20230518135723.1">def getconnection( filepath ):
-    """open sqlite db at filepath.
-
-    returns either:
-        connection to database OR
-        0: parent folder does not exists. Something is wrong.
-    """
-
-    filepath = os.path.abspath( filepath )
-    folder, filename = os.path.split( filepath )
-    if not os.path.exists( folder ):
-        return 0
+def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
+    """Make input string normalized unicode."""
     
-    conn = sqlite3.connect( filepath,
-                            detect_types=  sqlite3.PARSE_DECLTYPES
-                                         | sqlite3.PARSE_COLNAMES)
+    if type(s) not in (pstr, punicode):
+        # apart from str/unicode/bytes we just need the repr
+        s = str( s )
+    if type(s) != punicode:
+        s = punicode(s, srcencoding)
+    s = unicodedata.normalize(normalizer, s)
+    return s
 
-    cursor = conn.cursor()
-    cursor.execute("PRAGMA automatic_index=1;")
 
-    return conn
-
-
-</t>
-<t tx="karstenw.20230518135941.1">def createRecord( conn, tablename, recordDict, docommit=True):
-
-    fieldnames = []
-    fieldvalues = []
-
-    tablefieldnames = getTableFieldnames(conn, tablename)
-
-    for item in recordDict.items():
-        k,v= item
-        if k in tablefieldnames:
-            fieldnames.append( k )
-            fieldvalues.append( v )
-
-    q,i,u = createStatement( tablename, fieldnames )
-    c = conn.cursor()
-
-    if not fieldnames:
-        i = "INSERT INTO `%s` DEFAULT VALUES;" % tablename
-        c.execute( i )
+def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
+    """Make an ISO datestring."""
+    if not dt:
+        now = str(datetime.datetime.now())
     else:
-        c.execute( i, fieldvalues )
-    last = c.lastrowid
-    if docommit:
-        commit( conn )
-    return last
-
-
-</t>
-<t tx="karstenw.20230518140042.1">def getTableFieldnames(conn, tablename):
-
-    oldfactory = conn.row_factory
-    conn.row_factory = dict_factory
-
-    c = conn.cursor()
-    q = "PRAGMA table_info(%s);" % tablename
-    c.execute(q)
-
-    # extract fieldname from description
-    fieldnames = []
-    for rec in c:
-        fieldnames.append( rec['name' ] )
-
-    c.close()
-    conn.row_factory = oldfactory
-    return fieldnames
-
+        now = str(dt)
+    if not dateonly:
+        now = now[:19]
+    else:
+        now = now[:10]
+    if nospaces:
+        now = now.replace(" ", "_")
+    if nocolons:
+        now = now.replace(":", "")
+    return now
 
 </t>
-<t tx="karstenw.20230518140100.1">def createStatement( tablename, fieldnames ):
-    """
-    Create SELECT, INSERT and UPDATE statements from tablename and
-    fieldname list.
-    """
-    u = u"UPDATE %s SET " % (tablename,)
-    nkeys = len(fieldnames)
-
-    lfieldnames = u",".join(fieldnames)
-    ifieldnames = u'(' + lfieldnames + u')'
-    qfieldnames = lfieldnames
-
-    repmarks = [u'?'] * nkeys
-    repmarks = u','.join( repmarks )
-
-    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
-    if nkeys &gt; 1:
-        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
-    
-    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
-    
-    ufielditems = []
-    s = u"%s=?"
-    for f in fieldnames:
-        ufielditems.append( s % f )
-    ufieldnames = u",".join( ufielditems )
-    u = u + ufieldnames
-
-    result = []
-    return (q,i,u)
-
-
-</t>
-<t tx="karstenw.20230518140139.1">def commit( conn ):
-    ok = False
-    i = 0
-    while not ok:
-        if i &gt; 20:
-            break
-        try:
-            conn.commit()
-            ok = True
-        except sqlite3.OperationalError as err:
-            debugprint("")
-            debugprint( "ERR: " + repr(err) )
-            time.sleep( 0.01 )
-            i += 1
-
-
-</t>
-<t tx="karstenw.20230518140210.1">def dotprinter( count, scale=1000, lineitems=100 ):
+<t tx="karstenw.20230521225929.8"></t>
+<t tx="karstenw.20230521225929.9">def dotprinter( count, scale=1000, lineitems=100 ):
     """Non-interactive terminal video game ;-)"""
 
     # how many counted things ( count) per line
@@ -630,14 +701,6 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
         if count % block == 0:
             sys.stdout.write("\n")
     sys.stdout.flush()
-
-
-</t>
-<t tx="karstenw.20230518140227.1">def tabline2items( line ):
-    line = line.strip(" \r\n")
-    line = makeunicode( line )
-    items = line.split( u"\t" )
-    return items
 
 
 </t>
