@@ -377,8 +377,8 @@ def commit( conn ):
             conn.commit()
             ok = True
         except sqlite3.OperationalError as err:
-            debugprint("")
-            debugprint( "ERR: " + repr(err) )
+            print("")   # debugprint
+            print( "ERR: " + repr(err) )
             time.sleep( 0.01 )
             i += 1
 
@@ -387,7 +387,7 @@ def executeQuery(conn, query, values=False, many=False):
     """Catch a query on a locked database."""
     query = makeunicode( query )
     if 0: #kwlog:
-        debugprint( "executeQuery( '%s' )" % bquery )
+        print( "executeQuery( '%s' )" % bquery )    # debugprint
         
     if values == False:
         values = []
@@ -404,7 +404,8 @@ def executeQuery(conn, query, values=False, many=False):
                 last = cursor.execute( query, values )
             ok = True
         except sqlite3.OperationalError as v:
-            debugprint( v )
+            print("query:", query)
+            print( v )  # debugprint
             error = True
             time.sleep(0.1)
             count += 1
@@ -425,8 +426,8 @@ def commit( conn ):
             conn.commit()
             ok = True
         except sqlite3.OperationalError as err:
-            debugprint("")
-            debugprint( "ERR: " + repr(err) )
+            print("")   # debugprint
+            print( "ERR: " + repr(err) )
             time.sleep( 0.01 )
             i += 1
 
