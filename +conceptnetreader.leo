@@ -47,6 +47,9 @@
 if __name__ == "__main__":
     pass
 
+if os.path.exists( databasefile ):
+    initlib()
+
 
 </t>
 <t tx="karstenw.20230412164348.18">database = {
@@ -119,9 +122,18 @@ pp = pprint.pprint
 PACKAGE_DIR, _ = os.path.split( os.path.abspath( __file__ ) )
 DATA_DIR = os.path.abspath( os.path.join( PACKAGE_DIR, '..', '..', 'linguistics-data', 'conceptnet-data' ) )
 
-databasefile = os.path.abspath("./data/conceptnet.sqlite3")
+databasefile = os.path.join( DATA_DIR, "conceptnet.sqlite3")
 
-languages = relations = contexts = ""
+# languagecode( e.g. 'en') -&gt; languagerecord
+#  'de': {'autonym': 'Deutsch', 'idlanguage': 54, 'include': 3, 'languagecode': 'de', 'languagename': 'German'},
+languages = {}
+
+# id -&gt; {'idrelation': 1, 'conceptnetrelation': '/r/Antonym', 'patternrelation': 'is-opposite-of', 'symmetric': 1, 'reverse': 0}
+relations = {}
+
+# yet UNUSED
+# context -&gt; idcontext
+contexts = {}
 
 inited = False
 
@@ -183,9 +195,10 @@ inited = False
 
     global languages, relations, contexts, inited
 
-    conn = getconnection( databasefile )
+    if not os.path.exists( databasefile ):
+        return {},{},{}
 
-    # pdb.set_trace()
+    conn = getconnection( databasefile )
 
     old_factory = conn.row_factory
     conn.row_factory = dict_factory
@@ -291,7 +304,11 @@ inited = False
     for edge in edges:
         concept1id,relationid,concept2id,weight = edge
 
-        relation = relations.get( relationid, "" )
+        relation = relations.get( relationid, {} )
+        if not relation:
+            print("getedges(): missed relationID:", relationid)
+            continue
+
         relationname = relation.get( 'patternrelation', "" )
         reverse = relation.get( 'reverse', 0 )
         symmetric = relation.get( 'symmetric', 0 )

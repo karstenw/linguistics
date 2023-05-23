@@ -66,18 +66,11 @@ if 1:
     # data path init
     wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
-def init_wn():
-    import wn
-    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
-# wn.download("omw")
-# wn.download("odenet")
-# wn.download("oewn")
-# wn.download("cili")
 t5 = time.time()
 print("import wn: %.3f" % (t5-t4)  )
 
 
-# not suere what to use yet
+# not sure what to use yet
 if 0:
     # check if english lexicon is loaded
     try:
@@ -97,9 +90,7 @@ if 0:
         lexicons[lang].append( (lang, lid, label, lexicon) )
     
 
-
 # perhaps delete ? havent used this
-
 # TextBlob, Word, Sentence, Blobber, WordList
 if 1:
     import textblob
@@ -118,8 +109,7 @@ print("import textblob: %.3f" % (t6-t5)  )
 #
 # all
 # + conll2000, movie_reviews
-
-
+# 
 # pattern nltk downloads
 # 
 # wordnet_ic
@@ -132,10 +122,8 @@ import conceptnetreader
 t7 = time.time()
 print("import conceptnetreader: %.3f" % (t7-t6)  )
 
-# data path init
-conceptnetreader.databasefile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
-conceptnetreader.initlib()
-
+# data path init - not yet used
+# dbfile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
 if 0:
     def _firstwordtags( wl ):
         tb = TextBlob( wl )
