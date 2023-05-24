@@ -10,7 +10,7 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230317172542.2" a="E"><vh>linguistics</vh>
-<v t="karstenw.20230317172648.1" a="E"><vh>@clean __init__.py</vh>
+<v t="karstenw.20230317172648.1"><vh>@clean __init__.py</vh>
 <v t="karstenw.20230317172648.2"><vh>Declarations</vh></v>
 <v t="karstenw.20230317172816.1"><vh>pattern init</vh></v>
 <v t="karstenw.20230317172648.3"><vh>nltk init</vh></v>
@@ -18,6 +18,17 @@
 <v t="karstenw.20230317172648.4"><vh>textblob init</vh></v>
 <v t="karstenw.20230428163032.1"><vh>conceptnet init</vh></v>
 <v t="karstenw.20230317172931.1"><vh>tools</vh></v>
+</v>
+<v t="karstenw.20230524124241.1" a="E"><vh>@clean FlowerWord.py</vh>
+<v t="karstenw.20230524124307.1"><vh>Declarations</vh></v>
+<v t="karstenw.20230524124417.1"><vh>FlowerWord</vh>
+<v t="karstenw.20230524124417.2"><vh>__init__</vh></v>
+<v t="karstenw.20230524124417.3"><vh>hyponyms</vh></v>
+<v t="karstenw.20230524124417.4"><vh>hypernyms</vh></v>
+<v t="karstenw.20230524124417.5"><vh>senses</vh></v>
+<v t="karstenw.20230524124417.6"><vh>holonyms</vh></v>
+<v t="karstenw.20230524124417.7"><vh>meronyms</vh></v>
+</v>
 </v>
 <v t="karstenw.20230518135525.1"><vh>@clean download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
@@ -690,6 +701,123 @@ def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
+
+</t>
+<t tx="karstenw.20230524124241.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230524124307.1">import time
+import io
+
+kwdbg = 0
+import pdb
+import pprint
+pp = pprint.pprint
+
+# seed(1)
+
+# need to import linguistics first - sets up sys.path and corpus/data folders for the sublibs
+import linguistics
+import pattern
+import pattern.text
+import pattern.text.en
+en = pattern.text.en
+wordnet = en.wordnet
+</t>
+<t tx="karstenw.20230524124417.1">class FlowerWord:
+    @others
+
+
+</t>
+<t tx="karstenw.20230524124417.2">def __init__(self, word):
+    # pdb.set_trace()
+    self.word = word
+    self.synsets = wordnet.synsets( word )
+    self.idx = 0
+    self.antonym = ""
+    self.gloss = ""
+    self.synset = None
+    self.synonyms = []
+    self.antonym = ""
+    self.gloss = ""
+    self.lexname = ""
+
+    if len(self.synsets) &gt; 0:
+        synonyms = self.synsets[0].synonyms
+        try:
+            self.idx = synonyms.index(word)
+            w = self.synset = self.synsets[self.idx]
+            #print("Found synset:", w)
+        except:
+            w = self.synsets[0]
+            #print("Use synset:", w)
+
+        self.antonym = w.antonym
+        self.gloss = w.gloss
+        self.lexname = w.lexname
+
+</t>
+<t tx="karstenw.20230524124417.3">def hyponyms(self):
+    result = []
+    for synset in self.synsets:
+        hyponyms = synset.hyponyms()
+        for hyponym in hyponyms:
+            synonyms = hyponym.synonyms
+            for synonym in synonyms:
+                synonym = synonym.replace("_", " ")
+                result.append( synonym )
+    result = list(set(result))
+    return result
+
+</t>
+<t tx="karstenw.20230524124417.4">def hypernyms(self):
+    result = []
+    for synset in self.synsets:
+        hypernyms = synset.hypernyms()
+        for hypernym in hypernyms:
+            synonyms = hypernym.synonyms
+            for synonym in synonyms:
+                synonym = synonym.replace("_", " ")
+                result.append( synonym )
+    result = list(set(result))
+    return result
+
+
+</t>
+<t tx="karstenw.20230524124417.5">def senses(self):
+    result = []
+    for synset in self.synsets:
+        senses = synset.senses
+        result.append( senses )
+    return result
+
+
+</t>
+<t tx="karstenw.20230524124417.6">def holonyms(self):
+    result = []
+    for synset in self.synsets:
+        holonyms = synset.holonyms()
+        for holonym in holonyms:
+            synonyms = hyponym.synonyms
+            for synonym in synonyms:
+                synonym = synonym.replace("_", " ")
+                result.append( synonym )
+    result = list(set(result))
+    return result
+
+</t>
+<t tx="karstenw.20230524124417.7">def meronyms(self):
+    result = []
+    for synset in self.synsets:
+        meronyms = synset.meronyms()
+        for meronym in meronyms:
+            synonyms = hyponym.synonyms
+            for synonym in synonyms:
+                synonym = synonym.replace("_", " ")
+                result.append( synonym )
+    result = list(set(result))
+    return result
 
 </t>
 </tnodes>
