@@ -17,11 +17,22 @@ Rename the downloaded folder "linguistics" and place it inside the Nodebox "Libr
 
 Before the first run, open and run `download_corpora.py` inside the linguistics folder. This downloads the needed corpora for `nltk`, `textblob` and `wn` to run. The data folder `linguistics-data` will be placed in the same folder as the `linguistics` folder.
 
+
+#### nltk corpora for textblob, wn and pattern
+
 The runtime for `download_corpora.py` is ca. 20 minutes.
+
+If you run it from NodeBox there will be no feedback except the spinning beachball. 
+
+Alternatively you can run it from the terminal with a 3.8 python. Perhaps you must install the requirements first.
+
+#### conceptnet database
 
 For the conceptnet database open and run `install-conceptnet-database.py`.
 
 The runtime for `install-conceptnet-database.py` is ca. 10 minutes.
+
+As with the nltk download, no feedback. Can be run from terminal.
 
 
 ## General
