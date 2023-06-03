@@ -32,7 +32,7 @@ For the conceptnet database open and run `install-conceptnet-database.py`.
 
 The runtime for `install-conceptnet-database.py` is ca. 10 minutes.
 
-As with the nltk download, no feedback. Can be run from terminal.
+As with the nltk download there is no feedback but it can be run from the terminal to see what's going on.
 
 
 ## General
