@@ -1,5 +1,12 @@
 import re
-from collections.abc import Iterable
+
+try:
+    # old - worked up to 3.8
+    from collections import Iterable
+except ImportError as err:
+    # new - 3.11 needed this
+    from collections.abc import Iterable
+
 
 try:
     # Python 2
