@@ -7,7 +7,7 @@ Several accumulated linguistics modules ([pattern](https://github.com/clips/patt
 Additionally there is the new conceptnetreader library which gives access to a local conceptnet database.
 
 
-These are the installed sources of the libraries. I am currently using Python 3.8.12
+These are the installed sources of the libraries. I am currently using Python 3.11.4 but this also worked with 3.8.12
 
 # ATTENTION
 
@@ -24,7 +24,7 @@ The runtime for `download_corpora.py` is ca. 20 minutes.
 
 If you run it from NodeBox there will be no feedback except the spinning beachball. 
 
-Alternatively you can run it from the terminal with a 3.8 python. Perhaps you must install the requirements first.
+Alternatively you can run it from the terminal with a 3.8 or 3.11 python. Perhaps you must install the requirements first.
 
 #### conceptnet database
 
