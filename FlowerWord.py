@@ -1,3 +1,11 @@
+
+"""The name Flowerword came from the first implementation inside the flowerewolf library. Just a collection of that missing 'en' functions.
+
+The name stuck.
+"""
+
+
+
 import time
 import io
 
@@ -15,6 +23,7 @@ import pattern.text
 import pattern.text.en
 en = pattern.text.en
 wordnet = en.wordnet
+
 class FlowerWord:
     def __init__(self, word):
         # pdb.set_trace()
