@@ -707,7 +707,15 @@ def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
 @tabwidth -4
 @others
 </t>
-<t tx="karstenw.20230524124307.1">import time
+<t tx="karstenw.20230524124307.1">
+"""The name Flowerword came from the first implementation inside the flowerewolf library. Just a collection of that missing 'en' functions.
+
+The name stuck.
+"""
+
+
+
+import time
 import io
 
 kwdbg = 0
@@ -724,6 +732,7 @@ import pattern.text
 import pattern.text.en
 en = pattern.text.en
 wordnet = en.wordnet
+
 </t>
 <t tx="karstenw.20230524124417.1">class FlowerWord:
     @others
