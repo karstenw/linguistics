@@ -45,6 +45,8 @@ import collections
 import sqlite3 as sqlite
 import cherrypy as cp
 
+import pdb
+
 try:
     import json
     json.encoder.FLOAT_REPR = lambda f: ("%.2f" % f)
@@ -184,6 +186,14 @@ def define(f):
         return f
     f = undecorate(f)
     a = inspect.getargspec(f) # (names, *args, **kwargs, values)
+    # a[0] = names
+    # a[1] = args
+    # a[2] = kwargs
+    # a[3] = values
+    
+    # pdb.set_trace()
+
+    # 
     i = len(a[0]) - len(a[3] or [])
     x = tuple(a[0][:i])
     y = dict(zip(a[0][i:], a[3] or []))
