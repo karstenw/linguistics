@@ -90,6 +90,8 @@ from . import locale
 
 import bs4 as BeautifulSoup
 
+# import pdb
+
 try:
     # Import persistent Cache.
     # If this module is used separately,
@@ -221,7 +223,8 @@ class AsynchronousRequest(object):
 
     @property
     def done(self):
-        return not self._thread.isAlive()
+        # pdb.set_trace()
+        return not self._thread.is_alive()
 
     @property
     def value(self):
