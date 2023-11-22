@@ -9,7 +9,7 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="karstenw.20230303121029.2"><vh>pattern-Library</vh>
+<v t="karstenw.20230303121029.2" a="E"><vh>pattern-Library</vh>
 <v t="karstenw.20230303122029.1"><vh>@clean pattern/__init__.py</vh>
 <v t="karstenw.20230303122044.1"><vh>Declarations</vh></v>
 </v>
@@ -516,7 +516,7 @@
 </v>
 <v t="karstenw.20230303123158.1"><vh>@clean pattern/graph/commonsense.py</vh>
 <v t="karstenw.20230303123206.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230324115334.1" a="E"><vh>+ COMMONSENSE SEMANTIC NETWORK +</vh>
+<v t="karstenw.20230324115334.1"><vh>+ COMMONSENSE SEMANTIC NETWORK +</vh>
 <v t="karstenw.20230303123206.2"><vh>class Concept</vh>
 <v t="karstenw.20230303123206.3"><vh>__init__</vh></v>
 <v t="karstenw.20230303123206.4"><vh>halo</vh></v>
@@ -541,7 +541,7 @@
 <v t="karstenw.20230303123206.20"><vh>taxonomy</vh></v>
 </v>
 </v>
-<v t="karstenw.20230324115357.1" a="E"><vh>+ COMMON SENSE DATA +</vh>
+<v t="karstenw.20230324115357.1"><vh>+ COMMON SENSE DATA +</vh>
 <v t="karstenw.20230303123206.21"><vh>download</vh></v>
 <v t="karstenw.20230303123206.22"><vh>json</vh></v>
 </v>
@@ -1183,7 +1183,7 @@
 <v t="karstenw.20230303131812.12"><vh>__len__</vh></v>
 <v t="karstenw.20230303131812.13"><vh>__iter__</vh></v>
 </v>
-<v t="karstenw.20230303131812.14" a="E"><vh>class Word</vh>
+<v t="karstenw.20230303131812.14"><vh>class Word</vh>
 <v t="karstenw.20230303131812.15"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.16"><vh>copy</vh></v>
 <v t="karstenw.20230303131812.17"><vh>_get_tag</vh></v>
@@ -1403,7 +1403,7 @@
 <v t="karstenw.20230303132747.1"><vh>@clean pattern/text/en/__init__.py</vh>
 <v t="karstenw.20230303132805.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303132805.2"><vh>find_lemmata</vh></v>
-<v t="karstenw.20230303132805.3" a="E"><vh>class Parser</vh>
+<v t="karstenw.20230303132805.3"><vh>class Parser</vh>
 <v t="karstenw.20230303132805.4"><vh>find_lemmata</vh></v>
 <v t="karstenw.20230303132805.5"><vh>find_tags</vh></v>
 </v>
@@ -1471,8 +1471,8 @@
 <v t="karstenw.20230303132921.14"><vh>modality</vh></v>
 <v t="karstenw.20230303132921.15"><vh>uncertain</vh></v>
 </v>
-<v t="karstenw.20230303132932.1" a="E"><vh>wordlist</vh>
-<v t="karstenw.20230303132938.1" a="E"><vh>@clean pattern/text/en/wordlist/__init__.py</vh>
+<v t="karstenw.20230303132932.1"><vh>wordlist</vh>
+<v t="karstenw.20230303132938.1"><vh>@clean pattern/text/en/wordlist/__init__.py</vh>
 <v t="karstenw.20230303132956.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303132956.2"><vh>class Wordlist</vh>
 <v t="karstenw.20230303132956.3"><vh>__init__</vh></v>
@@ -1490,11 +1490,11 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303133026.1" a="E"><vh>wordnet</vh>
-<v t="karstenw.20230303133031.1" a="E"><vh>@clean pattern/text/en/wordnet/__init__.py</vh>
+<v t="karstenw.20230303133026.1"><vh>wordnet</vh>
+<v t="karstenw.20230303133031.1"><vh>@clean pattern/text/en/wordnet/__init__.py</vh>
 <v t="karstenw.20230303133045.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303133045.2"><vh>normalize</vh></v>
-<v t="karstenw.20230310152332.1" a="E"><vh>Synsets</vh>
+<v t="karstenw.20230310152332.1"><vh>Synsets</vh>
 <v t="karstenw.20230303133045.3"><vh>synsets</vh></v>
 <v t="karstenw.20230303133045.4"><vh>class _synset</vh>
 <v t="karstenw.20230303133045.5"><vh>__getitem__</vh></v>
@@ -1529,7 +1529,7 @@
 <v t="karstenw.20230310152508.1"><vh>WordNet3 to WordNet2</vh>
 <v t="karstenw.20230303133045.30"><vh>map32</vh></v>
 </v>
-<v t="karstenw.20230310152553.1" a="E"><vh>SentiWordNet</vh>
+<v t="karstenw.20230310152553.1"><vh>SentiWordNet</vh>
 <v t="karstenw.20230303133045.31"><vh>class SentiWordNet</vh>
 <v t="karstenw.20230303133045.32"><vh>__init__</vh></v>
 <v t="karstenw.20230303133045.33"><vh>load</vh></v>
@@ -1730,8 +1730,8 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303140243.1"><vh>vector</vh>
-<v t="karstenw.20230303140259.1"><vh>@clean pattern/vector/__init__.py</vh>
+<v t="karstenw.20230303140243.1" a="E"><vh>vector</vh>
+<v t="karstenw.20230303140259.1" a="E"><vh>@clean pattern/vector/__init__.py</vh>
 <v t="karstenw.20230303140319.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303140319.2"><vh>shi</vh></v>
 <v t="karstenw.20230303140319.3"><vh>shuffled</vh></v>
@@ -1902,7 +1902,7 @@
 </v>
 <v t="karstenw.20230303140319.159"><vh>sequence</vh></v>
 <v t="karstenw.20230303140319.160"><vh>hierarchical</vh></v>
-<v t="karstenw.20230303140319.161"><vh>class Classifier</vh>
+<v t="karstenw.20230303140319.161" a="E"><vh>class Classifier</vh>
 <v t="karstenw.20230303140319.162"><vh>__init__</vh></v>
 <v t="karstenw.20230303140319.163"><vh>features</vh></v>
 <v t="karstenw.20230303140319.164"><vh>classes</vh></v>
@@ -2123,20 +2123,20 @@
 <v t="karstenw.20230303141312.2"><vh>print_null</vh></v>
 <v t="karstenw.20230303141312.3"><vh>genFields</vh></v>
 <v t="karstenw.20230303141312.4"><vh>fillprototype</vh></v>
-<v t="karstenw.20230303141312.5" a="E"><vh>class svm_node</vh>
+<v t="karstenw.20230303141312.5"><vh>class svm_node</vh>
 <v t="karstenw.20230303141312.6"><vh>__str__</vh></v>
 </v>
 <v t="karstenw.20230303141312.7"><vh>gen_svm_nodearray</vh></v>
-<v t="karstenw.20230303141312.8" a="E"><vh>class svm_problem</vh>
+<v t="karstenw.20230303141312.8"><vh>class svm_problem</vh>
 <v t="karstenw.20230303141312.9"><vh>__init__</vh></v>
 </v>
-<v t="karstenw.20230303141312.10" a="E"><vh>class svm_parameter</vh>
+<v t="karstenw.20230303141312.10"><vh>class svm_parameter</vh>
 <v t="karstenw.20230303141312.11"><vh>__init__</vh></v>
 <v t="karstenw.20230303141312.12"><vh>__str__</vh></v>
 <v t="karstenw.20230303141312.13"><vh>set_to_default_values</vh></v>
 <v t="karstenw.20230303141312.14"><vh>parse_options</vh></v>
 </v>
-<v t="karstenw.20230303141312.15" a="E"><vh>class svm_model</vh>
+<v t="karstenw.20230303141312.15"><vh>class svm_model</vh>
 <v t="karstenw.20230303141312.16"><vh>__init__</vh></v>
 <v t="karstenw.20230303141312.17"><vh>__del__</vh></v>
 <v t="karstenw.20230303141312.18"><vh>get_svm_type</vh></v>
@@ -2201,7 +2201,7 @@
 <v t="karstenw.20230303141230.7"><vh>class HTTP429TooMayRequests</vh></v>
 <v t="karstenw.20230303141230.8"><vh>class HTTP500InternalServerError</vh></v>
 <v t="karstenw.20230303141230.9"><vh>class HTTP503ServiceUnavailable</vh></v>
-<v t="karstenw.20230303141230.10" a="E"><vh>class URL</vh>
+<v t="karstenw.20230303141230.10"><vh>class URL</vh>
 <v t="karstenw.20230303141230.11"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.12"><vh>_parse</vh></v>
 <v t="karstenw.20230303141230.13"><vh>_get_string</vh></v>
@@ -2284,7 +2284,7 @@
 <v t="karstenw.20230303141230.83"><vh>class SearchEngineError</vh></v>
 <v t="karstenw.20230303141230.84"><vh>class SearchEngineTypeError</vh></v>
 <v t="karstenw.20230303141230.85"><vh>class SearchEngineLimitError</vh></v>
-<v t="karstenw.20230303141230.86" a="E"><vh>class Google</vh>
+<v t="karstenw.20230303141230.86"><vh>class Google</vh>
 <v t="karstenw.20230303141230.87"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.88"><vh>search</vh></v>
 <v t="karstenw.20230303141230.89"><vh>translate</vh></v>
@@ -2619,8 +2619,8 @@
 <v t="karstenw.20230303141255.5"><vh>get_form_action</vh></v>
 <v t="karstenw.20230303141255.6"><vh>censor_access_token</vh></v>
 </v>
-<v t="karstenw.20230508125637.1" a="E"><vh>cache</vh>
-<v t="karstenw.20230508125640.1" a="E"><vh>@clean pattern/web/cache/__init__.py</vh>
+<v t="karstenw.20230508125637.1"><vh>cache</vh>
+<v t="karstenw.20230508125640.1"><vh>@clean pattern/web/cache/__init__.py</vh>
 <v t="karstenw.20230508125701.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230508125701.2"><vh>date_now</vh></v>
 <v t="karstenw.20230508125701.3"><vh>date_modified</vh></v>
@@ -2640,7 +2640,7 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303142559.1" a="E"><vh>imap</vh>
+<v t="karstenw.20230303142559.1"><vh>imap</vh>
 <v t="karstenw.20230303142620.1"><vh>@clean pattern/web/imap/__init__.py</vh>
 <v t="karstenw.20230303142634.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303142634.2"><vh>class IMAP4</vh></v>
@@ -4894,7 +4894,7 @@ def load(cls, path, separator=",", decoder=lambda v: v, headers=False, preproces
     # Date objects are saved and loaded as strings, but it is easy to convert these back to dates:
     # - set a DATE field type for the column,
     # - or do Table.columns[x].map(lambda s: date(s))
-    data = open(path, "rU", encoding=encoding)
+    data = open(path, "r", encoding=encoding)
     data = data if not password else decrypt_string(data.read(), password)
     data.seek(data.readline().startswith(BOM_UTF8) and 3 or 0)
     data = data if not password else BytesIO(data.replace("\r\n", "\n").replace("\r", "\n"))
@@ -10232,6 +10232,8 @@ import collections
 import sqlite3 as sqlite
 import cherrypy as cp
 
+import pdb
+
 try:
     import json
     json.encoder.FLOAT_REPR = lambda f: ("%.2f" % f)
@@ -11893,6 +11895,14 @@ g = localdict(data=cp.thread_data)
         return f
     f = undecorate(f)
     a = inspect.getargspec(f) # (names, *args, **kwargs, values)
+    # a[0] = names
+    # a[1] = args
+    # a[2] = kwargs
+    # a[3] = values
+    
+    # pdb.set_trace()
+
+    # 
     i = len(a[0]) - len(a[3] or [])
     x = tuple(a[0][:i])
     y = dict(zip(a[0][i:], a[3] or []))
@@ -34036,6 +34046,7 @@ from io import open
 
 import numpy as np
 # import scipy
+import pdb
 
 try:
     MODULE = os.path.dirname(os.path.realpath(__file__))
@@ -34993,10 +35004,6 @@ MAJORITY, FREQUENCY = "majority", "frequency"
 <t tx="karstenw.20230303140319.161">class Classifier(object):
 
     @others
-#--- CLASSIFIER PROBABILITIES ----------------------------------------------------------------------
-# Returned from Classifier.classify(v, discrete=False)
-
-
 </t>
 <t tx="karstenw.20230303140319.162">def __init__(self, train=[], baseline=MAJORITY, **kwargs):
     """ A base class for Naive Bayes, k-NN and SVM.
@@ -35204,8 +35211,12 @@ def test(cls, corpus=[], d=0.65, folds=1, **kwargs):
     if final:
         self.finalize()
     self.test = None # Can't pickle instancemethods.
+    pdb.set_trace()
     f = gzip.GzipFile(path, "wb")
-    f.write(pickle.dumps(self, 1)) # 1 = binary
+    # f = open( path, "wb" )
+    # 1 = binary
+    s = pickle.dumps(self, 1)
+    f.write( s )
     f.close()
 
 </t>
@@ -35232,12 +35243,13 @@ def load(cls, path):
     pass
 
 </t>
-<t tx="karstenw.20230303140319.184">class Probabilities(defaultdict):
+<t tx="karstenw.20230303140319.184">#--- CLASSIFIER PROBABILITIES ----------------------------------------------------------------------
+# Returned from Classifier.classify(v, discrete=False)
+
+
+class Probabilities(defaultdict):
 
     @others
-#--- CLASSIFIER EVALUATION -------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303140319.185">def __init__(self, classifier, *args, **kwargs):
     defaultdict.__init__(self, float)
@@ -35262,7 +35274,10 @@ def max(self):
         return b, 0.0
 
 </t>
-<t tx="karstenw.20230303140319.187">class ConfusionMatrix(defaultdict):
+<t tx="karstenw.20230303140319.187">#--- CLASSIFIER EVALUATION -------------------------------------------------------------------------
+
+
+class ConfusionMatrix(defaultdict):
 
     @others
 </t>
@@ -35487,9 +35502,6 @@ BERNOUILLI = "bernouilli"  # Feature occurs in class (1) or not (0).
     @others
 Bayes = NaiveBayes = NB
 
-#--- K-NEAREST NEIGHBOR CLASSIFIER -----------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303140319.2">def shi(i, base="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"):
     """ Returns a short string hash for a given int.
@@ -35595,7 +35607,10 @@ def features(self):
         return self.baseline
 
 </t>
-<t tx="karstenw.20230303140319.205">class KNN(Classifier):
+<t tx="karstenw.20230303140319.205">#--- K-NEAREST NEIGHBOR CLASSIFIER -----------------------------------------------------------------
+
+
+class KNN(Classifier):
 
     @others
 NearestNeighbor = kNN = KNN
@@ -35614,9 +35629,6 @@ NearestNeighbor = kNN = KNN
 #print(knn.classes)
 #print(knn.classify(Document("something that can fly")))
 #print(KNN.test((d1, d2, d3), folds=2))
-
-#--- INFORMATION GAIN TREE --------------------------------------------------------------------------
-
 
 </t>
 <t tx="karstenw.20230303140319.206">def __init__(self, train=[], baseline=MAJORITY, k=10, distance=COSINE, **kwargs):
@@ -36986,7 +36998,10 @@ def distribution(self):
 lsa = property(_get_lsa, _set_lsa)
 
 </t>
-<t tx="karstenw.20230303140320.1">class IGTreeNode(list):
+<t tx="karstenw.20230303140320.1">#--- INFORMATION GAIN TREE --------------------------------------------------------------------------
+
+
+class IGTreeNode(list):
 
     @others
 </t>
@@ -37030,7 +37045,10 @@ lsa = property(_get_lsa, _set_lsa)
     self._vectors = []
 
 </t>
-<t tx="karstenw.20230303140320.14">def softmax(p):
+<t tx="karstenw.20230303140320.14">#--- SINGLE-LAYER PERCEPTRON ------------------------------------------------------------------------
+
+
+def softmax(p):
     """ Returns a dict with float values that sum to 1.0
         (using generalized logistic regression).
     """
@@ -37071,15 +37089,6 @@ AP = AveragedPerceptron = Perceptron = SLP
 #p.train({"meow":1, "purr":1}, "cat")
 #print p.features
 #print p.classify({"woof":1, "bark":1}, discrete=False).max
-
-#--- BACKPROPAGATION NEURAL NETWORK -----------------------------------------------------------------
-# "Deep learning" refers to deep neural networks and deep belief systems.
-# Deep neural networks are networks that have hidden layers between the input and output layers.
-# By contrast, Perceptron directly feeds the input to the output layer.
-
-# Weight initialization:
-RANDOM = "random"
-
 
 </t>
 <t tx="karstenw.20230303140320.16">def __init__(self, train=[], baseline=MAJORITY, iterations=1, **kwargs):
@@ -37183,7 +37192,16 @@ def features(self):
     self._vectors = []
 
 </t>
-<t tx="karstenw.20230303140320.22">def matrix(m, n, a=0.0, b=0.0):
+<t tx="karstenw.20230303140320.22">#--- BACKPROPAGATION NEURAL NETWORK -----------------------------------------------------------------
+# "Deep learning" refers to deep neural networks and deep belief systems.
+# Deep neural networks are networks that have hidden layers between the input and output layers.
+# By contrast, Perceptron directly feeds the input to the output layer.
+
+# Weight initialization:
+RANDOM = "random"
+
+
+def matrix(m, n, a=0.0, b=0.0):
     """ Returns an n x m matrix with values 0.0.
         If a and b are given, values are uniformly random between a and b.
     """
@@ -37225,41 +37243,6 @@ MLP = ANN = NN = NeuralNetwork = BPNN
 #print(nn._classify([0,0]))
 #print(nn._classify([0,1]))
 #print
-
-#--- SUPPORT VECTOR MACHINE ------------------------------------------------------------------------
-# Pattern comes bundled with LIBSVM 3.17:
-# http://www.csie.ntu.edu.tw/~cjlin/libsvm/
-#
-# Compiled binaries for 32-bit and 64-bit Windows, Mac OS X and Ubuntu are included.
-# If no binary works, SVM() raises an ImportError,
-# and you will need to download and compile LIBSVM from source.
-# If Mac OS X complains during compilation, rename -soname" to "-install_name" in libsvm/Makefile.
-# If the binary is named "libsvm.so.2", strip the ".2".
-# Put the binary (i.e., "libsvm.dll" or "libsvm.so") in pattern/vector/svm/.
-# Windows binaries can be downloaded from:
-# http://www.lfd.uci.edu/~gohlke/pythonlibs/#libsvm
-
-# SVM extensions:
-LIBSVM, LIBLINEAR = \
-    "libsvm", "liblinear"
-
-# SVM type:
-SVC = CLASSIFICATION = 0
-SVR = REGRESSION = 3
-SVO = DETECTION = 2 # One-class SVM: X belongs to the class or not?
-
-# SVM kernels:
-LINEAR = 0 # Straight line: u' * v
-POLYNOMIAL = 1 # Curved line: (gamma * u' * v + coef0) ** degree
-RADIAL = RBF = 2 # Curved path: exp(-gamma * |u-v| ** 2)
-
-# SVM solvers:
-LOGIT = L2LR = 0 # LIBLINEAR L2 logistic regression
-
-# The simplest way to divide two clusters is a straight line.
-# If the clusters are separated by a curved line,
-# separation may be easier in higher dimensions (using a kernel).
-
 
 </t>
 <t tx="karstenw.20230303140320.26">def __init__(self, train=[], baseline=MAJORITY, layers=2, iterations=1000, **kwargs):
@@ -37441,7 +37424,42 @@ _backprop = _propagate_backward
     self._vectors = []
 
 </t>
-<t tx="karstenw.20230303140320.39">class SVM(Classifier):
+<t tx="karstenw.20230303140320.39">#--- SUPPORT VECTOR MACHINE ------------------------------------------------------------------------
+# Pattern comes bundled with LIBSVM 3.17:
+# http://www.csie.ntu.edu.tw/~cjlin/libsvm/
+#
+# Compiled binaries for 32-bit and 64-bit Windows, Mac OS X and Ubuntu are included.
+# If no binary works, SVM() raises an ImportError,
+# and you will need to download and compile LIBSVM from source.
+# If Mac OS X complains during compilation, rename -soname" to "-install_name" in libsvm/Makefile.
+# If the binary is named "libsvm.so.2", strip the ".2".
+# Put the binary (i.e., "libsvm.dll" or "libsvm.so") in pattern/vector/svm/.
+# Windows binaries can be downloaded from:
+# http://www.lfd.uci.edu/~gohlke/pythonlibs/#libsvm
+
+# SVM extensions:
+LIBSVM, LIBLINEAR = \
+    "libsvm", "liblinear"
+
+# SVM type:
+SVC = CLASSIFICATION = 0
+SVR = REGRESSION = 3
+SVO = DETECTION = 2 # One-class SVM: X belongs to the class or not?
+
+# SVM kernels:
+LINEAR = 0 # Straight line: u' * v
+POLYNOMIAL = 1 # Curved line: (gamma * u' * v + coef0) ** degree
+RADIAL = RBF = 2 # Curved path: exp(-gamma * |u-v| ** 2)
+
+# SVM solvers:
+LOGIT = L2LR = 0 # LIBLINEAR L2 logistic regression
+
+# The simplest way to divide two clusters is a straight line.
+# If the clusters are separated by a curved line,
+# separation may be easier in higher dimensions (using a kernel).
+
+
+class SVM(Classifier):
 
     @others
 #---------------------------------------------------------------------------------------------------
@@ -37486,10 +37504,6 @@ _backprop = _propagate_backward
 # Of course, it's optimizing for the same cross-validation
 # that it's testing on, so this is easy to overfit.
 # In scikit-learn it will run faster (4 seconds &lt;=&gt; 20 seconds), see: http://goo.gl/YqlRa
-
-#--- LOGISTIC REGRESSION ---------------------------------------------------------------------------
-# Multinomial logistic regression (or Maximum Entropy) is competitive to SVM and gives probabilities.
-
 
 </t>
 <t tx="karstenw.20230303140320.4">@property
@@ -37707,9 +37721,6 @@ The vector space model has the following limitations:
 #
 #print(kfoldcv(IGTree, data, folds=3))
 
-#--- SINGLE-LAYER PERCEPTRON ------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303140320.50">@property
 def epsilon(self):
@@ -37912,13 +37923,14 @@ def load(cls, path):
     self._vectors = []
 
 </t>
-<t tx="karstenw.20230303140320.63">class LR(Classifier):
+<t tx="karstenw.20230303140320.63">#--- LOGISTIC REGRESSION ---------------------------------------------------------------------------
+# Multinomial logistic regression (or Maximum Entropy) is competitive to SVM and gives probabilities.
+
+
+class LR(Classifier):
 
     @others
 LogisticRegression = SoftMaxRegression = MaximumEntropy = MaxEnt = ME = LR
-
-#### GENETIC ALGORITHM #############################################################################
-
 
 </t>
 <t tx="karstenw.20230303140320.64">def __init__(self, train=[], baseline=MAJORITY, iterations=100, **kwargs):
@@ -38095,7 +38107,10 @@ def load(cls, path):
     self._vectors = []
 
 </t>
-<t tx="karstenw.20230303140320.75">class GeneticAlgorithm(object):
+<t tx="karstenw.20230303140320.75">#### GENETIC ALGORITHM #############################################################################
+
+
+class GeneticAlgorithm(object):
 
     @others
 GA = GeneticAlgorithm
@@ -38447,6 +38462,8 @@ from . import locale
 
 import bs4 as BeautifulSoup
 
+# import pdb
+
 try:
     # Import persistent Cache.
     # If this module is used separately,
@@ -38727,7 +38744,8 @@ def elapsed(self):
 </t>
 <t tx="karstenw.20230303141229.9">@property
 def done(self):
-    return not self._thread.isAlive()
+    # pdb.set_trace()
+    return not self._thread.is_alive()
 
 </t>
 <t tx="karstenw.20230303141230.1">class HTTP400BadRequest(HTTPError):
@@ -43312,7 +43330,14 @@ license["ProductWiki"] = \
     "64819965ec784395a494a0d7ed0def32"
 </t>
 <t tx="karstenw.20230303141255.1">import re
-from collections import Iterable
+
+try:
+    # old - worked up to 3.8
+    from collections import Iterable
+except ImportError as err:
+    # new - 3.11 needed this
+    from collections.abc import Iterable
+
 
 try:
     # Python 2
@@ -43420,11 +43445,11 @@ VALID_LI = ["b", "c", "d", "e", "g", "h", "k", "m", "n", "r", "t"]
                 break
     return m
 
-#--- REPLACEMENT RULES -----------------------------------------------------------------------------
-
-
 </t>
-<t tx="karstenw.20230303141303.12">def step_1a(w):
+<t tx="karstenw.20230303141303.12">#--- REPLACEMENT RULES -----------------------------------------------------------------------------
+
+
+def step_1a(w):
     """ Step 1a handles -s suffixes.
     """
     if w.endswith("s"):
@@ -43611,16 +43636,16 @@ uninflected = dict.fromkeys([
     "atlas", "cosmos", "bias", "andes" # not plural forms
 ], True)
 
-#--- STEMMER ---------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303141303.2">def is_vowel(s):
     return s in VOWELS
 
 
 </t>
-<t tx="karstenw.20230303141303.20">def case_sensitive(stem, word):
+<t tx="karstenw.20230303141303.20">#--- STEMMER ---------------------------------------------------------------------------------------
+
+
+def case_sensitive(stem, word):
     """ Applies the letter case of the word to the stem:
         Ponies =&gt; Poni
     """
