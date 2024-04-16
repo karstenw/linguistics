@@ -13,6 +13,26 @@ from pattern.web import Wiktionary, DOM
 from pattern.db import csv, pd
 from pattern.vector import SVM, chngrams, count, kfoldcv
 
+
+class GenderByName(SVM):
+
+    def train(self, name, gender=None):
+        SVM.train(self, self.vector(name), gender)
+
+    def classify(self, name):
+        return SVM.classify(self, self.vector(name))
+
+    def vector(self, name):
+        """ Returns a dictionary with character bigrams and suffix.
+            For example, "Felix" => {"Fe":1, "el":1, "li":1, "ix":1, "ix$":1, 5:1}
+        """
+        v = chngrams(name, n=2)
+        v = count(v)
+        v[name[-2:] + "$"] = 1
+        v[len(name)] = 1
+        return v
+
+
 # This example retrieves male and female given names from Wiktionary (http://en.wiktionary.org).
 # It then trains a classifier that can predict the gender of unknown names (about 78% correct).
 # The classifier is small (80KB) and fast.
@@ -37,24 +57,6 @@ for gender in ("male", "female"):
 # Create a classifier that predicts gender based on name.
 
 
-
-class GenderByName(SVM):
-
-    def train(self, name, gender=None):
-        SVM.train(self, self.vector(name), gender)
-
-    def classify(self, name):
-        return SVM.classify(self, self.vector(name))
-
-    def vector(self, name):
-        """ Returns a dictionary with character bigrams and suffix.
-            For example, "Felix" => {"Fe":1, "el":1, "li":1, "ix":1, "ix$":1, 5:1}
-        """
-        v = chngrams(name, n=2)
-        v = count(v)
-        v[name[-2:] + "$"] = 1
-        v[len(name)] = 1
-        return v
 
 data = csv(pd("given-names.csv"))
 
