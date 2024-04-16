@@ -64,6 +64,7 @@ from io import open
 
 import numpy as np
 # import scipy
+import pdb
 
 try:
     MODULE = os.path.dirname(os.path.realpath(__file__))
@@ -2379,8 +2380,12 @@ class Classifier(object):
         if final:
             self.finalize()
         self.test = None # Can't pickle instancemethods.
+        # pdb.set_trace()
         f = gzip.GzipFile(path, "wb")
-        f.write(pickle.dumps(self, 1)) # 1 = binary
+        # f = open( path, "wb" )
+        # 1 = binary
+        s = pickle.dumps(self, 1)
+        f.write( s )
         f.close()
 
     @classmethod
