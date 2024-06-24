@@ -21,7 +21,7 @@
 </v>
 <v t="karstenw.20230524124241.1" a="E"><vh>@clean FlowerWord.py</vh>
 <v t="karstenw.20230524124307.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230524124417.1"><vh>FlowerWord</vh>
+<v t="karstenw.20230524124417.1" a="E"><vh>FlowerWord</vh>
 <v t="karstenw.20230524124417.2"><vh>__init__</vh></v>
 <v t="karstenw.20230524124417.3"><vh>hyponyms</vh></v>
 <v t="karstenw.20230524124417.4"><vh>hypernyms</vh></v>
@@ -808,7 +808,7 @@ wordnet = en.wordnet
     for synset in self.synsets:
         holonyms = synset.holonyms()
         for holonym in holonyms:
-            synonyms = hyponym.synonyms
+            synonyms = holonym.synonyms
             for synonym in synonyms:
                 synonym = synonym.replace("_", " ")
                 result.append( synonym )
