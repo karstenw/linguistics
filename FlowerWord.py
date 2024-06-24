@@ -90,7 +90,7 @@ class FlowerWord:
         for synset in self.synsets:
             holonyms = synset.holonyms()
             for holonym in holonyms:
-                synonyms = hyponym.synonyms
+                synonyms = holonym.synonyms
                 for synonym in synonyms:
                     synonym = synonym.replace("_", " ")
                     result.append( synonym )
