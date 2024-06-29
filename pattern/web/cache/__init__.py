@@ -91,9 +91,9 @@ class Cache(object):
         return self.get(k)
 
     def __setitem__(self, k, v):
-        f = open(self._hash(k), "w", encoding = "utf-8")
-        f.write(BOM_UTF8)
-        v = decode_utf8(v)
+        f = open(self._hash(k), "wb") #, encoding = "utf-8")
+        # f.write(BOM_UTF8)
+        v = encode_utf8(v) # decode_utf8(v)
         f.write(v)
         f.close()
 
@@ -109,7 +109,7 @@ class Cache(object):
         """
         if k in self:
             f = open(self._hash(k), "rb")
-            v = f.read().lstrip(BOM_UTF8.encode("utf-8"))
+            v = f.read() #.lstrip(BOM_UTF8.encode("utf-8"))
             f.close()
             if unicode is True:
                 return decode_utf8(v)
