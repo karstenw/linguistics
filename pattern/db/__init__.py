@@ -1948,7 +1948,7 @@ class CSV(list):
         s = re.sub("([^\"]|^)\"None\"", "\\1None", s)
         s = s if not password else encrypt_string(s, password)
         f = open(path, "w", encoding="utf-8")
-        f.write(BOM_UTF8)
+        #f.write(BOM_UTF8)
         f.write(s)
         f.close()
 
