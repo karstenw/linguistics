@@ -11,8 +11,8 @@ cache
 #nltk-data
 #pattern-data
 #wn-data
-+docs
-+private
++*
+
 en/+docs
 pattern/examples/01-web/*.jpg
 pattern/examples/06-graph/test*
