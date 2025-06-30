@@ -2,11 +2,13 @@
 
 import sys
 import os
-# import pdb
+
+import pdb
+
 import pprint
 import time
 
-# pdb.set_trace()
+pdb.set_trace()
 
 start = time.time()
 
