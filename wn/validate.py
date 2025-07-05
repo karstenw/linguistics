@@ -16,6 +16,9 @@ W301  Synset is empty (not associated with any lexical entries).
 W302  ILI is repeated across synsets.
 W303  Proposed ILI is missing a definition.
 W304  Existing ILI has a spurious definition.
+W305  Synset has a blank definition.
+W306  Synset has a blank example.
+W307  Synset repeats an existing definition.
 E401  Relation target is missing or invalid.
 W402  Relation type is invalid for the source and target.
 W403  Redundant relation between source and target.
@@ -26,9 +29,13 @@ W502  Relation is a self-loop.
 
 """
 
-from typing import (Sequence, Iterator, Tuple, List, Dict,
-                    Optional, Type, Union, Callable, cast)
+from typing import Optional, Union, cast
 from collections import Counter
+from collections.abc import (
+    Callable,
+    Iterator,
+    Sequence,
+)
 from itertools import chain
 
 from wn import lmf
@@ -41,10 +48,10 @@ from wn.constants import (
 from wn.util import ProgressHandler, ProgressBar
 
 
-_Ids = Dict[str, Counter]
-_Result = Dict[str, Dict]
+_Ids = dict[str, Counter]
+_Result = dict[str, dict]
 _CheckFunction = Callable[[lmf.Lexicon, _Ids], _Result]
-_Report = Dict[str, Dict[str, Union[str, _Result]]]
+_Report = dict[str, dict[str, Union[str, _Result]]]
 
 
 def _non_unique_id(lex: lmf.Lexicon, ids: _Ids) -> _Result:
@@ -53,9 +60,9 @@ def _non_unique_id(lex: lmf.Lexicon, ids: _Ids) -> _Result:
         [lex['id']],
         (f['id'] for e in _entries(lex) for f in _forms(e) if f.get('id')),
         (sb['id'] for sb in lex.get('frames', []) if sb.get('id')),
-        ids['entry'],
-        ids['sense'],
-        ids['synset'],
+        ids['entry'].elements(),
+        ids['sense'].elements(),
+        ids['synset'].elements(),
     ))
 
 
@@ -121,6 +128,34 @@ def _spurious_ili_definition(lex: lmf.Lexicon, ids: _Ids) -> _Result:
             if ss['ili'] and ss['ili'] != 'in' and ss.get('ili_definition')}
 
 
+def _blank_synset_definition(lex: lmf.Lexicon, ids: _Ids) -> _Result:
+    """synset has a blank definition"""
+    return {
+        ss['id']: {} for ss in _synsets(lex)
+        if any(dfn["text"].strip() == "" for dfn in ss.get("definitions", []))
+    }
+
+def _blank_synset_example(lex: lmf.Lexicon, ids: _Ids) -> _Result:
+    """synset has a blank example"""
+    return {
+        ss['id']: {} for ss in _synsets(lex)
+        if any(ex["text"].strip() == "" for ex in ss.get("examples", []))
+    }
+
+
+def _repeated_synset_definition(lex: lmf.Lexicon, ids: _Ids) -> _Result:
+    """synset repeats an existing definition"""
+    repeated = _multiples(
+        dfn["text"]
+        for ss in _synsets(lex)
+        for dfn in ss.get("definitions", [])
+    )
+    return {
+        ss["id"]: {} for ss in _synsets(lex)
+        if any(dfn["text"] in repeated for dfn in ss.get("definitions", []))
+    }
+
+
 def _missing_relation_target(lex: lmf.Lexicon, ids: _Ids) -> _Result:
     """relation target is missing or invalid"""
     result = {s['id']: {'type': r['relType'], 'target': r['target']}
@@ -149,10 +184,19 @@ def _invalid_relation_type(lex: lmf.Lexicon, ids: _Ids) -> _Result:
 def _redundant_relation(lex: lmf.Lexicon, ids: _Ids) -> _Result:
     """redundant relation between source and target"""
     redundant = _multiples(chain(
-        ((s['id'], r['relType'], r['target']) for s, r in _sense_relations(lex)),
-        ((ss['id'], r['relType'], r['target']) for ss, r in _synset_relations(lex)),
+        (
+            (s['id'], r['relType'], r['target'], _get_dc_type(r))
+            for s, r in _sense_relations(lex)
+        ),
+        (
+            (ss['id'], r['relType'], r['target'], _get_dc_type(r))
+            for ss, r in _synset_relations(lex)
+        ),
     ))
-    return {src: {'type': typ, 'target': tgt} for src, typ, tgt in redundant}
+    return {
+        src: ({'type': typ, 'target': tgt} | ({'dc:type': dctyp} if dctyp else {}))
+        for src, typ, tgt, dctyp in redundant
+    }
 
 
 def _missing_reverse_relation(lex: lmf.Lexicon, ids: _Ids) -> _Result:
@@ -192,23 +236,27 @@ def _multiples(iterable):
     return {x: {'count': cnt} for x, cnt in counts.items() if cnt > 1}
 
 
-def _entries(lex: lmf.Lexicon) -> List[lmf.LexicalEntry]: return lex.get('entries', [])
-def _forms(e: lmf.LexicalEntry) -> List[lmf.Form]: return e.get('forms', [])
-def _senses(e: lmf.LexicalEntry) -> List[lmf.Sense]: return e.get('senses', [])
-def _synsets(lex: lmf.Lexicon) -> List[lmf.Synset]: return lex.get('synsets', [])
+def _entries(lex: lmf.Lexicon) -> list[lmf.LexicalEntry]: return lex.get('entries', [])
+def _forms(e: lmf.LexicalEntry) -> list[lmf.Form]: return e.get('forms', [])
+def _senses(e: lmf.LexicalEntry) -> list[lmf.Sense]: return e.get('senses', [])
+def _synsets(lex: lmf.Lexicon) -> list[lmf.Synset]: return lex.get('synsets', [])
 
 
-def _sense_relations(lex: lmf.Lexicon) -> Iterator[Tuple[lmf.Sense, lmf.Relation]]:
+def _sense_relations(lex: lmf.Lexicon) -> Iterator[tuple[lmf.Sense, lmf.Relation]]:
     for e in _entries(lex):
         for s in _senses(e):
             for r in s.get('relations', []):
                 yield (s, r)
 
 
-def _synset_relations(lex: lmf.Lexicon) -> Iterator[Tuple[lmf.Synset, lmf.Relation]]:
+def _synset_relations(lex: lmf.Lexicon) -> Iterator[tuple[lmf.Synset, lmf.Relation]]:
     for ss in _synsets(lex):
         for r in ss.get('relations', []):
             yield (ss, r)
+
+
+def _get_dc_type(r: lmf.Relation) -> Optional[str]:
+    return (r.get('meta') or {}).get('type')
 
 
 # Check codes and messages
@@ -223,7 +271,7 @@ def _synset_relations(lex: lmf.Lexicon) -> Iterator[Tuple[lmf.Synset, lmf.Relati
 #   400 - relations
 #   500 - graph and taxonomy
 
-_codes: Dict[str, _CheckFunction] = {
+_codes: dict[str, _CheckFunction] = {
     # 100 - general
     'E101': _non_unique_id,
     # 200 - words and senses
@@ -236,6 +284,9 @@ _codes: Dict[str, _CheckFunction] = {
     'W302': _repeated_ili,
     'W303': _missing_ili_definition,
     'W304': _spurious_ili_definition,
+    'W305': _blank_synset_definition,
+    'W306': _blank_synset_example,
+    'W307': _repeated_synset_definition,
     # 400 - relations
     'E401': _missing_relation_target,
     'W402': _invalid_relation_type,
@@ -247,7 +298,7 @@ _codes: Dict[str, _CheckFunction] = {
 }
 
 
-def _select_checks(select: Sequence[str]) -> List[Tuple[str, _CheckFunction, str]]:
+def _select_checks(select: Sequence[str]) -> list[tuple[str, _CheckFunction, str]]:
     selectset = set(select)
     return [(code, func, func.__doc__ or '')
             for code, func in _codes.items()
@@ -259,7 +310,7 @@ def _select_checks(select: Sequence[str]) -> List[Tuple[str, _CheckFunction, str
 def validate(
     lex: Union[lmf.Lexicon, lmf.LexiconExtension],
     select: Sequence[str] = ('E', 'W'),
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar
 ) -> _Report:
     """Check *lex* for validity and return a report of the results.
 

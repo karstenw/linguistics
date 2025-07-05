@@ -10,8 +10,8 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230225123024.1" a="E"><vh>WN-Library</vh>
-<v t="karstenw.20230225125511.1"><vh>wn</vh>
-<v t="karstenw.20230225123039.1" a="E"><vh>@clean wn/__init__.py</vh>
+<v t="karstenw.20230225125511.1" a="E"><vh>wn</vh>
+<v t="karstenw.20230225123039.1"><vh>@clean wn/__init__.py</vh>
 <v t="karstenw.20230225123108.1"><vh>Declarations</vh></v>
 </v>
 <v t="karstenw.20230225123120.1"><vh>@clean wn/__main__.py</vh>
@@ -267,6 +267,19 @@
 <v t="karstenw.20230225123950.2"><vh>is_ili</vh></v>
 <v t="karstenw.20230225123950.3"><vh>load</vh></v>
 </v>
+<v t="karstenw.20250529173214.1"><vh>@clean wn/_module_functions.py</vh>
+<v t="karstenw.20250529173235.1"><vh>Declarations</vh></v>
+<v t="karstenw.20250529173235.2"><vh>projects</vh></v>
+<v t="karstenw.20250529173235.3"><vh>lexicons</vh></v>
+<v t="karstenw.20250529173235.4"><vh>word</vh></v>
+<v t="karstenw.20250529173235.5"><vh>words</vh></v>
+<v t="karstenw.20250529173235.6"><vh>synset</vh></v>
+<v t="karstenw.20250529173235.7"><vh>synsets</vh></v>
+<v t="karstenw.20250529173235.8"><vh>senses</vh></v>
+<v t="karstenw.20250529173235.9"><vh>sense</vh></v>
+<v t="karstenw.20250529173235.10"><vh>ili</vh></v>
+<v t="karstenw.20250529173235.11"><vh>ilis</vh></v>
+</v>
 <v t="karstenw.20230225123226.4"><vh>@clean wn/_queries.py</vh>
 <v t="karstenw.20230225123952.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230225123952.2"><vh>find_lexicons</vh></v>
@@ -515,7 +528,7 @@
 <v t="karstenw.20230225124228.24"><vh>_select_checks</vh></v>
 <v t="karstenw.20230225124228.25"><vh>validate</vh></v>
 </v>
-<v t="karstenw.20230225125423.1"><vh>wn/web.py  -  ignore because of leo parse error</vh></v>
+<v t="karstenw.20250529173630.1"><vh>wn/web.py - parse error</vh></v>
 </v>
 </v>
 </vnodes>
@@ -535,6 +548,7 @@ __all__ = (
     'Wordnet',
     'download',
     'add',
+    'add_lexical_resource',
     'remove',
     'export',
     'projects',
@@ -549,10 +563,13 @@ __all__ = (
     'sense',
     'senses',
     'Sense',
+    'Example',
     'Count',
     'synset',
     'synsets',
     'Synset',
+    'Definition',
+    'Relation',
     'ili',
     'ilis',
     'ILI',
@@ -571,20 +588,28 @@ from wn._exceptions import (
     WnWarning,
 )
 from wn._config import config  # noqa: F401
-from wn._add import add, remove
+from wn._add import add, add_lexical_resource, remove
 from wn._export import export
 from wn._download import download
 from wn._core import (
-    projects,
-    lexicons, Lexicon,
-    word, words, Word, Form, Pronunciation, Tag,
-    sense, senses, Sense, Count,
-    synset, synsets, Synset,
-    ili, ilis, ILI,
+    Lexicon,
+    Word, Form, Pronunciation, Tag,
+    Sense, Example, Count,
+    Synset, Definition,
+    Relation,
+    ILI,
     Wordnet
 )
+from wn._module_functions import (
+    projects,
+    lexicons,
+    word, words,
+    sense, senses,
+    synset, synsets,
+    ili, ilis,
+)
 
-__version__ = '0.9.3'
+__version__ = '0.12.0'
 </t>
 <t tx="karstenw.20230225123120.1">@language python
 @tabwidth -4
@@ -613,6 +638,7 @@ import wn
 from wn.project import iterpackages
 from wn import lmf
 from wn.validate import validate
+from wn._util import format_lexicon_specifier
 
 
 </t>
@@ -653,7 +679,7 @@ from wn.validate import validate
     for package in iterpackages(args.FILE):
         resource = lmf.load(package.resource_file())
         for lexicon in resource['lexicons']:
-            spec = f'{lexicon["id"]}:{lexicon["version"]}'
+            spec = format_lexicon_specifier(lexicon["id"], lexicon["version"])
             print(f'{spec:&lt;20}', end='')
             report = validate(lexicon, select=selectseq)
             if not any(check.get('items', []) for check in report.values()):
@@ -669,7 +695,7 @@ from wn.validate import validate
                     with open(args.output_file, 'w') as outfile:
                         json.dump(report, outfile, indent=2)
                 else:
-                    for code, check in report.items():
+                    for _code, check in report.items():
                         if not check['items']:
                             continue
                         print(f'  {check["message"]}')
@@ -785,10 +811,8 @@ logging.basicConfig(level=logging.ERROR - (min(args.verbosity, 3) * 10))
 Adding and removing lexicons to/from the database.
 """
 
-from typing import (
-    Union, Optional, TypeVar, Type, Tuple, List, Dict, Set,
-    Iterator, Iterable, Sequence, cast
-)
+from collections.abc import Iterable, Iterator, Sequence
+from typing import Optional, TypeVar, Union, cast
 from pathlib import Path
 from itertools import islice
 import sqlite3
@@ -798,15 +822,18 @@ import wn
 from wn._types import AnyPath
 from wn.constants import _WORDNET, _ILI
 from wn._db import connect
-from wn._queries import find_lexicons, get_lexicon_extensions, get_lexicon
-from wn._util import normalize_form
+from wn._queries import (
+    resolve_lexicon_specifiers,
+    get_lexicon_extensions,
+)
+from wn._util import normalize_form, format_lexicon_specifier
 from wn.util import ProgressHandler, ProgressBar
 from wn.project import iterpackages
 from wn import lmf
 from wn import _ili
 
 
-logger = logging.getLogger('wn')
+log = logging.getLogger('wn')
 
 
 BATCH_SIZE = 1000
@@ -1023,7 +1050,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     progress.set(status='Word Forms')
     query = f'INSERT INTO forms VALUES (null,?,?,({ENTRY_QUERY}),?,?,?,?)'
     for batch in _batch(entries):
-        forms: List[Tuple[Optional[str], int, str, int,
+        forms: list[tuple[Optional[str], int, str, int,
                           str, Optional[str], Optional[str], int]] = []
         for entry in batch:
             eid = entry['id']
@@ -1063,7 +1090,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     progress.set(status='Pronunciations')
     query = f'INSERT INTO pronunciations VALUES (({FORM_QUERY}),?,?,?,?,?)'
     for batch in _batch(entries):
-        prons: List[Tuple[str, int, Optional[str], int,
+        prons: list[tuple[str, int, Optional[str], int,
                           str, Optional[str], Optional[str],
                           bool, Optional[str]]] = []
         for entry in batch:
@@ -1100,7 +1127,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     progress.set(status='Word Form Tags')
     query = f'INSERT INTO tags VALUES (({FORM_QUERY}),?,?)'
     for batch in _batch(entries):
-        tags: List[Tuple[str, int, Optional[str], int, str, str]] = []
+        tags: list[tuple[str, int, Optional[str], int, str, str]] = []
         for entry in batch:
             eid = entry['id']
             lid = lexidmap.get(eid, lexid)
@@ -1201,7 +1228,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
 </t>
 <t tx="karstenw.20230225123218.2">def add(
     source: AnyPath,
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar,
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar,
 ) -&gt; None:
     """Add the LMF file at *source* to the database.
 
@@ -1213,15 +1240,14 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     The *progress_handler* parameter takes a subclass of
     :class:`wn.util.ProgressHandler`. An instance of the class will be
     created, used, and closed by this function.
-
     """
     if progress_handler is None:
         progress_handler = ProgressHandler
     progress = progress_handler(message='Database')
 
-    logger.info('adding project to database')
-    logger.info('  database: %s', wn.config.database_path)
-    logger.info('  project file: %s', source)
+    log.info('adding project to database')
+    log.info('  database: %s', wn.config.database_path)
+    log.info('  project file: %s', source)
 
     try:
         for package in iterpackages(source):
@@ -1236,14 +1262,14 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
 
 
 </t>
-<t tx="karstenw.20230225123218.20">def _collect_frames(lexicon: _AnyLexicon) -&gt; List[lmf.SyntacticBehaviour]:
+<t tx="karstenw.20230225123218.20">def _collect_frames(lexicon: _AnyLexicon) -&gt; list[lmf.SyntacticBehaviour]:
     # WN-LMF 1.0 syntactic behaviours are on lexical entries, and in
     # WN-LMF 1.1 they are at the lexticon level with IDs. This
     # function normalizes the two variants.
 
     # IDs are not required and frame strings must be unique in a
     # lexicon, so lookup syntactic behaviours by the frame string
-    synbhrs: Dict[str, lmf.SyntacticBehaviour] = {
+    synbhrs: dict[str, lmf.SyntacticBehaviour] = {
         frame['subcategorizationFrame']: {
             'id': frame['id'],
             'subcategorizationFrame': frame['subcategorizationFrame'],
@@ -1290,7 +1316,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     cur.executemany(query, sbdata)
 
     # syntactic behaviours don't have a required ID; index on frame
-    framemap: Dict[str, List[str]] = {
+    framemap: dict[str, list[str]] = {
         sb['subcategorizationFrame']: sb.get('senses', []) for sb in synbhrs
     }
     query = f'''
@@ -1427,7 +1453,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
 </t>
 <t tx="karstenw.20230225123218.25">def remove(
     lexicon: str,
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar
 ) -&gt; None:
     """Remove lexicon(s) from the database.
 
@@ -1452,35 +1478,32 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     conn = connect()
     conn.set_progress_handler(progress.update, 100000)
     try:
-        for rowid, id, _, _, _, _, version, *_ in find_lexicons(lexicon=lexicon):
-            extensions = _find_all_extensions(rowid)
+        for lexspec in resolve_lexicon_specifiers(lexicon=lexicon):
+            extensions = get_lexicon_extensions(lexspec)
 
             with conn:
 
-                for ext_id, ext_spec in reversed(extensions):
+                for ext_spec in reversed(extensions):
                     progress.set(status=f'{ext_spec} (extension)')
-                    conn.execute('DELETE from lexicons WHERE rowid = ?', (ext_id,))
+                    conn.execute(
+                        'DELETE FROM lexicons WHERE id || ":" || version = ?',
+                        (ext_spec,),
+                    )
                     progress.flash(f'Removed {ext_spec}\n')
 
-                spec = f'{id}:{version}'
                 extra = f' (and {len(extensions)} extension(s))' if extensions else ''
-                progress.set(status=f'{spec}', count=0)
-                conn.execute('DELETE from lexicons WHERE rowid = ?', (rowid,))
-                progress.flash(f'Removed {spec}{extra}\n')
+                progress.set(status=f'{lexspec}', count=0)
+                conn.execute(
+                    'DELETE FROM lexicons WHERE id || ":" || version = ?',
+                    (lexspec,),
+                )
+                progress.flash(f'Removed {lexspec}{extra}\n')
 
     finally:
         progress.close()
         conn.set_progress_handler(None, 0)
-
-
 </t>
-<t tx="karstenw.20230225123218.26">def _find_all_extensions(rowid: int) -&gt; List[Tuple[int, str]]:
-    exts: List[Tuple[int, str]] = []
-    for ext_id in get_lexicon_extensions(rowid):
-        lexinfo = get_lexicon(ext_id)
-        exts.append((ext_id, f'{lexinfo[1]}:{lexinfo[6]}'))
-    return exts
-
+<t tx="karstenw.20230225123218.26">
 
 </t>
 <t tx="karstenw.20230225123218.27">def _entries(lex: _AnyLexicon) -&gt; Sequence[_AnyEntry]: return lex.get('entries', [])
@@ -1492,7 +1515,66 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
 <t tx="karstenw.20230225123218.3">def _add_lmf(
     source: Path,
     progress: ProgressHandler,
-    progress_handler: Type[ProgressHandler],
+    progress_handler: type[ProgressHandler],
+) -&gt; None:
+    # abort if lexicons in *source* are already added
+    progress.flash(f'Checking {source!s}')
+    infos = lmf.scan_lexicons(source)
+    if not infos:
+        progress.flash(f'{source}: No lexicons found')
+        return
+
+    skipmap = _precheck(infos, progress)
+    if all(skipmap.values()):
+        return  # nothing to do
+
+    # all clear, try to add them
+    progress.flash(f'Reading {source!s}')
+    resource = lmf.load(source, progress_handler)
+    _add_lexical_resource(resource, skipmap, progress)
+
+
+def add_lexical_resource(
+    resource: lmf.LexicalResource,
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar,
+) -&gt; None:
+    """Add the lexical resource *resource* to the database.
+
+    The *resource* argument is an in-memory lexical resource as from
+    :func:`wn.lmf.load` and not a file on disk.
+
+    &gt;&gt;&gt; resource = wn.lmf.load('english-wordnet-2024.xml')
+    &gt;&gt;&gt; wn.add_lexical_resource(resource)
+    Added ewn:2020 (English WordNet)
+
+    The *progress_handler* parameter takes a subclass of
+    :class:`wn.util.ProgressHandler`. An instance of the class will be
+    created, used, and closed by this function.
+    """
+    if progress_handler is None:
+        progress_handler = ProgressHandler
+    progress = progress_handler(message='Database')
+
+    try:
+        progress.flash('Checking resource')
+        if not resource["lexicons"]:
+            progress.flash('No lexicons found')
+            return
+
+        skipmap = _precheck(resource["lexicons"], progress)
+        if all(skipmap.values()):
+            return  # nothing to do
+
+        _add_lexical_resource(resource, skipmap, progress)
+
+    finally:
+        progress.close()
+
+
+def _add_lexical_resource(
+    resource: lmf.LexicalResource,
+    skipmap: dict[str, bool],
+    progress: ProgressHandler,
 ) -&gt; None:
     with connect() as conn:
         cur = conn.cursor()
@@ -1502,28 +1584,10 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
         cur.execute('PRAGMA synchronous = OFF')
         cur.execute('PRAGMA journal_mode = MEMORY')
 
-        # abort if any lexicon in *source* is already added
-        progress.flash(f'Checking {source!s}')
-        all_infos = _precheck(source, cur)
-
-        if not all_infos:
-            progress.flash(f'{source}: No lexicons found')
-            return
-        for info in all_infos:
-            skip = info.get('skip', '')
-            if skip:
-                id, ver, lbl = info['id'], info['version'], info['label']
-                progress.flash(f'Skipping {id}:{ver} ({lbl}); {skip}\n')
-        if all('skip' in info for info in all_infos):
-            return
-
-        # all clear, try to add them
-        progress.flash(f'Reading {source!s}')
-        resource = lmf.load(source, progress_handler)
-
-        for lexicon, info in zip(resource['lexicons'], all_infos):
-            if 'skip' in info:
-                continue
+        for lexicon in resource['lexicons']:
+            spec = format_lexicon_specifier(lexicon["id"], lexicon["version"])
+            if skipmap[spec]:
+                continue  # _precheck() says this should be skipped
 
             progress.flash('Updating lookup tables')
             _update_lookup_tables(lexicon, cur)
@@ -1533,7 +1597,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
             entries: Sequence[_AnyEntry] = _entries(lexicon)
             synbhrs: Sequence[lmf.SyntacticBehaviour] = _collect_frames(lexicon)
 
-            lexid, extid = _insert_lexicon(lexicon, info, cur, progress)
+            lexid, extid = _insert_lexicon(lexicon, cur, progress)
 
             lexidmap = _build_lexid_map(lexicon, lexid, extid)
 
@@ -1556,11 +1620,11 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
             _insert_examples(synsets, lexid, lexidmap, 'synset_examples', cur, progress)
 
             progress.set(status='')  # clear type string
-            progress.flash(
-                f"Added {lexicon['id']}:{lexicon['version']} ({lexicon['label']})\n"
-            )
+            progress.flash(f"Added {spec} ({lexicon['label']})\n")
 
 
+def _precheck(
+    infos: Sequence[Union[lmf.ScanInfo, lmf.Lexicon, lmf.LexiconExtension]],
 </t>
 <t tx="karstenw.20230225123218.30">def _synsets(lex: _AnyLexicon) -&gt; Sequence[_AnySynset]: return lex.get('synsets', [])
 
@@ -1595,17 +1659,36 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
             continue
         yield cast(lmf.Sense, s)
 </t>
-<t tx="karstenw.20230225123218.4">def _precheck(source: Path, cur: sqlite3.Cursor) -&gt; List[Dict]:
+<t tx="karstenw.20230225123218.4">    progress: ProgressHandler,
+) -&gt; dict[str, bool]:
+    skipmap: dict[str, bool] = {}
     lexqry = 'SELECT * FROM lexicons WHERE id = :id AND version = :version'
-    infos = lmf.scan_lexicons(source)
-    for info in infos:
-        base = info.get('extends')
-        if cur.execute(lexqry, info).fetchone():
-            info['skip'] = 'already added'
-        if base and cur.execute(lexqry, base).fetchone() is None:
-            id_, ver = base['id'], base['version']
-            info['skip'] = f'base lexicon ({id_}:{ver}) not available'
-    return infos
+    with connect() as conn:
+        cur = conn.cursor()
+        for info in infos:
+            key = format_lexicon_specifier(info['id'], info['version'])
+
+            # TODO: MyPy seems to think this can be Any and I'm not sure why
+            base: Optional[lmf.LexiconSpecifier] = info.get('extends')  # type: ignore
+
+            skipmap[key] = False
+            reason = ''
+
+            # can't have two lexicons with the same specifier in the db
+            if cur.execute(lexqry, info).fetchone():
+                skipmap[key] = True
+                reason = 'already added'
+
+            # can't have an extension without the base
+            elif base and cur.execute(lexqry, base).fetchone() is None:
+                skipmap[key] = True
+                base_key = format_lexicon_specifier(base['id'], base['version'])
+                reason = f"base lexicon ({base_key}) not available"
+
+            if reason:
+                progress.flash(f"Skipping {key} ({info['label']}); {reason}\n")
+
+    return skipmap
 
 
 </t>
@@ -1655,7 +1738,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
                     for rel in s.get('relations', []))
     cur.executemany('INSERT OR IGNORE INTO relation_types VALUES (null,?)',
                     [(rt,) for rt in sorted(reltypes)])
-    lexfiles: Set[str] = {ss.get('lexfile', '')
+    lexfiles: set[str] = {ss.get('lexfile', '')
                           for ss in _local_synsets(_synsets(lexicon))
                           if ss.get('lexfile')}
     cur.executemany('INSERT OR IGNORE INTO lexfiles VALUES (null,?)',
@@ -1665,10 +1748,9 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
 </t>
 <t tx="karstenw.20230225123218.7">def _insert_lexicon(
     lexicon: _AnyLexicon,
-    info: dict,
     cur: sqlite3.Cursor,
     progress: ProgressHandler
-) -&gt; Tuple[int, int]:
+) -&gt; tuple[int, int]:
     progress.set(status='Lexicon Info')
     cur.execute(
         'INSERT INTO lexicons VALUES (null,?,?,?,?,?,?,?,?,?,?,?)',
@@ -1728,7 +1810,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     return lexid, extid
 
 
-_LexIdMap = Dict[str, int]
+_LexIdMap = dict[str, int]
 
 
 </t>
@@ -1753,7 +1835,7 @@ T = TypeVar('T')
 
 
 </t>
-<t tx="karstenw.20230225123218.9">def _batch(sequence: Iterable[T]) -&gt; Iterator[List[T]]:
+<t tx="karstenw.20230225123218.9">def _batch(sequence: Iterable[T]) -&gt; Iterator[list[T]]:
     it = iter(sequence)
     batch = list(islice(it, 0, BATCH_SIZE))
     while len(batch):
@@ -2127,7 +2209,9 @@ CREATE INDEX lexfile_index ON lexfiles (name);
 Local configuration settings.
 """
 
-from typing import Optional, Dict, Sequence, Any
+from collections.abc import Sequence
+from importlib.resources import as_file, files
+from typing import Any, Optional
 from pathlib import Path
 
 import tomli
@@ -2135,12 +2219,14 @@ import tomli
 from wn import ConfigurationError, ProjectError
 from wn._types import AnyPath
 from wn.constants import _WORDNET
-from wn._util import resources, short_hash
+from wn._util import short_hash, format_lexicon_specifier, split_lexicon_specifier
 
+# The index file is a project file of Wn
+with as_file(files('wn') / 'index.toml') as index_file:
+    INDEX_FILE_PATH = index_file
 # The directory where downloaded and added data will be stored.
 DEFAULT_DATA_DIRECTORY = Path.home() / '.wn_data'
 DATABASE_FILENAME = 'wn.db'
-
 
 </t>
 <t tx="karstenw.20230225123241.10">def add_project_version(
@@ -2165,13 +2251,14 @@ DATABASE_FILENAME = 'wn.db'
           is accessed
 
     """
-    version_data: Dict[str, Any]
+    version_data: dict[str, Any]
     if url and not error:
         version_data = {'resource_urls': url.split()}
     elif error and not url:
         version_data = {'error': error}
     elif url and error:
-        raise ConfigurationError(f'{id}:{version} specifies both url and redirect')
+        spec = format_lexicon_specifier(id, version)
+        raise ConfigurationError(f'{spec} specifies both url and redirect')
     else:
         version_data = {}
     if license:
@@ -2180,7 +2267,7 @@ DATABASE_FILENAME = 'wn.db'
     project['versions'][version] = version_data
 
 </t>
-<t tx="karstenw.20230225123241.11">def get_project_info(self, arg: str) -&gt; Dict:
+<t tx="karstenw.20230225123241.11">def get_project_info(self, arg: str) -&gt; dict:
     """Return information about an indexed project version.
 
     If the project has been downloaded and cached, the ``"cache"``
@@ -2197,14 +2284,14 @@ DATABASE_FILENAME = 'wn.db'
         'Open English WordNet'
 
     """
-    id, _, version = arg.partition(':')
+    id, version = split_lexicon_specifier(arg)
     if id not in self._projects:
         raise ProjectError(f'no such project id: {id}')
-    project: Dict = self._projects[id]
+    project: dict = self._projects[id]
     if 'error' in project:
         raise ProjectError(project['error'])
 
-    versions: Dict = project['versions']
+    versions: dict = project['versions']
     if not version or version == '*':
         version = next(iter(versions), '')
     if not version:
@@ -2242,7 +2329,18 @@ DATABASE_FILENAME = 'wn.db'
 </t>
 <t tx="karstenw.20230225123241.4">@property
 def data_directory(self) -&gt; Path:
-    """The file system directory where Wn's data is stored."""
+    """The file system directory where Wn's data is stored.
+
+    Assign a new path to change where the database and downloads
+    are stored.
+
+    &gt;&gt;&gt; wn.config.data_directory = "~/.cache/wn"
+    &gt;&gt;&gt; wn.config.database_path
+    PosixPath('/home/username/.cache/wn/wn.db')
+    &gt;&gt;&gt; wn.config.downloads_directory
+    PosixPath('/home/username/.cache/wn/downloads')
+
+    """
     dir = self._data_directory
     dir.mkdir(exist_ok=True)
     return dir
@@ -2259,20 +2357,30 @@ def data_directory(self, path):
 </t>
 <t tx="karstenw.20230225123241.6">@property
 def database_path(self):
-    """The path to the database file."""
+    """The path to the database file.
+
+    The database path is derived from :attr:`data_directory` and
+    cannot be changed directly.
+
+    """
     return self._dbpath
 
 </t>
 <t tx="karstenw.20230225123241.7">@property
 def downloads_directory(self):
-    """The file system directory where downloads are cached."""
+    """The file system directory where downloads are cached.
+
+    The downloads directory is derived from :attr:`data_directory`
+    and cannot be changed directly.
+
+    """
     dir = self.data_directory / 'downloads'
     dir.mkdir(exist_ok=True)
     return dir
 
 </t>
 <t tx="karstenw.20230225123241.8">@property
-def index(self) -&gt; Dict[str, Dict]:
+def index(self) -&gt; dict[str, dict]:
     """The project index."""
     return self._projects
 
@@ -2353,8 +2461,9 @@ def index(self) -&gt; Dict[str, Dict]:
             )
         for version, info in project.get('versions', {}).items():
             if 'url' in info and 'error' in project:
+                spec = format_lexicon_specifier(id, version)
                 raise ConfigurationError(
-                    f'{id}:{version} url specified with default error'
+                    f'{spec} url specified with default error'
                 )
             self.add_project_version(
                 id,
@@ -2407,24 +2516,15 @@ def index(self) -&gt; Dict[str, Dict]:
 
 
 config = WNConfig()
-with resources.path('wn', 'index.toml') as index_path:
-    config.load_index(index_path)
+config.load_index(INDEX_FILE_PATH)
 </t>
 <t tx="karstenw.20230225123250.1">
-from typing import (
-    Type,
-    TypeVar,
-    Callable,
-    Optional,
-    List,
-    Tuple,
-    Dict,
-    Set,
-    Sequence,
-    Iterator,
-)
-import warnings
+import enum
 import textwrap
+import warnings
+from collections.abc import Callable, Iterator, Sequence
+from dataclasses import dataclass, field
+from typing import Literal, Optional, TypeVar, Union, overload
 
 import wn
 from wn._types import (
@@ -2432,11 +2532,14 @@ from wn._types import (
     NormalizeFunction,
     LemmatizeFunction,
 )
-from wn._util import normalize_form
-from wn._db import NON_ROWID
+from wn._util import (
+    normalize_form,
+    unique_list,
+    format_lexicon_specifier,
+)
 from wn._queries import (
-    find_lexicons,
     find_ilis,
+    find_existing_ilis,
     find_proposed_ilis,
     find_entries,
     find_senses,
@@ -2446,22 +2549,25 @@ from wn._queries import (
     get_lexicon_dependencies,
     get_lexicon_extension_bases,
     get_lexicon_extensions,
-    get_form_pronunciations,
-    get_form_tags,
+    get_entry_forms,
     get_entry_senses,
     get_sense_relations,
     get_sense_synset_relations,
     get_synset_relations,
+    get_expanded_synset_relations,
     get_synset_members,
     get_synsets_for_ilis,
     get_examples,
     get_definitions,
     get_syntactic_behaviours,
     get_metadata,
+    get_ili_metadata,
+    get_proposed_ili_metadata,
     get_lexicalized,
     get_adjposition,
     get_sense_counts,
     get_lexfile,
+    resolve_lexicon_specifiers,
 )
 from wn import taxonomy
 
@@ -2475,84 +2581,111 @@ _INFERRED_SYNSET = '*INFERRED*'
 </t>
 <t tx="karstenw.20230225123250.11">def metadata(self) -&gt; Metadata:
     """Return the ILI's metadata."""
-    table = 'proposed_ilis' if self.status == 'proposed' else 'ilis'
-    return get_metadata(self._id, table)
+    raise NotImplementedError
 
 
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
 </t>
-<t tx="karstenw.20230225123250.12">class Lexicon(_DatabaseEntity):
-    """A class representing a wordnet lexicon.
-
-    Attributes:
-        id: The lexicon's identifier.
-        label: The full name of lexicon.
-        language: The BCP 47 language code of lexicon.
-        email: The email address of the wordnet maintainer.
-        license: The URL or name of the wordnet's license.
-        version: The version string of the resource.
-        url: The project URL of the wordnet.
-        citation: The canonical citation for the project.
-        logo: A URL or path to a project logo.
-    """
-    __slots__ = ('id', 'label', 'language', 'email', 'license',
-                 'version', 'url', 'citation', 'logo')
+<t tx="karstenw.20230225123250.12">class _ExistingILI(ILI):
+    """A class for interlingual indices."""
     __module__ = 'wn'
 
-    _ENTITY_TYPE = 'lexicons'
-
+    _id: str
+    status: str
     @others
 </t>
-<t tx="karstenw.20230225123250.13">def __init__(
-    self,
-    id: str,
-    label: str,
-    language: str,
-    email: str,
-    license: str,
-    version: str,
-    url: Optional[str] = None,
-    citation: Optional[str] = None,
-    logo: Optional[str] = None,
-    _id: int = NON_ROWID,
-):
-    super().__init__(_id=_id)
-    self.id = id
-    self.label = label
-    self.language = language
-    self.email = email
-    self.license = license
-    self.version = version
-    self.url = url
-    self.citation = citation
-    self.logo = logo
+<t tx="karstenw.20230225123250.13">_definition: Optional[str]
+
+def __eq__(self, other) -&gt; bool:
+    if isinstance(other, _ExistingILI):
+        return self._id == other._id
+    return NotImplemented
+
+def __hash__(self) -&gt; int:
+    return hash(self._id)
+
+def __repr__(self) -&gt; str:
+    return f'ILI({repr(self._id)})'
+
+def metadata(self) -&gt; Metadata:
+    """Return the ILI's metadata."""
+    return get_ili_metadata(self._id)
+
+
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
+\\-4.class _ProposedILI(ILI):
+__module__ = 'wn'
+__slots__ = '_synset', '_lexicon'
+
+_id: None
+status: str
+_definition: Optional[str]
+_synset: str
+_lexicon: str
+
+def __eq__(self, other) -&gt; bool:
+    if isinstance(other, _ProposedILI):
+        return (
+            self._synset == other._synset
+            and self._lexicon == other._lexicon
+        )
+    return NotImplemented
+
+def __hash__(self) -&gt; int:
+    return hash((self._synset, self._lexicon))
+
+def metadata(self) -&gt; Metadata:
+    """Return the ILI's metadata."""
+    return get_proposed_ili_metadata(self._synset, self._lexicon)
+
+
+\\-4.@dataclass(eq=True, frozen=True)  # slots=True from Python 3.10
+\\-4.class Lexicon:
+"""A class representing a wordnet lexicon."""
+__module__ = 'wn'
+
+id: str
+label: str
+language: str
+email: str
+license: str
+version: str
+url: Optional[str] = None
+citation: Optional[str] = None
+logo: Optional[str] = None
+_metadata: Optional[Metadata] = field(default=None, hash=False)
+_specifier: str = field(init=False, hash=False)
+
+def __post_init__(self) -&gt; None:
+    specifier = format_lexicon_specifier(self.id, self.version)
+    object.__setattr__(self, '_specifier', specifier)
 
 </t>
 <t tx="karstenw.20230225123250.14">def __repr__(self):
-    id, ver, lg = self.id, self.version, self.language
-    return f'&lt;Lexicon {id}:{ver} [{lg}]&gt;'
+    return f'&lt;Lexicon {self._specifier} [{self.language}]&gt;'
 
 </t>
 <t tx="karstenw.20230225123250.15">def metadata(self) -&gt; Metadata:
     """Return the lexicon's metadata."""
-    return get_metadata(self._id, 'lexicons')
+    return self._metadata if self._metadata is not None else {}
 
 </t>
 <t tx="karstenw.20230225123250.16">def specifier(self) -&gt; str:
     """Return the *id:version* lexicon specifier."""
-    return f'{self.id}:{self.version}'
+    return self._specifier
 
 </t>
 <t tx="karstenw.20230225123250.17">def modified(self) -&gt; bool:
     """Return True if the lexicon has local modifications."""
-    return get_modified(self._id)
+    return get_modified(self._specifier)
 
 </t>
-<t tx="karstenw.20230225123250.18">def requires(self) -&gt; Dict[str, Optional['Lexicon']]:
+<t tx="karstenw.20230225123250.18">def requires(self) -&gt; dict[str, Optional['Lexicon']]:
     """Return the lexicon dependencies."""
     return dict(
-        (f'{id}:{version}',
-         None if _id is None else _to_lexicon(get_lexicon(_id)))
-        for id, version, _, _id in get_lexicon_dependencies(self._id)
+        (spec,
+         None if added is None else _to_lexicon(spec))
+        for spec, _, added in get_lexicon_dependencies(self._specifier)
     )
 
 </t>
@@ -2561,20 +2694,20 @@ _INFERRED_SYNSET = '*INFERRED*'
 
     If this lexicon is not an extension, return None.
     """
-    bases = get_lexicon_extension_bases(self._id, depth=1)
+    bases = get_lexicon_extension_bases(self._specifier, depth=1)
     if bases:
-        return _to_lexicon(get_lexicon(bases[0]))
+        return _to_lexicon(bases[0])
     return None
 
 </t>
-<t tx="karstenw.20230225123250.2">class _DatabaseEntity:
-    __slots__ = '_id',
-
-    _ENTITY_TYPE = ''
-
+<t tx="karstenw.20230225123250.2">class _EntityType(str, enum.Enum):
+    """Identifies the database table of an entity."""
+    LEXICONS = 'lexicons'
+    ENTRIES = 'entries'
+    SENSES = 'senses'
     @others
 </t>
-<t tx="karstenw.20230225123250.20">def extensions(self, depth: int = 1) -&gt; List['Lexicon']:
+<t tx="karstenw.20230225123250.20">def extensions(self, depth: int = 1) -&gt; list['Lexicon']:
     """Return the list of lexicons extending this one.
 
     By default, only direct extensions are included. This is
@@ -2585,8 +2718,10 @@ _INFERRED_SYNSET = '*INFERRED*'
     negative number gets all "descendant" extensions.
 
     """
-    return [_to_lexicon(get_lexicon(rowid))
-            for rowid in get_lexicon_extensions(self._id, depth=depth)]
+    return [
+        _to_lexicon(spec)
+        for spec in get_lexicon_extensions(self._specifier, depth=depth)
+    ]
 
 </t>
 <t tx="karstenw.20230225123250.21">def describe(self, full: bool = True) -&gt; str:
@@ -2598,29 +2733,29 @@ _INFERRED_SYNSET = '*INFERRED*'
     Also see: :meth:`Wordnet.describe`
 
     """
-    _id = self._id
-    substrings: List[str] = [
-        f'{self.specifier()}',
+    lexspecs = (self.specifier(),)
+    substrings: list[str] = [
+        f'{self._specifier}',
         f'  Label  : {self.label}',
         f'  URL    : {self.url}',
         f'  License: {self.license}',
     ]
     if full:
         substrings.extend([
-            f'  Words  : {_desc_counts(find_entries, _id)}',
-            f'  Senses : {sum(1 for _ in find_senses(lexicon_rowids=(_id,)))}',
+            f'  Words  : {_desc_counts(find_entries, lexspecs)}',
+            f'  Senses : {sum(1 for _ in find_senses(lexicons=lexspecs))}',
         ])
     substrings.extend([
-        f'  Synsets: {_desc_counts(find_synsets, _id)}',
-        f'  ILIs   : {sum(1 for ili, *_ in find_ilis(lexicon_rowids=(_id,))):&gt;6}',
+        f'  Synsets: {_desc_counts(find_synsets, lexspecs)}',
+        f'  ILIs   : {sum(1 for _ in find_ilis(lexicons=lexspecs)):&gt;6}',
     ])
     return '\n'.join(substrings)
 
 
 </t>
-<t tx="karstenw.20230225123250.22">def _desc_counts(query: Callable, lexid: int) -&gt; str:
-    count: Dict[str, int] = {}
-    for _, pos, *_ in query(lexicon_rowids=(lexid,)):
+<t tx="karstenw.20230225123250.22">def _desc_counts(query: Callable, lexspecs: Sequence[str]) -&gt; str:
+    count: dict[str, int] = {}
+    for _, pos, *_ in query(lexicons=lexspecs):
         if pos not in count:
             count[pos] = 1
         else:
@@ -2630,196 +2765,247 @@ _INFERRED_SYNSET = '*INFERRED*'
 
 
 </t>
-<t tx="karstenw.20230225123250.23">class _LexiconElement(_DatabaseEntity):
-    __slots__ = '_lexid', '_wordnet'
+<t tx="karstenw.20230225123250.23">@dataclass
+class _LexiconConfiguration:
+    # slots=True from Python 3.10
+    __slots__ = "lexicons", "expands", "default_mode"
+    lexicons: tuple[str, ...]
+    expands: tuple[str, ...]
+    default_mode: bool
+
+
+_EMPTY_LEXCONFIG = _LexiconConfiguration(
+    lexicons=(),
+    expands=(),
+    default_mode=False,
+)
+
+
+class _LexiconElement:
+    __slots__ = 'id', '_lexicon', '_lexconf'
+
+    id: str
 
     @others
 </t>
 <t tx="karstenw.20230225123250.24">def __init__(
     self,
-    _lexid: int = NON_ROWID,
-    _id: int = NON_ROWID,
-    _wordnet: Optional['Wordnet'] = None
+    id: str,
+    _lexicon: str = '',
+    _lexconf: _LexiconConfiguration = _EMPTY_LEXCONFIG,
 ):
-    super().__init__(_id=_id)
-    self._lexid = _lexid  # Database-internal lexicon id
-    if _wordnet is None:
-        _wordnet = Wordnet()
-    self._wordnet: 'Wordnet' = _wordnet
+    self.id = id
+    self._lexicon = _lexicon  # source lexicon specifier
+    self._lexconf = _lexconf
 
+def __eq__(self, other) -&gt; bool:
+    if isinstance(other, type(self)) or isinstance(self, type(other)):
 </t>
-<t tx="karstenw.20230225123250.25">def lexicon(self):
-    return _to_lexicon(get_lexicon(self._lexid))
+<t tx="karstenw.20230225123250.25">        return (
+            self.id == other.id
+            and self._lexicon == other._lexicon
+</t>
+<t tx="karstenw.20230225123250.26">        )
+    return NotImplemented
 
-</t>
-<t tx="karstenw.20230225123250.26">def _get_lexicon_ids(self) -&gt; Tuple[int, ...]:
-    if self._wordnet._default_mode:
-        return tuple(
-            {self._lexid}
-            | set(get_lexicon_extension_bases(self._lexid))
-            | set(get_lexicon_extensions(self._lexid))
-        )
+def __hash__(self) -&gt; int:
+    return hash((self.id, self._lexicon))
+
+def lexicon(self) -&gt; Lexicon:
+    return _to_lexicon(self._lexicon)
+
+def _get_lexicons(self) -&gt; tuple[str, ...]:
+    if self._lexconf.default_mode:
+        return tuple([
+            self._lexicon,
+            *get_lexicon_extension_bases(self._lexicon),
+            *get_lexicon_extensions(self._lexicon)
+        ])
     else:
-        return self._wordnet._lexicon_ids
+        return self._lexconf.lexicons
 
 
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
 </t>
 <t tx="karstenw.20230225123250.27">class Pronunciation:
     """A class for word form pronunciations."""
 
-    __slots__ = 'value', 'variety', 'notation', 'phonemic', 'audio'
+    __module__ = 'wn'
 
     @others
 </t>
-<t tx="karstenw.20230225123250.28">def __init__(
-    self,
-    value: str,
-    variety: Optional[str] = None,
-    notation: Optional[str] = None,
-    phonemic: bool = True,
-    audio: Optional[str] = None,
-):
-    self.value = value
-    self.variety = variety
-    self.notation = notation
-    self.phonemic = phonemic
-    self.audio = audio
+<t tx="karstenw.20230225123250.28">value: str
+variety: Optional[str] = None
+notation: Optional[str] = None
+phonemic: bool = True
+audio: Optional[str] = None
 
 
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
 </t>
 <t tx="karstenw.20230225123250.29">class Tag:
     """A general-purpose tag class for word forms."""
-    __slots__ = 'tag', 'category',
     __module__ = 'wn'
-
+    __slots__ = 'tag', 'category'
     @others
 </t>
-<t tx="karstenw.20230225123250.3">def __init__(self, _id: int = NON_ROWID):
-    self._id = _id        # Database-internal id (e.g., rowid)
+<t tx="karstenw.20230225123250.3">SYNSETS = 'synsets'
+SENSE_RELATIONS = 'sense_relations'
+SENSE_SYNSET_RELATIONS = 'sense_synset_relations'
+</t>
+<t tx="karstenw.20230225123250.30">
+tag: str
+category: str
 
 </t>
-<t tx="karstenw.20230225123250.30">def __init__(self, tag: str, category: str):
-    self.tag = tag
-    self.category = category
-
+<t tx="karstenw.20230225123250.31">
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
+\\-4.class Form:
+"""A word-form."""
 </t>
-<t tx="karstenw.20230225123250.31">def __eq__(self, other):
-    if not isinstance(other, Tag):
-        return NotImplemented
-    return self.tag == other.tag and self.category == other.category
+<t tx="karstenw.20230225123250.32">    __module__ = 'wn'
 
-
-</t>
-<t tx="karstenw.20230225123250.32">class Form(str):
-    """A word-form string with additional attributes."""
-    __slots__ = '_id', 'id', 'script',
-    __module__ = 'wn'
-
-    _id: int
-    id: Optional[str]
-    script: Optional[str]
-
+    value: str
+    id: Optional[str] = field(default=None, repr=False, compare=False)
+    script: Optional[str] = field(default=None, repr=False)
+    _pronunciations: tuple[Pronunciation, ...] = field(
     @others
 </t>
-<t tx="karstenw.20230225123250.33">def __new__(
-    cls,
-    form: str,
-    id: Optional[str] = None,
-    script: Optional[str] = None,
-    _id: int = NON_ROWID
-):
-    obj = str.__new__(cls, form)  # type: ignore
-    obj.id = id
-    obj.script = script
-    obj._id = _id
-    return obj
+<t tx="karstenw.20230225123250.33">    default_factory=tuple, repr=False, compare=False
+)
+_tags: tuple[Tag, ...] = field(
+    default_factory=tuple, repr=False, compare=False
+)
+
+def pronunciations(self) -&gt; list[Pronunciation]:
+    return list(self._pronunciations)
+
+def tags(self) -&gt; list[Tag]:
+    return list(self._tags)
+
 
 </t>
-<t tx="karstenw.20230225123250.34">def __eq__(self, other):
-    if isinstance(other, Form) and self.script != other.script:
-        return False
-    return str.__eq__(self, other)
-
+<t tx="karstenw.20230225123250.34">\\-4.def _make_form(
+form: str,
+id: Optional[str],
+script: Optional[str],
+prons: list[tuple[str, Optional[str], Optional[str], bool, Optional[str]]],
 </t>
-<t tx="karstenw.20230225123250.35">def __hash__(self):
-    return str.__hash__(self)
-
+<t tx="karstenw.20230225123250.35">tags: list[tuple[str, str]],
+\\-4.) -&gt; Form:
+return Form(
 </t>
-<t tx="karstenw.20230225123250.36">def pronunciations(self) -&gt; List[Pronunciation]:
-    return [Pronunciation(*data) for data in get_form_pronunciations(self._id)]
-
+<t tx="karstenw.20230225123250.36">    form,
+    id=id,
+    script=script,
 </t>
-<t tx="karstenw.20230225123250.37">def tags(self) -&gt; List[Tag]:
-    return [Tag(tag, category) for tag, category in get_form_tags(self._id)]
+<t tx="karstenw.20230225123250.37">    _pronunciations=tuple(Pronunciation(*data) for data in prons),
+    _tags=tuple(Tag(*data) for data in tags),
+)
 
 
 </t>
 <t tx="karstenw.20230225123250.38">class Word(_LexiconElement):
     """A class for words (also called lexical entries) in a wordnet."""
-    __slots__ = 'id', 'pos', '_forms'
+    __slots__ = 'pos',
     __module__ = 'wn'
 
-    _ENTITY_TYPE = 'entries'
+    _ENTITY_TYPE = _EntityType.ENTRIES
+
+    pos: str
 
     @others
-T = TypeVar('T', bound='_Relatable')
-
+class Relation:
+    """A class to model relations between senses or synsets."""
 
 </t>
 <t tx="karstenw.20230225123250.39">def __init__(
     self,
     id: str,
     pos: str,
-    forms: List[Tuple[str, Optional[str], Optional[str], int]],
-    _lexid: int = NON_ROWID,
-    _id: int = NON_ROWID,
-    _wordnet: Optional['Wordnet'] = None
+    _lexicon: str = '',
+    _lexconf: _LexiconConfiguration = _EMPTY_LEXCONFIG,
 ):
-    super().__init__(_lexid=_lexid, _id=_id, _wordnet=_wordnet)
-    self.id = id
+    super().__init__(id=id, _lexicon=_lexicon, _lexconf=_lexconf)
     self.pos = pos
-    self._forms = forms
 
 </t>
-<t tx="karstenw.20230225123250.4">def __eq__(self, other):
-    if not isinstance(other, _DatabaseEntity):
-        return NotImplemented
-    # the _id of different kinds of entities, such as Synset and
-    # Sense, can be the same, so make sure they are the same type
-    # of object first
-    return (self._ENTITY_TYPE == other._ENTITY_TYPE
-            and self._id == other._id)
+<t tx="karstenw.20230225123250.4">SYNSET_RELATIONS = 'synset_relations'
+UNSET = ''
 
+
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
+\\-4.class ILI:
 </t>
 <t tx="karstenw.20230225123250.40">def __repr__(self) -&gt; str:
     return f'Word({self.id!r})'
 
 </t>
-<t tx="karstenw.20230225123250.41">def lemma(self) -&gt; Form:
+<t tx="karstenw.20230225123250.41">@overload
+def lemma(self, *, data: Literal[False] = False) -&gt; str: ...
+@overload
+def lemma(self, *, data: Literal[True] = True) -&gt; Form: ...
+
+# fallback for non-literal bool argument
+@overload
+def lemma(self, *, data: bool) -&gt; Union[str, Form]: ...
+
+def lemma(self, *, data: bool = False) -&gt; Union[str, Form]:
     """Return the canonical form of the word.
+
+    If the *data* argument is :python:`False` (the default), the
+    lemma is returned as a :class:`str` type. If it is
+    :python:`True`, a :class:`wn.Form` object is used instead.
 
     Example:
 
         &gt;&gt;&gt; wn.words('wolves')[0].lemma()
         'wolf'
+        &gt;&gt;&gt; wn.words('wolves')[0].lemma(data=True)
+        Form(value='wolf')
 
     """
-    return Form(*self._forms[0])
-
 </t>
-<t tx="karstenw.20230225123250.42">def forms(self) -&gt; List[Form]:
+<t tx="karstenw.20230225123250.42">    lexicons = self._get_lexicons()
+    lemma_data = next(get_entry_forms(self.id, lexicons))
+    if data:
+        return _make_form(*lemma_data)
+    else:
+        return lemma_data[0]
+
+@overload
+def forms(self, *, data: Literal[False] = False) -&gt; list[str]: ...
+@overload
+def forms(self, *, data: Literal[True] = True) -&gt; list[Form]: ...
+
+# fallback for non-literal bool argument
+@overload
+def forms(self, *, data: bool) -&gt; Union[list[str], list[Form]]: ...
+
+def forms(self, *, data: bool = False) -&gt; Union[list[str], list[Form]]:
     """Return the list of all encoded forms of the word.
+
+    If the *data* argument is :python:`False` (the default), the
+    forms are returned as :class:`str` types. If it is
+    :python:`True`, :class:`wn.Form` objects are used instead.
 
     Example:
 
         &gt;&gt;&gt; wn.words('wolf')[0].forms()
         ['wolf', 'wolves']
+        &gt;&gt;&gt; wn.words('wolf')[0].forms(data=True)
+        [Form(value='wolf'), Form(value='wolves')]
 
     """
-    return [Form(*form_data) for form_data in self._forms]
-
 </t>
-<t tx="karstenw.20230225123250.43">def senses(self) -&gt; List['Sense']:
+<t tx="karstenw.20230225123250.43">    lexicons = self._get_lexicons()
+    form_data = list(get_entry_forms(self.id, lexicons))
+    if data:
+        return [_make_form(*data) for data in form_data]
+    else:
+        return [form for form, *_ in form_data]
+
+def senses(self) -&gt; list['Sense']:
     """Return the list of senses of the word.
 
     Example:
@@ -2828,17 +3014,17 @@ T = TypeVar('T', bound='_Relatable')
         [Sense('ewn-zygoma-n-05292350-01')]
 
     """
-    lexids = self._get_lexicon_ids()
-    iterable = get_entry_senses(self._id, lexids)
-    return [Sense(*sense_data, self._wordnet) for sense_data in iterable]
+    lexicons = self._get_lexicons()
+    iterable = get_entry_senses(self.id, lexicons)
+    return [Sense(*sense_data, _lexconf=self._lexconf) for sense_data in iterable]
 
 </t>
 <t tx="karstenw.20230225123250.44">def metadata(self) -&gt; Metadata:
     """Return the word's metadata."""
-    return get_metadata(self._id, 'entries')
+    return get_metadata(self.id, self._lexicon, 'entries')
 
 </t>
-<t tx="karstenw.20230225123250.45">def synsets(self) -&gt; List['Synset']:
+<t tx="karstenw.20230225123250.45">def synsets(self) -&gt; list['Synset']:
     """Return the list of synsets of the word.
 
     Example:
@@ -2850,7 +3036,7 @@ T = TypeVar('T', bound='_Relatable')
     return [sense.synset() for sense in self.senses()]
 
 </t>
-<t tx="karstenw.20230225123250.46">def derived_words(self) -&gt; List['Word']:
+<t tx="karstenw.20230225123250.46">def derived_words(self) -&gt; list['Word']:
     """Return the list of words linked through derivations on the senses.
 
     Example:
@@ -2866,12 +3052,12 @@ T = TypeVar('T', bound='_Relatable')
 </t>
 <t tx="karstenw.20230225123250.47">def translate(
     self, lexicon: Optional[str] = None, *, lang: Optional[str] = None,
-) -&gt; Dict['Sense', List['Word']]:
+) -&gt; dict['Sense', list['Word']]:
     """Return a mapping of word senses to lists of translated words.
 
     Arguments:
-        lexicon: if specified, translate to words in the target lexicon(s)
-        lang: if specified, translate to words with the language code
+        lexicon: lexicon specifier of translated words
+        lang: BCP-47 language code of translated words
 
     Example:
 
@@ -2892,36 +3078,82 @@ T = TypeVar('T', bound='_Relatable')
 
 
 </t>
-<t tx="karstenw.20230225123250.48">class _Relatable(_LexiconElement):
-    __slots__ = 'id',
+<t tx="karstenw.20230225123250.48">    __slots__ = 'name', 'source_id', 'target_id', '_metadata', '_lexicon'
+    __module__ = 'wn'
+
+    name: str
+    source_id: str
+    target_id: str
 
     @others
 </t>
 <t tx="karstenw.20230225123250.49">def __init__(
     self,
-    id: str,
-    _lexid: int = NON_ROWID,
-    _id: int = NON_ROWID,
-    _wordnet: Optional['Wordnet'] = None
+    name: str,
+    source_id: str,
+    target_id: str,
+    lexicon: str,
+    *,
+    metadata: Optional[Metadata] = None,
 ):
-    super().__init__(_lexid=_lexid, _id=_id, _wordnet=_wordnet)
-    self.id = id
-
+    self.name = name
+    self.source_id = source_id
+    self.target_id = target_id
 </t>
-<t tx="karstenw.20230225123250.5">def __lt__(self, other):
-    if not isinstance(other, _DatabaseEntity):
-        return NotImplemented
-    elif self._ENTITY_TYPE != other._ENTITY_TYPE:
-        return NotImplemented
-    else:
-        return self._id &lt; other._id
+<t tx="karstenw.20230225123250.5"></t>
+<t tx="karstenw.20230225123250.50">    self._lexicon = lexicon
+    self._metadata: Metadata = metadata or {}
 
-</t>
-<t tx="karstenw.20230225123250.50">def relations(self: T, *args: str) -&gt; Dict[str, List[T]]:
+def __repr__(self) -&gt; str:
+    return (
+        self.__class__.__name__
+        + f"({self.name!r}, {self.source_id!r}, {self.target_id!r})"
+    )
+
+def __eq__(self, other) -&gt; bool:
+    if not isinstance(other, Relation):
+        return NotImplemented
+    return (
+        self.name == other.name
+        and self.source_id == other.source_id
+        and self.target_id == other.target_id
+        and self._lexicon == other._lexicon
+        and self.subtype == other.subtype
+    )
+
+def __hash__(self) -&gt; int:
+    datum = self.name, self.source_id, self.target_id, self._lexicon, self.subtype
+    return hash(datum)
+
+@property
+def subtype(self) -&gt; Optional[str]:
+    """
+    The value of the ``dc:type`` metadata.
+
+    If ``dc:type`` is not specified in the metadata, ``None`` is
+    returned instead.
+    """
+    return self._metadata.get("type")
+
+def lexicon(self) -&gt; Lexicon:
+    """Return the :class:`Lexicon` where the relation is defined."""
+    return _to_lexicon(self._lexicon)
+
+def metadata(self) -&gt; Metadata:
+    """Return the relation's metadata."""
+    return self._metadata
+
+
+\\-4.T = TypeVar('T', bound='_Relatable')
+
+
+\\-4.class _Relatable(_LexiconElement):
+
+def relations(self: T, *args: str) -&gt; dict[str, list[T]]:
     raise NotImplementedError
 
 </t>
-<t tx="karstenw.20230225123250.51">def get_related(self: T, *args: str) -&gt; List[T]:
+<t tx="karstenw.20230225123250.51">def get_related(self: T, *args: str) -&gt; list[T]:
     raise NotImplementedError
 
 </t>
@@ -2940,11 +3172,11 @@ T = TypeVar('T', bound='_Relatable')
     self: T,
     *args: str,
     end: Optional[T] = None
-) -&gt; Iterator[List[T]]:
-    agenda: List[Tuple[List[T], Set[T]]] = [
+) -&gt; Iterator[list[T]]:
+    agenda: list[tuple[list[T], set[T]]] = [
         ([target], {self, target})
         for target in self.get_related(*args)
-        if target._id != self._id  # avoid self loops?
+        if target != self  # avoid self loops?
     ]
     while agenda:
         path, visited = agenda.pop()
@@ -2962,13 +3194,44 @@ T = TypeVar('T', bound='_Relatable')
                 yield path
 
 
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
+\\-4.class Example:
+"""Class for modeling Sense and Synset examples."""
+__module__ = 'wn'
+
+text: str
+language: Optional[str] = None
+_metadata: Optional[Metadata] = field(default=None, repr=False, compare=False)
+
+def metadata(self) -&gt; Metadata:
+    """Return the example's metadata."""
+    return self._metadata if self._metadata is not None else {}
+
+
+\\-4.@dataclass(frozen=True)  # slots=True from Python 3.10
+\\-4.class Definition:
+"""Class for modeling Synset definitions."""
+__module__ = 'wn'
+
+text: str
+language: Optional[str] = None
+source_sense_id: Optional[str] = field(default=None, compare=False)
+_metadata: Optional[Metadata] = field(default=None, compare=False, repr=False)
+
+def metadata(self) -&gt; Metadata:
+    """Return the example's metadata."""
+    return self._metadata if self._metadata is not None else {}
+
+
 </t>
 <t tx="karstenw.20230225123250.54">class Synset(_Relatable):
     """Class for modeling wordnet synsets."""
     __slots__ = 'pos', '_ili'
     __module__ = 'wn'
 
-    _ENTITY_TYPE = 'synsets'
+    _ENTITY_TYPE = _EntityType.SYNSETS
+
+    pos: str
 
     @others
 </t>
@@ -2977,11 +3240,10 @@ T = TypeVar('T', bound='_Relatable')
     id: str,
     pos: str,
     ili: Optional[str] = None,
-    _lexid: int = NON_ROWID,
-    _id: int = NON_ROWID,
-    _wordnet: Optional['Wordnet'] = None
+    _lexicon: str = '',
+    _lexconf: _LexiconConfiguration = _EMPTY_LEXCONFIG,
 ):
-    super().__init__(id=id, _lexid=_lexid, _id=_id, _wordnet=_wordnet)
+    super().__init__(id=id, _lexicon=_lexicon, _lexconf=_lexconf)
     self.pos = pos
     self._ili = ili
 
@@ -2991,55 +3253,129 @@ def empty(
     cls,
     id: str,
     ili: Optional[str] = None,
-    _lexid: int = NON_ROWID,
-    _wordnet: Optional['Wordnet'] = None
+    _lexicon: str = '',
+    _lexconf: _LexiconConfiguration = _EMPTY_LEXCONFIG,
 ):
-    return cls(id, pos='', ili=ili, _lexid=_lexid, _wordnet=_wordnet)
+    return cls(id, pos='', ili=ili, _lexicon=_lexicon, _lexconf=_lexconf)
 
-@property
-def ili(self):
-    if self._ili:
-        row = next(find_ilis(id=self._ili), None)
-    else:
-        row = next(find_proposed_ilis(synset_rowid=self._id), None)
-    if row is not None:
-        return ILI(*row)
-    return None
+def __eq__(self, other) -&gt; bool:
+    # include ili in the hash so inferred synsets don't hash the same
+    if isinstance(other, Synset):
+        return (
+            self.id == other.id
+            and self._ili == other._ili
+            and self._lexicon == other._lexicon
+        )
+    return NotImplemented
 
 </t>
-<t tx="karstenw.20230225123250.57">def __hash__(self):
-    # include ili and lexid in the hash so inferred synsets don't
-    # hash the same
-    return hash((self._ENTITY_TYPE, self._ili, self._lexid, self._id))
+<t tx="karstenw.20230225123250.57">def __hash__(self) -&gt; int:
+    return hash((self.id, self._ili, self._lexicon))
 
 </t>
 <t tx="karstenw.20230225123250.58">def __repr__(self) -&gt; str:
     return f'Synset({self.id!r})'
 
 </t>
-<t tx="karstenw.20230225123250.59">def definition(self) -&gt; Optional[str]:
+<t tx="karstenw.20230225123250.59">@property
+def ili(self) -&gt; Optional[ILI]:
+    if self._ili and (e_ili := next(find_existing_ilis(id=self._ili), None)):
+        return _ExistingILI(*e_ili)
+    elif p_ili := next(find_proposed_ilis(synset_id=self.id), None):
+        return _ProposedILI(*p_ili)
+    return None
+
+@overload
+def definition(self, *, data: Literal[False] = False) -&gt; Optional[str]: ...
+@overload
+def definition(self, *, data: Literal[True] = True) -&gt; Optional[Definition]: ...
+
+# fallback for non-literal bool argument
+@overload
+def definition(self, *, data: bool) -&gt; Union[str, Definition, None]: ...
+
+def definition(self, *, data: bool = False) -&gt; Union[str, Definition, None]:
     """Return the first definition found for the synset.
+
+    If the *data* argument is :python:`False` (the default), the
+    definition is returned as a :class:`str` type. If it is
+    :python:`True`, a :class:`wn.Definition` object is used instead.
 
     Example:
 
         &gt;&gt;&gt; wn.synsets('cartwheel', pos='n')[0].definition()
         'a wheel that has wooden spokes and a metal rim'
+        &gt;&gt;&gt; wn.synsets('cartwheel', pos='n')[0].definition(data=True)
+        [Definition(text='a wheel that has wooden spokes and a metal rim',
+          language=None, source_sense_id=None)]
 
     """
-    lexids = self._get_lexicon_ids()
-    return next(
-        (text for text, _, _, _ in get_definitions(self._id, lexids)),
-        None
-    )
-
+    lexicons = self._get_lexicons()
+    if defns := get_definitions(self.id, lexicons):
+        text, lang, sense_id, meta = defns[0]
 </t>
-<t tx="karstenw.20230225123250.6">def __hash__(self):
-    return hash((self._ENTITY_TYPE, self._id))
+<t tx="karstenw.20230225123250.6"></t>
+<t tx="karstenw.20230225123250.60">        if data:
+            return Definition(
+                text,
+                language=lang,
+                source_sense_id=sense_id,
+                _metadata=meta,
+            )
+        else:
+            return text
+    return None
 
+@overload
+def definitions(self, *, data: Literal[False] = False) -&gt; list[str]: ...
+@overload
+def definitions(self, *, data: Literal[True] = True) -&gt; list[Definition]: ...
 
-</t>
-<t tx="karstenw.20230225123250.60">def examples(self) -&gt; List[str]:
+# fallback for non-literal bool argument
+@overload
+def definitions(self, *, data: bool) -&gt; Union[list[str], list[Definition]]: ...
+
+def definitions(self, *, data: bool = False) -&gt; Union[list[str], list[Definition]]:
+    """Return the list of definitions for the synset.
+
+    If the *data* argument is :python:`False` (the default), the
+    definitions are returned as :class:`str` objects. If it is
+    :python:`True`, :class:`wn.Definition` objects are used instead.
+
+    Example:
+
+        &gt;&gt;&gt; wn.synsets('tea', pos='n')[0].definitions()
+        ['a beverage made by steeping tea leaves in water']
+        &gt;&gt;&gt; wn.synsets('tea', pos='n')[0].definitions(data=True)
+        [Definition(text='a beverage made by steeping tea leaves in water',
+          language=None, source_sense_id=None)]
+
+    """
+    lexicons = self._get_lexicons()
+    defns = get_definitions(self.id, lexicons)
+    if data:
+        return [
+            Definition(text, language=lang, source_sense_id=sid, _metadata=meta)
+            for text, lang, sid, meta in defns
+        ]
+    else:
+        return [text for text, *_ in defns]
+
+@overload
+def examples(self, *, data: Literal[False] = False) -&gt; list[str]: ...
+@overload
+def examples(self, *, data: Literal[True] = True) -&gt; list[Example]: ...
+
+# fallback for non-literal bool argument
+@overload
+def examples(self, *, data: bool) -&gt; Union[list[str], list[Example]]: ...
+
+def examples(self, *, data: bool = False) -&gt; Union[list[str], list[Example]]:
     """Return the list of examples for the synset.
+
+    If the *data* argument is :python:`False` (the default), the
+    examples are returned as :class:`str` types. If it is
+    :python:`True`, :class:`wn.Example` objects are used instead.
 
     Example:
 
@@ -3047,12 +3383,17 @@ def ili(self):
         ['"orbital revolution"', '"orbital velocity"']
 
     """
-    lexids = self._get_lexicon_ids()
-    exs = get_examples(self._id, 'synsets', lexids)
-    return [ex for ex, _, _ in exs]
-
+    lexicons = self._get_lexicons()
+    exs = get_examples(self.id, 'synsets', lexicons)
+    if data:
+        return [
 </t>
-<t tx="karstenw.20230225123250.61">def senses(self) -&gt; List['Sense']:
+<t tx="karstenw.20230225123250.61">            Example(text, language=lang, _metadata=meta) for text, lang, meta in exs
+        ]
+    else:
+        return [text for text, _, _ in exs]
+
+def senses(self) -&gt; list['Sense']:
     """Return the list of sense members of the synset.
 
     Example:
@@ -3061,27 +3402,27 @@ def ili(self):
         [Sense('ewn-umbrella-n-04514450-01')]
 
     """
-    lexids = self._get_lexicon_ids()
-    iterable = get_synset_members(self._id, lexids)
-    return [Sense(*sense_data, self._wordnet) for sense_data in iterable]
+    lexicons = self._get_lexicons()
+    iterable = get_synset_members(self.id, lexicons)
+    return [Sense(*sense_data, _lexconf=self._lexconf) for sense_data in iterable]
 
 </t>
 <t tx="karstenw.20230225123250.62">def lexicalized(self) -&gt; bool:
     """Return True if the synset is lexicalized."""
-    return get_lexicalized(self._id, 'synsets')
+    return get_lexicalized(self.id, self._lexicon, 'synsets')
 
 </t>
 <t tx="karstenw.20230225123250.63">def lexfile(self) -&gt; Optional[str]:
     """Return the lexicographer file name for this synset, if any."""
-    return get_lexfile(self._id)
+    return get_lexfile(self.id, self._lexicon)
 
 </t>
 <t tx="karstenw.20230225123250.64">def metadata(self) -&gt; Metadata:
     """Return the synset's metadata."""
-    return get_metadata(self._id, 'synsets')
+    return get_metadata(self.id, self._lexicon, 'synsets')
 
 </t>
-<t tx="karstenw.20230225123250.65">def words(self) -&gt; List[Word]:
+<t tx="karstenw.20230225123250.65">def words(self) -&gt; list[Word]:
     """Return the list of words linked by the synset's senses.
 
     Example:
@@ -3093,19 +3434,39 @@ def ili(self):
     return [sense.word() for sense in self.senses()]
 
 </t>
-<t tx="karstenw.20230225123250.66">def lemmas(self) -&gt; List[Form]:
+<t tx="karstenw.20230225123250.66">@overload
+def lemmas(self, *, data: Literal[False] = False) -&gt; list[str]: ...
+@overload
+def lemmas(self, *, data: Literal[True] = True) -&gt; list[Form]: ...
+
+# fallback for non-literal bool argument
+@overload
+def lemmas(self, *, data: bool) -&gt; Union[list[str], list[Form]]: ...
+
+def lemmas(self, *, data: bool = False) -&gt; Union[list[str], list[Form]]:
     """Return the list of lemmas of words for the synset.
+
+    If the *data* argument is :python:`False` (the default), the
+    lemmas are returned as :class:`str` types. If it is
+    :python:`True`, :class:`wn.Form` objects are used instead.
 
     Example:
 
-        &gt;&gt;&gt; wn.synsets('exclusive', pos='n')[0].words()
+        &gt;&gt;&gt; wn.synsets('exclusive', pos='n')[0].lemmas()
         ['scoop', 'exclusive']
+        &gt;&gt;&gt; wn.synsets('exclusive', pos='n')[0].lemmas(data=True)
+        [Form(value='scoop'), Form(value='exclusive')]
 
     """
-    return [w.lemma() for w in self.words()]
-
 </t>
-<t tx="karstenw.20230225123250.67">def relations(self, *args: str) -&gt; Dict[str, List['Synset']]:
+<t tx="karstenw.20230225123250.67">    # exploded instead of data=data due to mypy issue
+    # https://github.com/python/mypy/issues/14764
+    if data:
+        return [w.lemma(data=True) for w in self.words()]
+    else:
+        return [w.lemma(data=False) for w in self.words()]
+
+def relations(self, *args: str) -&gt; dict[str, list['Synset']]:
     """Return a mapping of relation names to lists of synsets.
 
     One or more relation names may be given as positional
@@ -3126,17 +3487,16 @@ def ili(self):
         hyponym [['coat button'], ['shirt button']]
 
     """
-    d: Dict[str, List['Synset']] = {}
-    for relname, ss in self._get_relations(args):
-        if relname in d:
-            d[relname].append(ss)
-        else:
-            d[relname] = [ss]
-    return d
+    # inner dict is used as an order-preserving set
+    relmap: dict[str, dict[Synset, bool]] = {}
+    for relation, synset in self._iter_relations(*args):
+        relmap.setdefault(relation.name, {})[synset] = True
+    # now convert inner dicts to lists
+    return {relname: list(ss_dict) for relname, ss_dict in relmap.items()}
 
+def get_related(self, *args: str) -&gt; list['Synset']:
 </t>
-<t tx="karstenw.20230225123250.68">def get_related(self, *args: str) -&gt; List['Synset']:
-    """Return the list of related synsets.
+<t tx="karstenw.20230225123250.68">    """Return the list of related synsets.
 
     One or more relation names may be given as positional
     arguments to restrict the relations returned. If no such
@@ -3153,67 +3513,75 @@ def ili(self):
         &gt;&gt;&gt; [ss.lemmas() for ss in fulcrum.get_related()]
         [['pin', 'pivot'], ['lever']]
     """
-    return [ss for _, ss in self._get_relations(args)]
+    return unique_list(synset for _, synset in self._iter_relations(*args))
 
 </t>
-<t tx="karstenw.20230225123250.69">def _get_relations(self, args: Sequence[str]) -&gt; List[Tuple[str, 'Synset']]:
-    targets: List[Tuple[str, 'Synset']] = []
+<t tx="karstenw.20230225123250.69">def relation_map(self) -&gt; dict[Relation, 'Synset']:
+    """Return a dict mapping :class:`Relation` objects to targets."""
+    return dict(self._iter_relations())
 
-    lexids = self._get_lexicon_ids()
-
+def _iter_relations(self, *args: str) -&gt; Iterator[tuple[Relation, 'Synset']]:
     # first get relations from the current lexicon(s)
-    if self._id != NON_ROWID:
-        targets.extend(
-            (row[0], Synset(*row[2:], self._wordnet))
-            for row in get_synset_relations({self._id}, args, lexids)
-            if row[5] in lexids
-        )
-
+    yield from self._iter_local_relations(args)
     # then attempt to expand via ILI
-    if self._ili is not None and self._wordnet and self._wordnet._expanded_ids:
-        expids = self._wordnet._expanded_ids
+    if self._ili is not None and self._lexconf.expands:
+        yield from self._iter_expanded_relations(args)
 
-        # get expanded relation
-        expss = find_synsets(ili=self._ili, lexicon_rowids=expids)
-        rowids = {rowid for _, _, _, _, rowid in expss} - {self._id, NON_ROWID}
-        relations: Dict[str, Set[str]] = {}
-        for rel_row in get_synset_relations(rowids, args, expids):
-            rel_type, ili = rel_row[0], rel_row[4]
-            if ili is not None:
-                relations.setdefault(rel_type, set()).add(ili)
+def _iter_local_relations(
+    self,
+    args: Sequence[str],
+) -&gt; Iterator[tuple[Relation, 'Synset']]:
+    _lexconf = self._lexconf
+    lexicons = self._get_lexicons()
+    iterable = get_synset_relations(self.id, self._lexicon, args, lexicons)
+    for relname, rellex, metadata, _, ssid, pos, ili, tgtlex in iterable:
+        synset_rel = Relation(relname, self.id, ssid, rellex, metadata=metadata)
+        synset = Synset(
+            ssid,
+            pos,
+            ili,
+            _lexicon=tgtlex,
+            _lexconf=_lexconf,
+        )
+        yield synset_rel, synset
 
-        # map back to target lexicons
-        seen = {ss._id for _, ss in targets}
-        for rel_type, ilis in relations.items():
-            for row in get_synsets_for_ilis(ilis, lexicon_rowids=lexids):
-                if row[-1] not in seen:
-                    targets.append((rel_type, Synset(*row, self._wordnet)))
+def _iter_expanded_relations(
+    self,
+    args: Sequence[str],
+) -&gt; Iterator[tuple[Relation, 'Synset']]:
+    assert self._ili is not None, 'cannot get expanded relations without an ILI'
+    _lexconf = self._lexconf
+    lexicons = self._get_lexicons()
 
-        # add empty synsets for ILIs without a target in lexids
-        seen_ilis = {tgt._ili for _, tgt in targets}
-        for rel_type, ilis in relations.items():
-            unseen_ilis = ilis - seen_ilis
-            for ili in unseen_ilis:
-                ss = Synset.empty(
-                    id=_INFERRED_SYNSET,
-                    ili=ili,
-                    _lexid=self._lexid,
-                    _wordnet=self._wordnet
-                )
-                targets.append((rel_type, ss))
+    iterable = get_expanded_synset_relations(self._ili, args, _lexconf.expands)
+    for relname, lexicon, metadata, srcid, ssid, _, ili, *_ in iterable:
+        if ili is None:
+            continue
+        synset_rel = Relation(
+            relname, srcid, ssid, lexicon, metadata=metadata
+        )
+        local_ss_rows = list(get_synsets_for_ilis([ili], lexicons=lexicons))
 
-    return targets
+        if local_ss_rows:
+            for row in local_ss_rows:
+                yield synset_rel, Synset(*row, _lexconf=_lexconf)
+        else:
+            synset = Synset.empty(
+                id=_INFERRED_SYNSET,
+                ili=ili,
+                _lexicon=self._lexicon,
+                _lexconf=_lexconf,
+            )
+            yield synset_rel, synset
 
+def hypernym_paths(self, simulate_root: bool = False) -&gt; list[list['Synset']]:
 </t>
-<t tx="karstenw.20230225123250.7">class ILI(_DatabaseEntity):
-    """A class for interlingual indices."""
-    __slots__ = 'id', 'status', '_definition'
+<t tx="karstenw.20230225123250.7">    """A class for interlingual indices."""
     __module__ = 'wn'
-
+    __slots__ = '_id', 'status', '_definition'
     @others
 </t>
-<t tx="karstenw.20230225123250.70">def hypernym_paths(self, simulate_root: bool = False) -&gt; List[List['Synset']]:
-    """Return the list of hypernym paths to a root synset."""
+<t tx="karstenw.20230225123250.70">    """Return the list of hypernym paths to a root synset."""
     return taxonomy.hypernym_paths(self, simulate_root=simulate_root)
 
 </t>
@@ -3229,7 +3597,7 @@ def ili(self):
 </t>
 <t tx="karstenw.20230225123250.73">def shortest_path(
         self, other: 'Synset', simulate_root: bool = False
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return the shortest path from the synset to the *other* synset."""
     return taxonomy.shortest_path(
         self, other, simulate_root=simulate_root
@@ -3238,7 +3606,7 @@ def ili(self):
 </t>
 <t tx="karstenw.20230225123250.74">def common_hypernyms(
         self, other: 'Synset', simulate_root: bool = False
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return the common hypernyms for the current and *other* synsets."""
     return taxonomy.common_hypernyms(
         self, other, simulate_root=simulate_root
@@ -3247,14 +3615,14 @@ def ili(self):
 </t>
 <t tx="karstenw.20230225123250.75">def lowest_common_hypernyms(
         self, other: 'Synset', simulate_root: bool = False
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return the common hypernyms furthest from the root."""
     return taxonomy.lowest_common_hypernyms(
         self, other, simulate_root=simulate_root
     )
 
 </t>
-<t tx="karstenw.20230225123250.76">def holonyms(self) -&gt; List['Synset']:
+<t tx="karstenw.20230225123250.76">def holonyms(self) -&gt; list['Synset']:
     """Return the list of synsets related by any holonym relation.
 
     Any of the following relations are traversed: ``holonym``,
@@ -3272,7 +3640,7 @@ def ili(self):
     )
 
 </t>
-<t tx="karstenw.20230225123250.77">def meronyms(self) -&gt; List['Synset']:
+<t tx="karstenw.20230225123250.77">def meronyms(self) -&gt; list['Synset']:
     """Return the list of synsets related by any meronym relation.
 
     Any of the following relations are traversed: ``meronym``,
@@ -3290,7 +3658,7 @@ def ili(self):
     )
 
 </t>
-<t tx="karstenw.20230225123250.78">def hypernyms(self) -&gt; List['Synset']:
+<t tx="karstenw.20230225123250.78">def hypernyms(self) -&gt; list['Synset']:
     """Return the list of synsets related by any hypernym relation.
 
     Both the ``hypernym`` and ``instance_hypernym`` relations are
@@ -3303,7 +3671,7 @@ def ili(self):
     )
 
 </t>
-<t tx="karstenw.20230225123250.79">def hyponyms(self) -&gt; List['Synset']:
+<t tx="karstenw.20230225123250.79">def hyponyms(self) -&gt; list['Synset']:
     """Return the list of synsets related by any hyponym relation.
 
     Both the ``hyponym`` and ``instance_hyponym`` relations are
@@ -3316,30 +3684,30 @@ def ili(self):
     )
 
 </t>
-<t tx="karstenw.20230225123250.8">def __init__(
-    self,
-    id: Optional[str],
-    status: str,
-    definition: Optional[str] = None,
-    _id: int = NON_ROWID,
-):
-    super().__init__(_id=_id)
-    self.id = id
-    self.status = status
-    self._definition = definition
+<t tx="karstenw.20230225123250.8">
+_id: Optional[str]
+status: str
+_definition: Optional[str]
 
+def __eq__(self, other) -&gt; bool:
+    raise NotImplementedError
+
+def __hash__(self) -&gt; int:
+    raise NotImplementedError
+
+@property
 </t>
 <t tx="karstenw.20230225123250.80">def translate(
     self,
     lexicon: Optional[str] = None,
     *,
     lang: Optional[str] = None
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return a list of translated synsets.
 
     Arguments:
-        lexicon: if specified, translate to synsets in the target lexicon(s)
-        lang: if specified, translate to synsets with the language code
+        lexicon: lexicon specifier of translated synsets
+        lang: BCP-47 language code of translated synsets
 
     Example:
 
@@ -3352,27 +3720,24 @@ def ili(self):
     ili = self._ili
     if not ili:
         return []
-    return synsets(ili=ili, lang=lang, lexicon=lexicon)
+    return Wordnet(lexicon=lexicon, lang=lang).synsets(ili=ili)
 
 
 </t>
-<t tx="karstenw.20230225123250.81">class Count(int):
+<t tx="karstenw.20230225123250.81">@dataclass(frozen=True)  # slots=True from Python 3.10
+class Count:
     """A count of sense occurrences in some corpus."""
     __module__ = 'wn'
 
-    _id: int
-
+    value: int
+    _metadata: Optional[Metadata] = field(default=None, repr=False, compare=False)
     @others
 </t>
-<t tx="karstenw.20230225123250.82">def __new__(cls, value, _id: int = NON_ROWID):
-    obj = int.__new__(cls, value)  # type: ignore
-    obj._id = _id
-    return obj
-
+<t tx="karstenw.20230225123250.82">
 </t>
 <t tx="karstenw.20230225123250.83">def metadata(self) -&gt; Metadata:
     """Return the count's metadata."""
-    return get_metadata(self._id, 'counts')
+    return self._metadata if self._metadata is not None else {}
 
 
 </t>
@@ -3381,7 +3746,7 @@ def ili(self):
     __slots__ = '_entry_id', '_synset_id'
     __module__ = 'wn'
 
-    _ENTITY_TYPE = 'senses'
+    _ENTITY_TYPE = _EntityType.SENSES
 
     @others
 # Useful for factory functions of Word, Sense, or Synset
@@ -3394,11 +3759,10 @@ C = TypeVar('C', Word, Sense, Synset)
     id: str,
     entry_id: str,
     synset_id: str,
-    _lexid: int = NON_ROWID,
-    _id: int = NON_ROWID,
-    _wordnet: Optional['Wordnet'] = None
+    _lexicon: str = '',
+    _lexconf: _LexiconConfiguration = _EMPTY_LEXCONFIG,
 ):
-    super().__init__(id=id, _lexid=_lexid, _id=_id, _wordnet=_wordnet)
+    super().__init__(id=id, _lexicon=_lexicon, _lexconf=_lexconf)
     self._entry_id = entry_id
     self._synset_id = synset_id
 
@@ -3416,11 +3780,13 @@ C = TypeVar('C', Word, Sense, Synset)
         Word('pwn-spigot-n')
 
     """
-    return self._wordnet.word(id=self._entry_id)
+    lexicons = self._get_lexicons()
+    word_data = next(find_entries(id=self._entry_id, lexicons=lexicons))
+    return Word(*word_data, _lexconf=self._lexconf)
 
 </t>
-<t tx="karstenw.20230225123250.9">def __repr__(self) -&gt; str:
-    return f'ILI({repr(self.id) if self.id else "*PROPOSED*"})'
+<t tx="karstenw.20230225123250.9">def id(self) -&gt; Optional[str]:
+    return self._id
 
 </t>
 <t tx="karstenw.20230225123251.1">def synset(self) -&gt; Synset:
@@ -3432,24 +3798,36 @@ C = TypeVar('C', Word, Sense, Synset)
         Synset('pwn-03325088-n')
 
     """
-    return self._wordnet.synset(id=self._synset_id)
-
+    lexicons = self._get_lexicons()
+    synset_data = next(find_synsets(id=self._synset_id, lexicons=lexicons))
 </t>
-<t tx="karstenw.20230225123251.10">def _get_relations(self, args: Sequence[str]) -&gt; List[Tuple[str, 'Sense']]:
-    lexids = self._get_lexicon_ids()
-    iterable = get_sense_relations(self._id, args, lexids)
-    return [(relname, Sense(sid, eid, ssid, lexid, rowid, self._wordnet))
-            for relname, _, sid, eid, ssid, lexid, rowid in iterable
-            if lexids is None or lexid in lexids]
-
+<t tx="karstenw.20230225123251.10">def get_related_synsets(self, *args: str) -&gt; list[Synset]:
 </t>
-<t tx="karstenw.20230225123251.11">def get_related_synsets(self, *args: str) -&gt; List[Synset]:
-    """Return a list of related synsets."""
-    lexids = self._get_lexicon_ids()
-    iterable = get_sense_synset_relations(self._id, args, lexids)
-    return [Synset(ssid, pos, ili, lexid, rowid, self._wordnet)
-            for _, _, ssid, pos, ili, lexid, rowid in iterable
-            if lexids is None or lexid in lexids]
+<t tx="karstenw.20230225123251.11">    """Return a list of related synsets."""
+    return unique_list(
+        synset for _, synset in self._iter_sense_synset_relations(*args)
+    )
+
+def _iter_sense_relations(self, *args: str) -&gt; Iterator[tuple[Relation, 'Sense']]:
+    iterable = get_sense_relations(self.id, args, self._get_lexicons())
+    for relname, lexicon, metadata, sid, eid, ssid, lexid in iterable:
+        relation = Relation(relname, self.id, sid, lexicon, metadata=metadata)
+        sense = Sense(
+            sid, eid, ssid, lexid, _lexconf=self._lexconf
+        )
+        yield relation, sense
+
+def _iter_sense_synset_relations(
+    self,
+    *args: str,
+) -&gt; Iterator[tuple[Relation, 'Synset']]:
+    iterable = get_sense_synset_relations(self.id, args, self._get_lexicons())
+    for relname, lexicon, metadata, _, ssid, pos, ili, lexid in iterable:
+        relation = Relation(relname, self.id, ssid, lexicon, metadata=metadata)
+        synset = Synset(
+            ssid, pos, ili, lexid, _lexconf=self._lexconf
+        )
+        yield relation, synset
 
 </t>
 <t tx="karstenw.20230225123251.12">def translate(
@@ -3457,12 +3835,12 @@ C = TypeVar('C', Word, Sense, Synset)
     lexicon: Optional[str] = None,
     *,
     lang: Optional[str] = None
-) -&gt; List['Sense']:
+) -&gt; list['Sense']:
     """Return a list of translated senses.
 
     Arguments:
-        lexicon: if specified, translate to senses in the target lexicon(s)
-        lang: if specified, translate to senses with the language code
+        lexicon: lexicon specifier of translated senses
+        lang: BCP-47 language code of translated senses
 
     Example:
 
@@ -3485,13 +3863,15 @@ C = TypeVar('C', Word, Sense, Synset)
 
     A wordnet object acts essentially as a filter by first selecting
     matching lexicons and then searching only within those lexicons
-    for later queries. On instantiation, a *lang* argument is a `BCP
-    47`_ language code that restricts the selected lexicons to those
-    whose language matches the given code. A *lexicon* argument is a
-    space-separated list of lexicon specifiers that more directly
-    selects lexicons by their ID and version; this is preferable when
-    there are multiple lexicons in the same language or multiple
-    version with the same ID.
+    for later queries. Lexicons can be selected on instantiation with
+    the *lexicon* or *lang* parameters. The *lexicon* parameter is a
+    string with a space-separated list of :ref:`lexicon specifiers
+    &lt;lexicon-specifiers&gt;`. The *lang* argument is a `BCP 47`_ language
+    code that selects any lexicon matching the given language code. As
+    the *lexicon* argument more precisely selects lexicons, it is the
+    recommended method of instantiation. Omitting both *lexicon* and
+    *lang* arguments triggers :ref:`default-mode &lt;default-mode&gt;`
+    queries.
 
     Some wordnets were created by translating the words from a larger
     wordnet, namely the Princeton WordNet, and then relying on the
@@ -3499,7 +3879,8 @@ C = TypeVar('C', Word, Sense, Synset)
     second space-separated list of lexicon specifiers which are used
     for traversing relations, but not as the results of
     queries. Setting *expand* to an empty string (:python:`expand=''`)
-    disables expand lexicons.
+    disables expand lexicons. For more information, see
+    :ref:`cross-lingual-relation-traversal`.
 
     The *normalizer* argument takes a callable that normalizes word
     forms in order to expand the search. The default function
@@ -3507,7 +3888,7 @@ C = TypeVar('C', Word, Sense, Synset)
     so that, for example, searching for *san josé* in the English
     WordNet will find the entry for *San Jose*. Setting *normalizer*
     to :python:`None` disables normalization and forces exact-match
-    searching.
+    searching. For more information, see :ref:`normalization`.
 
     The *lemmatizer* argument may be :python:`None`, which is the
     default and disables lemmatizer-based query expansion, or a
@@ -3515,7 +3896,7 @@ C = TypeVar('C', Word, Sense, Synset)
     returns base forms of the original word. To support lemmatizers
     that use the wordnet for instantiation, such as :mod:`wn.morphy`,
     the lemmatizer may be assigned to the :attr:`lemmatizer` attribute
-    after creation.
+    after creation. For more information, see :ref:`lemmatization`.
 
     If the *search_all_forms* argument is :python:`True` (the
     default), searches of word forms consider all forms in the
@@ -3532,8 +3913,8 @@ C = TypeVar('C', Word, Sense, Synset)
 
     """
 
-    __slots__ = ('_lexicons', '_lexicon_ids', '_expanded', '_expanded_ids',
-                 '_default_mode', '_normalizer', 'lemmatizer',
+    __slots__ = ('_lexconf', '_default_mode',
+                 '_normalizer', 'lemmatizer',
                  '_search_all_forms',)
     __module__ = 'wn'
 
@@ -3549,68 +3930,59 @@ C = TypeVar('C', Word, Sense, Synset)
     lemmatizer: Optional[LemmatizeFunction] = None,
     search_all_forms: bool = True,
 ):
+    if lexicon or lang:
+        lexicons = tuple(resolve_lexicon_specifiers(lexicon or '*', lang=lang))
+    else:
+        lexicons = ()
+    if lang and len(lexicons) &gt; 1:
+        warnings.warn(
+            f'multiple lexicons match {lang=}: {lexicons!r}; '
+            'use the lexicon parameter instead to avoid this warning',
+            wn.WnWarning,
+            stacklevel=2,
+        )
+
     # default mode means any lexicon is searched or expanded upon,
     # but relation traversals only target the source's lexicon
-    self._default_mode = (not lexicon and not lang)
+    default_mode = (not lexicon and not lang)
+    expand = _resolve_lexicon_dependencies(expand, lexicons, default_mode)
+    expands = tuple(resolve_lexicon_specifiers(expand)) if expand else ()
 
-    lexs = list(find_lexicons(lexicon or '*', lang=lang))
-    self._lexicons: Tuple[Lexicon, ...] = tuple(map(_to_lexicon, lexs))
-    self._lexicon_ids: Tuple[int, ...] = tuple(lx._id for lx in self._lexicons)
-
-    self._expanded: Tuple[Lexicon, ...] = ()
-    if expand is None:
-        if self._default_mode:
-            expand = '*'
-        else:
-            deps = [(id, ver, _id)
-                    for lex in self._lexicons
-                    for id, ver, _, _id in get_lexicon_dependencies(lex._id)]
-            # warn only if a dep is missing and a lexicon was specified
-            if not self._default_mode:
-                missing = ' '.join(
-                    f'{id}:{ver}' for id, ver, _id in deps if _id is None
-                )
-                if missing:
-                    warnings.warn(
-                        f'lexicon dependencies not available: {missing}',
-                        wn.WnWarning
-                    )
-            expand = ' '.join(
-                f'{id}:{ver}' for id, ver, _id in deps if _id is not None
-            )
-    if expand:
-        self._expanded = tuple(map(_to_lexicon, find_lexicons(lexicon=expand)))
-    self._expanded_ids: Tuple[int, ...] = tuple(lx._id for lx in self._expanded)
+    self._lexconf = _LexiconConfiguration(
+        lexicons=lexicons,
+        expands=expands,
+        default_mode=default_mode,
+    )
 
     self._normalizer = normalizer
     self.lemmatizer = lemmatizer
     self._search_all_forms = search_all_forms
 
 </t>
-<t tx="karstenw.20230225123251.15">def lexicons(self) -&gt; List[Lexicon]:
+<t tx="karstenw.20230225123251.15">def lexicons(self) -&gt; list[Lexicon]:
     """Return the list of lexicons covered by this wordnet."""
-    return list(self._lexicons)
+    return list(map(_to_lexicon, self._lexconf.lexicons))
 
 </t>
-<t tx="karstenw.20230225123251.16">def expanded_lexicons(self) -&gt; List[Lexicon]:
+<t tx="karstenw.20230225123251.16">def expanded_lexicons(self) -&gt; list[Lexicon]:
     """Return the list of expand lexicons for this wordnet."""
-    return list(self._expanded)
+    return list(map(_to_lexicon, self._lexconf.expands))
 
 </t>
 <t tx="karstenw.20230225123251.17">def word(self, id: str) -&gt; Word:
     """Return the first word in this wordnet with identifier *id*."""
-    iterable = find_entries(id=id, lexicon_rowids=self._lexicon_ids)
+    iterable = find_entries(id=id, lexicons=self._lexconf.lexicons)
     try:
-        return Word(*next(iterable), self)
+        return Word(*next(iterable), _lexconf=self._lexconf)
     except StopIteration:
-        raise wn.Error(f'no such lexical entry: {id}')
+        raise wn.Error(f'no such lexical entry: {id}') from None
 
 </t>
 <t tx="karstenw.20230225123251.18">def words(
     self,
     form: Optional[str] = None,
     pos: Optional[str] = None
-) -&gt; List[Word]:
+) -&gt; list[Word]:
     """Return the list of matching words in this wordnet.
 
     Without any arguments, this function returns all words in the
@@ -3624,26 +3996,48 @@ C = TypeVar('C', Word, Sense, Synset)
 </t>
 <t tx="karstenw.20230225123251.19">def synset(self, id: str) -&gt; Synset:
     """Return the first synset in this wordnet with identifier *id*."""
-    iterable = find_synsets(id=id, lexicon_rowids=self._lexicon_ids)
+    iterable = find_synsets(id=id, lexicons=self._lexconf.lexicons)
     try:
-        return Synset(*next(iterable), self)
+        return Synset(*next(iterable), _lexconf=self._lexconf)
     except StopIteration:
-        raise wn.Error(f'no such synset: {id}')
+        raise wn.Error(f'no such synset: {id}') from None
 
 </t>
-<t tx="karstenw.20230225123251.2">def examples(self) -&gt; List[str]:
-    """Return the list of examples for the sense."""
-    lexids = self._get_lexicon_ids()
-    exs = get_examples(self._id, 'senses', lexids)
-    return [ex for ex, _, _ in exs]
+<t tx="karstenw.20230225123251.2">    return Synset(*synset_data, _lexconf=self._lexconf)
+
+
+@overload
+def examples(self, *, data: Literal[False] = False) -&gt; list[str]: ...
+@overload
+def examples(self, *, data: Literal[True] = True) -&gt; list[Example]: ...
+
+# fallback for non-literal bool argument
+@overload
+def examples(self, *, data: bool) -&gt; Union[list[str], list[Example]]: ...
+
+def examples(self, *, data: bool = False) -&gt; Union[list[str], list[Example]]:
+    """Return the list of examples for the sense.
+
+    If the *data* argument is :python:`False` (the default), the
+    examples are returned as :class:`str` types. If it is
+    :python:`True`, :class:`wn.Example` objects are used instead.
+    """
+    lexicons = self._get_lexicons()
+    exs = get_examples(self.id, 'senses', lexicons)
+    if data:
+        return [
+            Example(text, language=lang, _metadata=meta) for text, lang, meta in exs
+        ]
+    else:
+        return [text for text, _, _ in exs]
 
 </t>
 <t tx="karstenw.20230225123251.20">def synsets(
     self,
     form: Optional[str] = None,
     pos: Optional[str] = None,
-    ili: Optional[str] = None
-) -&gt; List[Synset]:
+    ili: Optional[Union[str, ILI]] = None
+) -&gt; list[Synset]:
     """Return the list of matching synsets in this wordnet.
 
     Without any arguments, this function returns all synsets in
@@ -3660,18 +4054,18 @@ C = TypeVar('C', Word, Sense, Synset)
 </t>
 <t tx="karstenw.20230225123251.21">def sense(self, id: str) -&gt; Sense:
     """Return the first sense in this wordnet with identifier *id*."""
-    iterable = find_senses(id=id, lexicon_rowids=self._lexicon_ids)
+    iterable = find_senses(id=id, lexicons=self._lexconf.lexicons)
     try:
-        return Sense(*next(iterable), self)
+        return Sense(*next(iterable), _lexconf=self._lexconf)
     except StopIteration:
-        raise wn.Error(f'no such sense: {id}')
+        raise wn.Error(f'no such sense: {id}') from None
 
 </t>
 <t tx="karstenw.20230225123251.22">def senses(
     self,
     form: Optional[str] = None,
     pos: Optional[str] = None
-) -&gt; List[Sense]:
+) -&gt; list[Sense]:
     """Return the list of matching senses in this wordnet.
 
     Without any arguments, this function returns all senses in the
@@ -3685,21 +4079,24 @@ C = TypeVar('C', Word, Sense, Synset)
 </t>
 <t tx="karstenw.20230225123251.23">def ili(self, id: str) -&gt; ILI:
     """Return the first ILI in this wordnet with identifer *id*."""
-    iterable = find_ilis(id=id, lexicon_rowids=self._lexicon_ids)
+    iterable = find_existing_ilis(id=id, lexicons=self._lexconf.lexicons)
     try:
-        return ILI(*next(iterable))
+        return _ExistingILI(*next(iterable))
     except StopIteration:
-        raise wn.Error(f'no such ILI: {id}')
+        raise wn.Error(f'no such ILI: {id}') from None
 
 </t>
-<t tx="karstenw.20230225123251.24">def ilis(self, status: Optional[str] = None) -&gt; List[ILI]:
+<t tx="karstenw.20230225123251.24">def ilis(self, status: Optional[str] = None) -&gt; list[ILI]:
     """Return the list of ILIs in this wordnet.
 
     If *status* is given, only return ILIs with a matching status.
 
     """
-    iterable = find_ilis(status=status, lexicon_rowids=self._lexicon_ids)
-    return [ILI(*ili_data) for ili_data in iterable]
+    iterable = find_ilis(status=status, lexicons=self._lexconf.lexicons)
+    return [
+        _ProposedILI(id, *data) if id is None else _ExistingILI(id, *data)
+        for id, *data in iterable
+    ]
 
 </t>
 <t tx="karstenw.20230225123251.25">def describe(self) -&gt; str:
@@ -3723,8 +4120,7 @@ C = TypeVar('C', Word, Sense, Synset)
     substrings = ['Primary lexicons:']
     for lex in self.lexicons():
         substrings.append(textwrap.indent(lex.describe(), '  '))
-    expanded = self.expanded_lexicons()
-    if expanded:
+    if self._lexconf.expands:
         substrings.append('Expand lexicons:')
         for lex in self.expanded_lexicons():
             substrings.append(textwrap.indent(lex.describe(full=False), '  '))
@@ -3732,8 +4128,34 @@ C = TypeVar('C', Word, Sense, Synset)
 
 
 </t>
-<t tx="karstenw.20230225123251.26">def _to_lexicon(data) -&gt; Lexicon:
-    rowid, id, label, language, email, license, version, url, citation, logo = data
+<t tx="karstenw.20230225123251.26">def _resolve_lexicon_dependencies(
+    expand: Optional[str],
+    lexicons: Sequence[str],
+    default_mode: bool,
+) -&gt; str:
+    if expand is not None:
+        return expand.strip()
+    if default_mode:
+        return "*"
+    # find dependencies specified by the lexicons
+    deps = [
+        (depspec, added)
+        for lexspec in lexicons
+        for depspec, _, added in get_lexicon_dependencies(lexspec)
+    ]
+    missing = ' '.join(spec for spec, added in deps if not added)
+    if missing:
+        warnings.warn(
+            f'lexicon dependencies not available: {missing}',
+            wn.WnWarning,
+            stacklevel=3,
+        )
+    return ' '.join(spec for spec, added in deps if added)
+
+
+def _to_lexicon(specifier: str) -&gt; Lexicon:
+    data = get_lexicon(specifier)
+    id, label, language, email, license, version, url, citation, logo, meta = data
     return Lexicon(
         id,
         label,
@@ -3744,19 +4166,19 @@ C = TypeVar('C', Word, Sense, Synset)
         url=url,
         citation=citation,
         logo=logo,
-        _id=rowid
+        _metadata=meta,
     )
 
 
 </t>
 <t tx="karstenw.20230225123251.27">def _find_helper(
     w: Wordnet,
-    cls: Type[C],
+    cls: type[C],
     query_func: Callable,
     form: Optional[str],
     pos: Optional[str],
-    ili: Optional[str] = None
-) -&gt; List[C]:
+    ili: Optional[Union[str, ILI]] = None
+) -&gt; list[C]:
     """Return the list of matching wordnet entities.
 
     If the wordnet has a normalizer and the search includes a word
@@ -3767,16 +4189,23 @@ C = TypeVar('C', Word, Sense, Synset)
     string matches are used.
 
     """
-    kwargs: Dict = {
-        'lexicon_rowids': w._lexicon_ids,
+    kwargs: dict = {
+        'lexicons': w._lexconf.lexicons,
         'search_all_forms': w._search_all_forms,
     }
-    if ili is not None:
+    if isinstance(ili, str):
         kwargs['ili'] = ili
+    elif isinstance(ili, ILI):
+        kwargs['ili'] = ili.id
+    elif ili is not None:
+        raise TypeError(
+            "ili argument must be a string, an ILI, or None, "
+            f"not {type(ili).__name__!r}"
+        )
 
     # easy case is when there is no form
     if form is None:
-        return [cls(*data, w)  # type: ignore
+        return [cls(*data, _lexconf=w._lexconf)  # type: ignore
                 for data in query_func(pos=pos, **kwargs)]
 
     # if there's a form, we may need to lemmatize and normalize
@@ -3793,260 +4222,41 @@ C = TypeVar('C', Word, Sense, Synset)
     # we want unique results here, but a set can make the order
     # erratic, so filter manually later
     results = [
-        cls(*data, w)  # type: ignore
+        cls(*data, _lexconf=w._lexconf)  # type: ignore
         for _pos, _forms in forms.items()
         for data in query_func(forms=_forms, pos=_pos, **kwargs)
     ]
     if not results and normalize:
         results = [
-            cls(*data, w)  # type: ignore
+            cls(*data, _lexconf=w._lexconf)  # type: ignore
             for _pos, _forms in forms.items()
             for data in query_func(
                 forms=[normalize(f) for f in _forms], pos=_pos, **kwargs
             )
         ]
-    unique_results: List[C] = []
-    seen: Set[C] = set()
+    unique_results: list[C] = []
+    seen: set[C] = set()
     for result in results:
         if result not in seen:
             unique_results.append(result)
             seen.add(result)
     return unique_results
-
-
 </t>
-<t tx="karstenw.20230225123251.28">def projects() -&gt; List[Dict]:
-    """Return the list of indexed projects.
-
-    This returns the same dictionaries of information as
-    :meth:`wn.config.get_project_info
-    &lt;wn._config.WNConfig.get_project_info&gt;`, but for all indexed
-    projects.
-
-    Example:
-
-        &gt;&gt;&gt; infos = wn.projects()
-        &gt;&gt;&gt; len(infos)
-        36
-        &gt;&gt;&gt; infos[0]['label']
-        'Open English WordNet'
-
-    """
-    index = wn.config.index
-    return [
-        wn.config.get_project_info(f'{project_id}:{version}')
-        for project_id, project_info in index.items()
-        for version in project_info.get('versions', [])
-        if 'resource_urls' in project_info['versions'][version]
-    ]
-
-
-</t>
-<t tx="karstenw.20230225123251.29">def lexicons(
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None
-) -&gt; List[Lexicon]:
-    """Return the lexicons matching a language or lexicon specifier.
-
-    Example:
-
-        &gt;&gt;&gt; wn.lexicons(lang='en')
-        [&lt;Lexicon ewn:2020 [en]&gt;, &lt;Lexicon pwn:3.0 [en]&gt;]
-
-    """
-    try:
-        w = Wordnet(lang=lang, lexicon=lexicon)
-    except wn.Error:
-        return []
-    else:
-        return w.lexicons()
-
-
-</t>
+<t tx="karstenw.20230225123251.28"></t>
+<t tx="karstenw.20230225123251.29"></t>
 <t tx="karstenw.20230225123251.3">def lexicalized(self) -&gt; bool:
     """Return True if the sense is lexicalized."""
-    return get_lexicalized(self._id, 'senses')
+    return get_lexicalized(self.id, self._lexicon, 'senses')
 
 </t>
-<t tx="karstenw.20230225123251.30">def word(
-    id: str,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None
-) -&gt; Word:
-    """Return the word with *id* in *lexicon*.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The *id* argument is then passed to the
-    :meth:`Wordnet.word` method.
-
-    &gt;&gt;&gt; wn.word('ewn-cell-n')
-    Word('ewn-cell-n')
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).word(id=id)
-
-
-</t>
-<t tx="karstenw.20230225123251.31">def words(
-    form: Optional[str] = None,
-    pos: Optional[str] = None,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None,
-) -&gt; List[Word]:
-    """Return the list of matching words.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The remaining arguments are passed to the
-    :meth:`Wordnet.words` method.
-
-    &gt;&gt;&gt; len(wn.words())
-    282902
-    &gt;&gt;&gt; len(wn.words(pos='v'))
-    34592
-    &gt;&gt;&gt; wn.words(form="scurry")
-    [Word('ewn-scurry-n'), Word('ewn-scurry-v')]
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).words(form=form, pos=pos)
-
-
-</t>
-<t tx="karstenw.20230225123251.32">def synset(
-    id: str,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None
-) -&gt; Synset:
-    """Return the synset with *id* in *lexicon*.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The *id* argument is then passed to the
-    :meth:`Wordnet.synset` method.
-
-    &gt;&gt;&gt; wn.synset('ewn-03311152-n')
-    Synset('ewn-03311152-n')
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).synset(id=id)
-
-
-</t>
-<t tx="karstenw.20230225123251.33">def synsets(
-    form: Optional[str] = None,
-    pos: Optional[str] = None,
-    ili: Optional[str] = None,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None,
-) -&gt; List[Synset]:
-    """Return the list of matching synsets.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The remaining arguments are passed to the
-    :meth:`Wordnet.synsets` method.
-
-    &gt;&gt;&gt; len(wn.synsets('couch'))
-    4
-    &gt;&gt;&gt; wn.synsets('couch', pos='v')
-    [Synset('ewn-00983308-v')]
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).synsets(form=form, pos=pos, ili=ili)
-
-
-</t>
-<t tx="karstenw.20230225123251.34">def senses(
-    form: Optional[str] = None,
-    pos: Optional[str] = None,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None,
-) -&gt; List[Sense]:
-    """Return the list of matching senses.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The remaining arguments are passed to the
-    :meth:`Wordnet.senses` method.
-
-    &gt;&gt;&gt; len(wn.senses('twig'))
-    3
-    &gt;&gt;&gt; wn.senses('twig', pos='n')
-    [Sense('ewn-twig-n-13184889-02')]
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).senses(form=form, pos=pos)
-
-
-</t>
-<t tx="karstenw.20230225123251.35">def sense(
-    id: str,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None
-) -&gt; Sense:
-    """Return the sense with *id* in *lexicon*.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The *id* argument is then passed to the
-    :meth:`Wordnet.sense` method.
-
-    &gt;&gt;&gt; wn.sense('ewn-flutter-v-01903884-02')
-    Sense('ewn-flutter-v-01903884-02')
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).sense(id=id)
-
-
-</t>
-<t tx="karstenw.20230225123251.36">def ili(
-    id: str,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None
-) -&gt; ILI:
-    """Return the interlingual index with *id*.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The *id* argument is then passed to the
-    :meth:`Wordnet.ili` method.
-
-    &gt;&gt;&gt; wn.ili(id='i1234')
-    ILI('i1234')
-    &gt;&gt;&gt; wn.ili(id='i1234').status
-    'presupposed'
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).ili(id=id)
-
-
-</t>
-<t tx="karstenw.20230225123251.37">def ilis(
-    status: Optional[str] = None,
-    *,
-    lexicon: Optional[str] = None,
-    lang: Optional[str] = None,
-) -&gt; List[ILI]:
-    """Return the list of matching interlingual indices.
-
-    This will create a :class:`Wordnet` object using the *lang* and
-    *lexicon* arguments. The remaining arguments are passed to the
-    :meth:`Wordnet.ilis` method.
-
-    &gt;&gt;&gt; len(wn.ilis())
-    120071
-    &gt;&gt;&gt; len(wn.ilis(status='proposed'))
-    2573
-    &gt;&gt;&gt; wn.ilis(status='proposed')[-1].definition()
-    'the neutrino associated with the tau lepton.'
-    &gt;&gt;&gt; len(wn.ilis(lang='de'))
-    13818
-
-    """
-    return Wordnet(lang=lang, lexicon=lexicon).ilis(status=status)
-</t>
+<t tx="karstenw.20230225123251.30"></t>
+<t tx="karstenw.20230225123251.31"></t>
+<t tx="karstenw.20230225123251.32"></t>
+<t tx="karstenw.20230225123251.33"></t>
+<t tx="karstenw.20230225123251.34"></t>
+<t tx="karstenw.20230225123251.35"></t>
+<t tx="karstenw.20230225123251.36"></t>
+<t tx="karstenw.20230225123251.37"></t>
 <t tx="karstenw.20230225123251.4">def adjposition(self) -&gt; Optional[str]:
     """Return the adjective position of the sense.
 
@@ -4058,28 +4268,40 @@ C = TypeVar('C', Word, Sense, Synset)
     ``None``.
 
     """
-    return get_adjposition(self._id)
+    return get_adjposition(self.id, self._lexicon)
 
 </t>
-<t tx="karstenw.20230225123251.5">def frames(self) -&gt; List[str]:
+<t tx="karstenw.20230225123251.5">def frames(self) -&gt; list[str]:
     """Return the list of subcategorization frames for the sense."""
-    lexids = self._get_lexicon_ids()
-    return get_syntactic_behaviours(self._id, lexids)
+    lexicons = self._get_lexicons()
+    return get_syntactic_behaviours(self.id, lexicons)
 
 </t>
-<t tx="karstenw.20230225123251.6">def counts(self) -&gt; List[Count]:
+<t tx="karstenw.20230225123251.6">@overload
+def counts(self, *, data: Literal[False] = False) -&gt; list[int]: ...
+@overload
+def counts(self, *, data: Literal[True] = True) -&gt; list[Count]: ...
+
+# fallback for non-literal bool argument
+@overload
+def counts(self, *, data: bool) -&gt; Union[list[int], list[Count]]: ...
+
+def counts(self, *, data: bool = False) -&gt; Union[list[int], list[Count]]:
     """Return the corpus counts stored for this sense."""
-    lexids = self._get_lexicon_ids()
-    return [Count(value, _id=_id)
-            for value, _id in get_sense_counts(self._id, lexids)]
+    lexicons = self._get_lexicons()
+    count_data = list(get_sense_counts(self.id, lexicons))
+    if data:
+        return [Count(value, _metadata=metadata) for value, metadata in count_data]
+    else:
+        return [value for value, _ in count_data]
 
 </t>
 <t tx="karstenw.20230225123251.7">def metadata(self) -&gt; Metadata:
     """Return the sense's metadata."""
-    return get_metadata(self._id, 'senses')
+    return get_metadata(self.id, self._lexicon, 'senses')
 
 </t>
-<t tx="karstenw.20230225123251.8">def relations(self, *args: str) -&gt; Dict[str, List['Sense']]:
+<t tx="karstenw.20230225123251.8">def relations(self, *args: str) -&gt; dict[str, list['Sense']]:
     """Return a mapping of relation names to lists of senses.
 
     One or more relation names may be given as positional
@@ -4091,16 +4313,19 @@ C = TypeVar('C', Word, Sense, Synset)
     senses.
 
     """
-    d: Dict[str, List['Sense']] = {}
-    for relname, s in self._get_relations(args):
-        if relname in d:
-            d[relname].append(s)
-        else:
-            d[relname] = [s]
-    return d
+    # inner dict is used as an order-preserving set
+    relmap: dict[str, dict[Sense, bool]] = {}
+    for relation, sense in self._iter_sense_relations(*args):
+        relmap.setdefault(relation.name, {})[sense] = True
+    # now convert inner dicts to lists
+    return {relname: list(s_dict) for relname, s_dict in relmap.items()}
 
+def relation_map(self) -&gt; dict[Relation, 'Sense']:
 </t>
-<t tx="karstenw.20230225123251.9">def get_related(self, *args: str) -&gt; List['Sense']:
+<t tx="karstenw.20230225123251.9">    """Return a dict mapping :class:`Relation` objects to targets."""
+    return dict(self._iter_sense_relations())
+
+def get_related(self, *args: str) -&gt; list['Sense']:
     """Return a list of related senses.
 
     One or more relation types should be passed as arguments which
@@ -4117,14 +4342,14 @@ C = TypeVar('C', Word, Sense, Synset)
         incoherent
 
     """
-    return [s for _, s in self._get_relations(args)]
+    return unique_list(sense for _, sense in self._iter_sense_relations(*args))
 
 </t>
 <t tx="karstenw.20230225123313.1">"""
 Storage back-end interface.
 """
 
-from typing import Dict
+from importlib import resources
 from pathlib import Path
 import json
 import sqlite3
@@ -4132,7 +4357,7 @@ import logging
 
 import wn
 from wn._types import AnyPath
-from wn._util import resources, short_hash
+from wn._util import short_hash, format_lexicon_specifier
 
 
 logger = logging.getLogger('wn')
@@ -4141,7 +4366,6 @@ logger = logging.getLogger('wn')
 # Module Constants
 
 DEBUG = False
-NON_ROWID = 0  # imaginary rowid of non-existent row
 
 # This stores hashes of the schema to check for version differences.
 # When the schema changes, the hash will change. If the new hash is
@@ -4185,7 +4409,7 @@ sqlite3.register_converter('boolean', _convert_boolean)
 
 # The pool is a cache of open connections. Unless the database path is
 # changed, there should only be zero or one.
-pool: Dict[AnyPath, sqlite3.Connection] = {}
+pool: dict[AnyPath, sqlite3.Connection] = {}
 
 
 # The connect() function should be used for all connections
@@ -4194,9 +4418,11 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
 <t tx="karstenw.20230225123313.5">def connect() -&gt; sqlite3.Connection:
     dbpath = wn.config.database_path
     if dbpath not in pool:
+        if not wn.config.data_directory.exists():
+            wn.config.data_directory.mkdir(parents=True, exist_ok=True)
         initialized = dbpath.is_file()
         conn = sqlite3.connect(
-            dbpath.as_posix(),
+            str(dbpath),
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=not wn.config.allow_multithreading,
         )
@@ -4205,7 +4431,7 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
         if DEBUG:
             conn.set_trace_callback(print)
         if not initialized:
-            logger.info('initializing database: %s', dbpath.as_posix())
+            logger.info('initializing database: %s', dbpath)
             _init_db(conn)
         _check_schema_compatibility(conn, dbpath)
 
@@ -4215,7 +4441,7 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
 
 </t>
 <t tx="karstenw.20230225123313.6">def _init_db(conn: sqlite3.Connection) -&gt; None:
-    schema = resources.read_text('wn', 'schema.sql')
+    schema = (resources.files('wn') / 'schema.sql').read_text()
     conn.executescript(schema)
     with conn:
         conn.executemany('INSERT INTO ili_statuses VALUES (null,?)',
@@ -4242,7 +4468,10 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
         raise wn.DatabaseError(msg) from exc
     else:
         if specs:
-            installed = '\n  '.join(f'{id}:{ver}' for id, ver in specs)
+            installed = '\n  '.join(
+                format_lexicon_specifier(id, ver)
+                for id, ver in specs
+            )
             msg += f" Lexicons currently installed:\n  {installed}"
         else:
             msg += ' No lexicons are currently installed.'
@@ -4254,12 +4483,20 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
     query = 'SELECT sql FROM sqlite_master WHERE NOT sql ISNULL'
     schema = '\n\n'.join(row[0] for row in conn.execute(query))
     return short_hash(schema)
+
+
+def clear_connections() -&gt; None:
+    """Close and delete any open database connections."""
+    for path in list(pool):
+        pool[path].close()
+        del pool[path]
 </t>
-<t tx="karstenw.20230225123943.1">from typing import Optional, Type, List, Sequence, Tuple
+<t tx="karstenw.20230225123943.1">from collections.abc import Sequence
+from typing import Optional
 from pathlib import Path
 import logging
 
-import requests
+import httpx
 
 import wn
 from wn._util import is_url
@@ -4279,7 +4516,7 @@ logger = logging.getLogger('wn')
 <t tx="karstenw.20230225123943.2">def download(
         project_or_url: str,
         add: bool = True,
-        progress_handler: Optional[Type[ProgressHandler]] = ProgressBar,
+        progress_handler: Optional[type[ProgressHandler]] = ProgressBar,
 ) -&gt; Path:
     """Download the resource specified by *project_or_url*.
 
@@ -4338,7 +4575,7 @@ logger = logging.getLogger('wn')
 
 
 </t>
-<t tx="karstenw.20230225123943.3">def _get_cache_path_and_urls(project_or_url: str) -&gt; Tuple[Optional[Path], List[str]]:
+<t tx="karstenw.20230225123943.3">def _get_cache_path_and_urls(project_or_url: str) -&gt; tuple[Optional[Path], list[str]]:
     if is_url(project_or_url):
         return config.get_cache_path(project_or_url), [project_or_url]
     else:
@@ -4348,6 +4585,7 @@ logger = logging.getLogger('wn')
 
 </t>
 <t tx="karstenw.20230225123943.4">def _download(urls: Sequence[str], progress: ProgressHandler) -&gt; Path:
+    client = httpx.Client(timeout=TIMEOUT, follow_redirects=True)
     try:
         for i, url in enumerate(urls, 1):
             path = config.get_cache_path(url)
@@ -4356,46 +4594,42 @@ logger = logging.getLogger('wn')
             try:
                 with open(path, 'wb') as f:
                     progress.set(status='Requesting', count=0)
-                    with requests.get(url, stream=True, timeout=TIMEOUT) as response:
+                    with client.stream("GET", url) as response:
                         response.raise_for_status()
-                        size = int(response.headers.get('Content-Length', 0))
-                        progress.set(total=size, status='Receiving')
-                        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                        total = int(response.headers.get('Content-Length', 0))
+                        count = response.num_bytes_downloaded
+                        progress.set(count=count, total=total, status='Receiving')
+                        for chunk in response.iter_bytes(chunk_size=CHUNK_SIZE):
                             if chunk:
                                 f.write(chunk)
-                            progress.update(len(chunk))
+                            progress.update(response.num_bytes_downloaded - count)
+                            count = response.num_bytes_downloaded
                         progress.set(status='Complete')
-            except requests.exceptions.RequestException as exc:
-                _unlink_if_exists(path)
-                count = progress.kwargs['count']
+            except httpx.RequestError as exc:
+                path.unlink(missing_ok=True)
+                last_count = progress.kwargs['count']
                 if i == len(urls):
-                    raise wn.Error(f'download failed at {count} bytes') from exc
+                    raise wn.Error(f'download failed at {last_count} bytes') from exc
                 else:
-                    logger.info('download failed at %d bytes; trying next url', count)
+                    logger.info(
+                        'download failed at %d bytes; trying next url', last_count
+                    )
             else:
                 break  # success
 
     except KeyboardInterrupt as exc:
-        _unlink_if_exists(path)
-        count = progress.kwargs['count']
-        raise wn.Error(f'download cancelled at {count} bytes') from exc
+        path.unlink(missing_ok=True)
+        last_count = progress.kwargs['count']
+        raise wn.Error(f'download cancelled at {last_count} bytes') from exc
     except Exception:
-        _unlink_if_exists(path)
+        path.unlink(missing_ok=True)
         raise
+    finally:
+        client.close()
 
     return path
-
-
 </t>
-<t tx="karstenw.20230225123943.5">def _unlink_if_exists(path: Path) -&gt; None:
-    """Unlink *path* if it exists.
-
-    From Python 3.8, this function is unnecessary. Just use:
-        path.unlink(exist_ok=True)
-    """
-    if path.exists():
-        path.unlink()
-</t>
+<t tx="karstenw.20230225123943.5"></t>
 <t tx="karstenw.20230225123946.1">class Error(Exception):
     """Generic error class for invalid wordnet operations."""
 
@@ -4424,16 +4658,17 @@ logger = logging.getLogger('wn')
 
 </t>
 <t tx="karstenw.20230225123946.5">class WnWarning(Warning):
-    """Generic warning class for dubious worndet operations."""
+    """Generic warning class for dubious wordnet operations."""
 
     # reset the module so the user sees the public name
     __module__ = 'wn'
 </t>
-<t tx="karstenw.20230225123948.1">from typing import List, Dict, Set, Tuple, Sequence, Optional, cast
+<t tx="karstenw.20230225123948.1">from collections.abc import Sequence
+from typing import Optional, cast
 
 import wn
-from wn._types import AnyPath, VersionInfo
-from wn._util import version_info
+from wn._types import AnyPath, Metadata, VersionInfo
+from wn._util import version_info, split_lexicon_specifier
 from wn import lmf
 from wn._queries import (
     find_entries,
@@ -4441,6 +4676,7 @@ from wn._queries import (
     find_synsets,
     find_syntactic_behaviours,
     find_proposed_ilis,
+    get_entry_forms,
     get_entry_senses,
     get_sense_relations,
     get_sense_synset_relations,
@@ -4449,10 +4685,9 @@ from wn._queries import (
     get_examples,
     get_definitions,
     get_metadata,
+    get_proposed_ili_metadata,
     get_lexicalized,
     get_adjposition,
-    get_form_pronunciations,
-    get_form_tags,
     get_sense_counts,
     get_lexfile,
     get_lexicon,
@@ -4461,25 +4696,28 @@ from wn._queries import (
 )
 from wn._core import Lexicon
 
+PROPOSED_ILI_ID = "in"  # special case for proposed ILIs
+
 
 </t>
 <t tx="karstenw.20230225123948.10">def _export_senses(
-    entry_rowid: int,
-    lexids: Sequence[int],
+    entry_id,
+    lexspec: str,
     sbmap: _SBMap,
     version: VersionInfo,
-) -&gt; List[lmf.Sense]:
-    senses: List[lmf.Sense] = []
-    for id, _, synset, _, rowid in get_entry_senses(entry_rowid, lexids):
+) -&gt; list[lmf.Sense]:
+    senses: list[lmf.Sense] = []
+    lexicons = (lexspec,)
+    for id, _, synset, *_ in get_entry_senses(entry_id, lexicons):
         sense: lmf.Sense = {
             'id': id,
             'synset': synset,
-            'relations': _export_sense_relations(rowid, lexids),
-            'examples': _export_examples(rowid, 'senses', lexids),
-            'counts': _export_counts(rowid, lexids),
-            'lexicalized': get_lexicalized(rowid, 'senses'),
-            'adjposition': get_adjposition(rowid) or '',
-            'meta': _export_metadata(rowid, 'senses'),
+            'relations': _export_sense_relations(id, lexicons),
+            'examples': _export_examples(id, 'senses', lexicons),
+            'counts': _export_counts(id, lexicons),
+            'lexicalized': get_lexicalized(id, lexspec, 'senses'),
+            'adjposition': get_adjposition(id, lexspec) or '',
+            'meta': _export_metadata(id, lexspec, 'senses'),
         }
         if version &gt;= (1, 1) and id in sbmap:
             sense['subcat'] = sorted(sbid for sbid, _ in sbmap[id])
@@ -4489,112 +4727,120 @@ from wn._core import Lexicon
 
 </t>
 <t tx="karstenw.20230225123948.11">def _export_sense_relations(
-    sense_rowid: int,
-    lexids: Sequence[int]
-) -&gt; List[lmf.Relation]:
-    relations: List[lmf.Relation] = [
+    sense_id: str,
+    lexicons: Sequence[str]
+) -&gt; list[lmf.Relation]:
+    relations: list[lmf.Relation] = [
         {'target': id,
          'relType': type,
-         'meta': _export_metadata(rowid, 'sense_relations')}
-        for type, rowid, id, *_
-        in get_sense_relations(sense_rowid, '*', lexids)
+         'meta': _cast_metadata(metadata)}
+        for type, _, metadata, id, *_
+        in get_sense_relations(sense_id, '*', lexicons)
     ]
     relations.extend(
         {'target': id,
          'relType': type,
-         'meta': _export_metadata(rowid, 'sense_synset_relations')}
-        for type, rowid, id, *_
-        in get_sense_synset_relations(sense_rowid, '*', lexids)
+         'meta': _cast_metadata(metadata)}
+        for type, _, metadata, _, id, *_
+        in get_sense_synset_relations(sense_id, '*', lexicons)
     )
     return relations
 
 
 </t>
 <t tx="karstenw.20230225123948.12">def _export_examples(
-    rowid: int,
+    id: str,
     table: str,
-    lexids: Sequence[int]
-) -&gt; List[lmf.Example]:
+    lexicons: Sequence[str]
+) -&gt; list[lmf.Example]:
     return [
         {'text': text,
          'language': language,
-         'meta': _export_metadata(rowid, f'{table[:-1]}_examples')}
-        for text, language, rowid
-        in get_examples(rowid, table, lexids)
+         'meta': cast(lmf.Metadata, metadata)}
+        for text, language, metadata
+        in get_examples(id, table, lexicons)
     ]
 
 
 </t>
-<t tx="karstenw.20230225123948.13">def _export_counts(rowid: int, lexids: Sequence[int]) -&gt; List[lmf.Count]:
+<t tx="karstenw.20230225123948.13">def _export_counts(sense_id: str, lexicons: Sequence[str]) -&gt; list[lmf.Count]:
     return [
-        {'value': val,
-         'meta': _export_metadata(id, 'counts')}
-        for val, id in get_sense_counts(rowid, lexids)
+        {'value': val, 'meta': _cast_metadata(metadata)}
+        for val, metadata in get_sense_counts(sense_id, lexicons)
     ]
 
 
+def _export_synsets(
 </t>
-<t tx="karstenw.20230225123948.14">def _export_synsets(lexids: Sequence[int], version: VersionInfo) -&gt; List[lmf.Synset]:
-    synsets: List[lmf.Synset] = []
-    for id, pos, ili, _, rowid in find_synsets(lexicon_rowids=lexids):
-        ilidef = _export_ili_definition(rowid)
+<t tx="karstenw.20230225123948.14">    lexspec: str,
+    version: VersionInfo,
+) -&gt; list[lmf.Synset]:
+    lexicons = (lexspec,)
+    synsets: list[lmf.Synset] = []
+    for id, pos, ili, *_ in find_synsets(lexicons=lexicons):
+        ilidef = _export_ili_definition(id)
         if ilidef and not ili:
-            ili = 'in'  # special case for proposed ILIs
+            ili = PROPOSED_ILI_ID
         ss: lmf.Synset = {
             'id': id,
             'ili': ili or '',
             'partOfSpeech': pos,
-            'definitions': _export_definitions(rowid, lexids),
-            'relations': _export_synset_relations(rowid, lexids),
-            'examples': _export_examples(rowid, 'synsets', lexids),
-            'lexicalized': get_lexicalized(rowid, 'synsets'),
-            'lexfile': get_lexfile(rowid) or '',
-            'meta': _export_metadata(rowid, 'synsets'),
+            'definitions': _export_definitions(id, lexicons),
+            'relations': _export_synset_relations(id, lexspec),
+            'examples': _export_examples(id, 'synsets', lexicons),
+            'lexicalized': get_lexicalized(id, lexspec, 'synsets'),
+            'lexfile': get_lexfile(id, lexspec) or '',
+            'meta': _export_metadata(id, lexspec, 'synsets'),
         }
         if ilidef:
             ss['ili_definition'] = ilidef
         if version &gt;= (1, 1):
-            ss['members'] = [row[0] for row in get_synset_members(rowid, lexids)]
+            ss['members'] = [row[0] for row in get_synset_members(id, lexicons)]
         synsets.append(ss)
     return synsets
 
 
 </t>
-<t tx="karstenw.20230225123948.15">def _export_definitions(rowid: int, lexids: Sequence[int]) -&gt; List[lmf.Definition]:
+<t tx="karstenw.20230225123948.15">def _export_definitions(
+    synset_id: str,
+    lexicons: Sequence[str],
+) -&gt; list[lmf.Definition]:
     return [
         {'text': text,
          'language': language,
          'sourceSense': sense_id,
-         'meta': _export_metadata(rowid, 'definitions')}
-        for text, language, sense_id, rowid
-        in get_definitions(rowid, lexids)
+         'meta': _cast_metadata(metadata)}
+        for text, language, sense_id, metadata
+        in get_definitions(synset_id, lexicons)
     ]
 
 
 </t>
-<t tx="karstenw.20230225123948.16">def _export_ili_definition(synset_rowid: int) -&gt; Optional[lmf.ILIDefinition]:
-    _, _, defn, rowid = next(find_proposed_ilis(synset_rowid=synset_rowid),
-                             (None, None, None, None))
+<t tx="karstenw.20230225123948.16">def _export_ili_definition(synset: str) -&gt; Optional[lmf.ILIDefinition]:
+    _, _, defn, _, lexspec = next(
+        find_proposed_ilis(synset_id=synset),
+        (None, None, None, None, None)
+    )
     ilidef: Optional[lmf.ILIDefinition] = None
     if defn:
         meta = None
-        if rowid is not None:
-            meta = _export_metadata(rowid, 'proposed_ilis')
-        ilidef = {'text': defn, 'meta': meta}
+        if lexspec is not None:
+            meta = get_proposed_ili_metadata(synset, lexspec)
+        ilidef = {'text': defn, 'meta': _cast_metadata(meta)}
     return ilidef
 
 
 </t>
 <t tx="karstenw.20230225123948.17">def _export_synset_relations(
-    synset_rowid: int,
-    lexids: Sequence[int]
-) -&gt; List[lmf.Relation]:
+    synset_id: str,
+    synset_lexicon: str,
+) -&gt; list[lmf.Relation]:
     return [
         {'target': id,
          'relType': type,
-         'meta': _export_metadata(rowid, 'synset_relations')}
-        for type, rowid, id, *_
-        in get_synset_relations((synset_rowid,), '*', lexids)
+         'meta': _cast_metadata(metadata)}
+        for type, _, metadata, _, id, *_
+        in get_synset_relations(synset_id, synset_lexicon, '*', (synset_lexicon,))
     ]
 
 
@@ -4602,10 +4848,10 @@ from wn._core import Lexicon
 <t tx="karstenw.20230225123948.18">def _export_syntactic_behaviours_1_0(
     entry: lmf.LexicalEntry,
     sbmap: _SBMap,
-) -&gt; List[lmf.SyntacticBehaviour]:
-    frames: List[lmf.SyntacticBehaviour] = []
+) -&gt; list[lmf.SyntacticBehaviour]:
+    frames: list[lmf.SyntacticBehaviour] = []
     sense_ids = {s['id'] for s in entry.get('senses', [])}
-    sbs: Dict[str, Set[str]] = {}
+    sbs: dict[str, set[str]] = {}
     for sid in sense_ids:
         for _, subcat_frame in sbmap.get(sid, []):
             sbs.setdefault(subcat_frame, set()).add(sid)
@@ -4620,18 +4866,18 @@ from wn._core import Lexicon
 
 </t>
 <t tx="karstenw.20230225123948.19">def _export_syntactic_behaviours_1_1(
-    lexids: Sequence[int]
-) -&gt; List[lmf.SyntacticBehaviour]:
+    lexicons: Sequence[str]
+) -&gt; list[lmf.SyntacticBehaviour]:
     return [
         {'id': id or '',
          'subcategorizationFrame': frame}
-        for id, frame, _ in find_syntactic_behaviours(lexicon_rowids=lexids)
+        for id, frame, _ in find_syntactic_behaviours(lexicons=lexicons)
     ]
 
 
 </t>
 <t tx="karstenw.20230225123948.2">def export(
-        lexicons: Sequence[Lexicon], destination: AnyPath, version: str = '1.0'
+    lexicons: Sequence[Lexicon], destination: AnyPath, version: str = '1.0'
 ) -&gt; None:
     """Export lexicons from the database to a WN-LMF file.
 
@@ -4661,35 +4907,40 @@ from wn._core import Lexicon
 
 
 </t>
-<t tx="karstenw.20230225123948.20">def _export_metadata(rowid: int, table: str) -&gt; lmf.Metadata:
-    return cast(lmf.Metadata, get_metadata(rowid, table))
+<t tx="karstenw.20230225123948.20">def _export_metadata(id: str, lexicon: str, table: str) -&gt; lmf.Metadata:
+    return cast(lmf.Metadata, get_metadata(id, lexicon, table))
+
+
+def _cast_metadata(metadata: Optional[Metadata]) -&gt; lmf.Metadata:
+    return cast(lmf.Metadata, metadata or {})
 </t>
 <t tx="karstenw.20230225123948.3">def _precheck(lexicons: Sequence[Lexicon]) -&gt; None:
-    all_ids: Set[str] = set()
+    all_ids: set[str] = set()
     for lex in lexicons:
-        lexids = (lex._id,)
+        lexspecs = (lex.specifier(),)
         idset = {lex.id}
-        idset.update(row[0] for row in find_entries(lexicon_rowids=lexids))
-        idset.update(row[0] for row in find_senses(lexicon_rowids=lexids))
-        idset.update(row[0] for row in find_synsets(lexicon_rowids=lexids))
+        idset.update(row[0] for row in find_entries(lexicons=lexspecs))
+        idset.update(row[0] for row in find_senses(lexicons=lexspecs))
+        idset.update(row[0] for row in find_synsets(lexicons=lexspecs))
         # TODO: syntactic behaviours
         if all_ids.intersection(idset):
             raise wn.Error('cannot export: non-unique identifiers in lexicons')
         all_ids |= idset
 
 
-_SBMap = Dict[str, List[Tuple[str, str]]]
+_SBMap = dict[str, list[tuple[str, str]]]
 
 
 </t>
 <t tx="karstenw.20230225123948.4">def _export_lexicon(lexicon: Lexicon, version: VersionInfo) -&gt; lmf.Lexicon:
-    lexids = (lexicon._id,)
+    lexicons = (lexicon.specifier(),)
+    spec = lexicon.specifier()
 
     # WN-LMF 1.0 lexicons put syntactic behaviours on lexical entries
     # WN-LMF 1.1 lexicons use a 'subcat' IDREFS attribute
     sbmap: _SBMap = {}
     if version &lt; (1, 1):
-        for sbid, frame, sids in find_syntactic_behaviours(lexicon_rowids=lexids):
+        for sbid, frame, sids in find_syntactic_behaviours(lexicons=lexicons):
             for sid in sids:
                 sbmap.setdefault(sid, []).append((sbid, frame))
 
@@ -4702,64 +4953,69 @@ _SBMap = Dict[str, List[Tuple[str, str]]]
         'version': lexicon.version,
         'url': lexicon.url or '',
         'citation': lexicon.citation or '',
-        'entries': _export_lexical_entries(lexids, sbmap, version),
-        'synsets': _export_synsets(lexids, version),
-        'meta': _export_metadata(lexicon._id, 'lexicons'),
+        'entries': _export_lexical_entries(spec, sbmap, version),
+        'synsets': _export_synsets(spec, version),
+        'meta': _cast_metadata(lexicon.metadata()),
     }
     if version &gt;= (1, 1):
         lex['logo'] = lexicon.logo or ''
-        lex['requires'] = _export_requires(lexicon._id)
-        lex['frames'] = _export_syntactic_behaviours_1_1(lexids)
+        lex['requires'] = _export_requires(spec)
+        lex['frames'] = _export_syntactic_behaviours_1_1(lexicons)
 
     return lex
 
 
 </t>
-<t tx="karstenw.20230225123948.5">def _export_requires(lexid: int) -&gt; List[lmf.Dependency]:
-    return [
-        {'id': id, 'version': version, 'url': url}
-        for id, version, url, _ in get_lexicon_dependencies(lexid)
-    ]
-
-
+<t tx="karstenw.20230225123948.5">def _export_requires(spec: str) -&gt; list[lmf.Dependency]:
+    dependencies: list[lmf.Dependency] = []
+    for specifier, url, _ in get_lexicon_dependencies(spec):
+        id, version = split_lexicon_specifier(specifier)
+        dependencies.append(
+            {'id': id, 'version': version, 'url': url}
+        )
 </t>
-<t tx="karstenw.20230225123948.6">def _export_extends(lexid: int) -&gt; lmf.Dependency:
-    ext_lexid = get_lexicon_extension_bases(lexid, depth=1)[0]
-    _, id, _, _, _, _, version, url, *_ = get_lexicon(ext_lexid)
+<t tx="karstenw.20230225123948.6">    return dependencies
+
+
+def _export_extends(spec: str) -&gt; lmf.Dependency:
+    ext_spec = get_lexicon_extension_bases(spec, depth=1)[0]
+    _, id, _, _, _, _, version, url, *_ = get_lexicon(ext_spec)
     return {'id': id, 'version': version, 'url': url}
 
 
 </t>
 <t tx="karstenw.20230225123948.7">def _export_lexical_entries(
-    lexids: Sequence[int],
+    lexspec: str,
     sbmap: _SBMap,
     version: VersionInfo
-) -&gt; List[lmf.LexicalEntry]:
-    entries: List[lmf.LexicalEntry] = []
-    for id, pos, forms, _, rowid in find_entries(lexicon_rowids=lexids):
+) -&gt; list[lmf.LexicalEntry]:
+    lexicons = (lexspec,)
+    entries: list[lmf.LexicalEntry] = []
+    for id, pos, *_ in find_entries(lexicons=lexicons):
+        forms = list(get_entry_forms(id, lexicons))
         entry: lmf.LexicalEntry = {
             'id': id,
             'lemma': {
                 'writtenForm': forms[0][0],
                 'partOfSpeech': pos,
                 'script': forms[0][2] or '',
-                'tags': _export_tags(forms[0][3]),
+                'tags': _export_tags(forms[0][4]),
             },
             'forms': [],
-            'senses': _export_senses(rowid, lexids, sbmap, version),
-            'meta': _export_metadata(rowid, 'entries'),
+            'senses': _export_senses(id, lexspec, sbmap, version),
+            'meta': _export_metadata(id, lexspec, 'entries'),
         }
         if version &gt;= (1, 1):
             entry['lemma']['pronunciations'] = _export_pronunciations(forms[0][3])
-        for form, fid, script, frowid in forms[1:]:
+        for form, fid, script, prons, tags in forms[1:]:
             _form: lmf.Form = {
                 'id': fid or '',
                 'writtenForm': form,
                 'script': script or '',
-                'tags': _export_tags(frowid),
+                'tags': _export_tags(tags),
             }
             if version &gt;= (1, 1):
-                _form['pronunciations'] = _export_pronunciations(frowid)
+                _form['pronunciations'] = _export_pronunciations(prons)
             entry['forms'].append(_form)
         if version &lt; (1, 1):
             entry['frames'] = _export_syntactic_behaviours_1_0(entry, sbmap)
@@ -4768,28 +5024,33 @@ _SBMap = Dict[str, List[Tuple[str, str]]]
 
 
 </t>
-<t tx="karstenw.20230225123948.8">def _export_pronunciations(rowid: int) -&gt; List[lmf.Pronunciation]:
-    return [
-        {'text': text,
-         'variety': variety,
-         'notation': notation,
-         'phonemic': phonemic,
-         'audio': audio}
-        for text, variety, notation, phonemic, audio
-        in get_form_pronunciations(rowid)
-    ]
-
-
+<t tx="karstenw.20230225123948.8">def _export_pronunciations(
+    rows: list[tuple[str, Optional[str], Optional[str], bool, Optional[str]]]
+) -&gt; list[lmf.Pronunciation]:
+    prons: list[lmf.Pronunciation] = []
+    for text, variety, notation, phonemic, audio in rows:
+        pron = lmf.Pronunciation(text=text)
+        if variety is not None:
+            pron['variety'] = variety
+        if notation is not None:
+            pron['notation'] = notation
+        if not phonemic:
+            pron['phonemic'] = phonemic
 </t>
-<t tx="karstenw.20230225123948.9">def _export_tags(rowid: int) -&gt; List[lmf.Tag]:
+<t tx="karstenw.20230225123948.9">        if audio is not None:
+            pron['audio'] = audio
+    return prons
+
+
+def _export_tags(rows: list[tuple[str, str]]) -&gt; list[lmf.Tag]:
     return [
         {'text': text, 'category': category}
-        for text, category in get_form_tags(rowid)
+        for text, category in rows
     ]
 
 
 </t>
-<t tx="karstenw.20230225123950.1">from typing import Iterator, Dict
+<t tx="karstenw.20230225123950.1">from collections.abc import Iterator
 from pathlib import Path
 
 from wn._types import AnyPath
@@ -4815,7 +5076,7 @@ from wn._types import AnyPath
 
 
 </t>
-<t tx="karstenw.20230225123950.3">def load(source: AnyPath) -&gt; Iterator[Dict[str, str]]:
+<t tx="karstenw.20230225123950.3">def load(source: AnyPath) -&gt; Iterator[dict[str, str]]:
     """Load an interlingual index file.
 
     Args:
@@ -4832,70 +5093,99 @@ from wn._types import AnyPath
 Database retrieval queries.
 """
 
-from typing import (
-    Optional, List, Tuple, Collection, Iterator, Sequence
-)
+from collections.abc import Collection, Iterator, Sequence
+from typing import Optional, Union, cast
 import itertools
-import sqlite3
 
 import wn
 from wn._types import Metadata
-from wn._db import connect, NON_ROWID
+from wn._db import connect
+from wn._util import split_lexicon_specifier
 
 
 # Local Types
 
-_Pronunciation = Tuple[
+_Pronunciation = tuple[
     str,   # value
-    str,   # variety
-    str,   # notation
+    Optional[str],   # variety
+    Optional[str],   # notation
     bool,  # phonemic
-    str,   # audio
+    Optional[str],   # audio
 ]
-_Tag = Tuple[str, str]  # tag, category
-_Form = Tuple[
+_Tag = tuple[str, str]  # tag, category
+_Form = tuple[
     str,            # form
     Optional[str],  # id
     Optional[str],  # script
-    int             # rowid
+    list[_Pronunciation],  # pronunciations
+    list[_Tag],  # tags
 ]
-_Word = Tuple[
+_Word = tuple[
     str,          # id
     str,          # pos
-    List[_Form],  # forms
-    int,          # lexid
-    int,          # rowid
+    str,          # lexicon specifier
 ]
-_Synset = Tuple[
+_Synset = tuple[
     str,  # id
     str,  # pos
     str,  # ili
-    int,  # lexid
-    int,  # rowid
+    str,  # lexicon specifier
 ]
-_Synset_Relation = Tuple[str, int, str, str, str, int, int]  # relname, relid, *_Synset
-_Sense = Tuple[
+_Synset_Relation = tuple[
+    str,  # rel_name
+    str,  # lexicon
+    Metadata,  # metadata
+    str,  # srcid
+    str,  # _Synset...
+    str,
+    str,
+    str,
+]
+_Definition = tuple[
+    str,  # text
+    str,  # language
+    str,  # sourceSense
+    Optional[Metadata],  # metadata
+]
+_Example = tuple[
+    str,  # text
+    str,  # language
+    Optional[Metadata],  # metadata
+]
+_Sense = tuple[
     str,  # id
     str,  # entry_id
     str,  # synset_id
-    int,  # lexid
-    int,  # rowid
+    str,  # lexicon specifier
 ]
-_Sense_Relation = Tuple[str, int, str, str, str, int, int]  # relname, relid,  *_Sense
-_Count = Tuple[int, int]  # count, count_id
-_SyntacticBehaviour = Tuple[
+_Sense_Relation = tuple[
+    str,  # rel_name
+    str,  # lexicon
+    Metadata,  # metadata
+    str,  # _Sense...
+    str,
+    str,
+    str,
+]
+_Count = tuple[int, Metadata]  # count, metadata
+_SyntacticBehaviour = tuple[
     str,       # id
     str,       # frame
-    List[str]  # sense ids
+    list[str]  # sense ids
 ]
-_ILI = Tuple[
-    Optional[str],  # id
-    str,            # status
+_ExistingILI = tuple[
+    str,  # id
+    str,  # status
     Optional[str],  # definition
-    int,            # rowid
 ]
-_Lexicon = Tuple[
-    int,       # rowid
+_ProposedILI = tuple[
+    None,  # id
+    str,  # status
+    str,  # definition
+    str,  # synset id
+    str,  # lexicon
+]
+_Lexicon = tuple[
     str,       # id
     str,       # label
     str,       # language
@@ -4905,65 +5195,67 @@ _Lexicon = Tuple[
     str,       # url
     str,       # citation
     str,       # logo
-    Metadata,  # metadata
+    Optional[Metadata],  # metadata
 ]
 
 
 </t>
-<t tx="karstenw.20230225123952.10">def _find_existing_ilis(
-    id: Optional[str] = None,
+<t tx="karstenw.20230225123952.10">    id: Optional[str] = None,
     status: Optional[str] = None,
-    lexicon_rowids: Sequence[int] = (),
-) -&gt; Iterator[_ILI]:
+    lexicons: Sequence[str] = (),
+) -&gt; Iterator[_ExistingILI]:
     query = '''
-        SELECT DISTINCT i.id, ist.status, i.definition, i.rowid
+        SELECT DISTINCT i.id, ist.status, i.definition
           FROM ilis AS i
           JOIN ili_statuses AS ist ON i.status_rowid = ist.rowid
     '''
-    conditions: List[str] = []
-    params: List = []
+    conditions: list[str] = []
+    params: list = []
     if id:
         conditions.append('i.id = ?')
         params.append(id)
     if status:
         conditions.append('ist.status = ?')
         params.append(status)
-    if lexicon_rowids:
-        conditions.append(f'''
-            i.rowid IN
-            (SELECT ss.ili_rowid
-               FROM synsets AS ss
-              WHERE ss.lexicon_rowid IN ({_qs(lexicon_rowids)}))
-        ''')
-        params.extend(lexicon_rowids)
+    if lexicons:
+        # this runs much faster than just adding a condition
+        query = '''
+        SELECT DISTINCT i.id, ist.status, i.definition
+          FROM lexicons as lex
+          JOIN synsets AS ss ON ss.lexicon_rowid = lex.rowid
+          JOIN ilis AS i ON i.rowid = ss.ili_rowid
+          JOIN ili_statuses AS ist ON i.status_rowid = ist.rowid
+        '''
+        conditions.append(f'lex.id || ":" || lex.version IN ({_qs(lexicons)})')
+        params.extend(lexicons)
+
     if conditions:
-        query += '\n WHERE ' + '\n   AND '.join(conditions)
+        query += ' WHERE ' + '\n           AND '.join(conditions)
+
     yield from connect().execute(query, params)
 
 
 </t>
 <t tx="karstenw.20230225123952.11">def find_proposed_ilis(
-    synset_rowid: Optional[int] = None,
-    lexicon_rowids: Sequence[int] = (),
-) -&gt; Iterator[_ILI]:
+    synset_id: Optional[str] = None,
+    lexicons: Sequence[str] = (),
+) -&gt; Iterator[_ProposedILI]:
     query = '''
-        SELECT null, "proposed", definition, rowid
-          FROM proposed_ilis
+    SELECT null, "proposed", definition, ss.id, lex.id || ":" || lex.version
+      FROM proposed_ilis
+      JOIN synsets AS ss ON ss.rowid = synset_rowid
+      JOIN lexicons AS lex ON lex.rowid = ss.lexicon_rowid
     '''
-    conditions = []
-    params = []
-    if synset_rowid is not None:
-        conditions.append('synset_rowid = ?')
-        params.append(synset_rowid)
-    if lexicon_rowids:
-        conditions.append(f'''
-            synset_rowid IN
-            (SELECT ss.rowid FROM synsets AS ss
-              WHERE ss.lexicon_rowid IN ({_qs(lexicon_rowids)}))
-        ''')
-        params.extend(lexicon_rowids)
+    conditions: list[str] = []
+    params: list = []
+    if synset_id is not None:
+        conditions.append('ss.id = ?')
+        params.append(synset_id)
+    if lexicons:
+        conditions.append(f'lex.id || ":" || lex.version IN ({_qs(lexicons)})')
+        params.extend(lexicons)
     if conditions:
-        query += '\n WHERE ' + '\n   AND '.join(conditions)
+        query += ' WHERE ' + '\n           AND '.join(conditions)
     yield from connect().execute(query, params)
 
 
@@ -4972,13 +5264,13 @@ _Lexicon = Tuple[
     id: Optional[str] = None,
     forms: Sequence[str] = (),
     pos: Optional[str] = None,
-    lexicon_rowids: Sequence[int] = (),
+    lexicons: Sequence[str] = (),
     normalized: bool = False,
     search_all_forms: bool = False,
 ) -&gt; Iterator[_Word]:
     conn = connect()
     cte = ''
-    params: List = []
+    params: list = []
     conditions = []
     if id:
         conditions.append('e.id = ?')
@@ -4997,9 +5289,9 @@ _Lexicon = Tuple[
     if pos:
         conditions.append('e.pos = ?')
         params.append(pos)
-    if lexicon_rowids:
-        conditions.append(f'e.lexicon_rowid IN ({_qs(lexicon_rowids)})')
-        params.extend(lexicon_rowids)
+    if lexicons:
+        conditions.append(f'lex.id || ":" || lex.version IN ({_qs(lexicons)})')
+        params.extend(lexicons)
 
     condition = ''
     if conditions:
@@ -5007,22 +5299,15 @@ _Lexicon = Tuple[
 
     query = f'''
           {cte}
-        SELECT DISTINCT e.lexicon_rowid, e.rowid, e.id, e.pos,
-                        f.form, f.id, f.script, f.rowid
+        SELECT DISTINCT e.id, e.pos, lex.id || ":" || lex.version
           FROM entries AS e
-          JOIN forms AS f ON f.entry_rowid = e.rowid
+          JOIN lexicons AS lex ON lex.rowid = e.lexicon_rowid
          {condition}
-         ORDER BY e.rowid, e.id, f.rank
+         ORDER BY e.rowid ASC
     '''
 
-    rows: Iterator[
-        Tuple[int, int, str, str, str, Optional[str], Optional[str], int]
-    ] = conn.execute(query, params)
-    groupby = itertools.groupby
-    for key, group in groupby(rows, lambda row: row[0:4]):
-        lexid, rowid, id, pos = key
-        wordforms = [(row[4], row[5], row[6], row[7]) for row in group]
-        yield (id, pos, wordforms, lexid, rowid)
+    rows: Iterator[_Word] = conn.execute(query, params)
+    yield from rows
 
 
 </t>
@@ -5030,13 +5315,13 @@ _Lexicon = Tuple[
     id: Optional[str] = None,
     forms: Sequence[str] = (),
     pos: Optional[str] = None,
-    lexicon_rowids: Sequence[int] = (),
+    lexicons: Sequence[str] = (),
     normalized: bool = False,
     search_all_forms: bool = False,
 ) -&gt; Iterator[_Sense]:
     conn = connect()
     cte = ''
-    params: List = []
+    params: list = []
     conditions = []
     if id:
         conditions.append('s.id = ?')
@@ -5055,9 +5340,9 @@ _Lexicon = Tuple[
     if pos:
         conditions.append('e.pos = ?')
         params.append(pos)
-    if lexicon_rowids:
-        conditions.append(f's.lexicon_rowid IN ({_qs(lexicon_rowids)})')
-        params.extend(lexicon_rowids)
+    if lexicons:
+        conditions.append(f'slex.id || ":" || slex.version IN ({_qs(lexicons)})')
+        params.extend(lexicons)
 
     condition = ''
     if conditions:
@@ -5065,11 +5350,13 @@ _Lexicon = Tuple[
 
     query = f'''
           {cte}
-        SELECT DISTINCT s.id, e.id, ss.id, s.lexicon_rowid, s.rowid
+        SELECT DISTINCT s.id, e.id, ss.id, slex.id || ":" || slex.version
           FROM senses AS s
           JOIN entries AS e ON e.rowid = s.entry_rowid
           JOIN synsets AS ss ON ss.rowid = s.synset_rowid
+          JOIN lexicons AS slex ON slex.rowid = s.lexicon_rowid
          {condition}
+         ORDER BY s.rowid ASC
     '''
 
     rows: Iterator[_Sense] = conn.execute(query, params)
@@ -5082,7 +5369,7 @@ _Lexicon = Tuple[
     forms: Sequence[str] = (),
     pos: Optional[str] = None,
     ili: Optional[str] = None,
-    lexicon_rowids: Sequence[int] = (),
+    lexicons: Sequence[str] = (),
     normalized: bool = False,
     search_all_forms: bool = False,
 ) -&gt; Iterator[_Synset]:
@@ -5091,7 +5378,7 @@ _Lexicon = Tuple[
     join = ''
     conditions = []
     order = ''
-    params: List = []
+    params: list = []
     if id:
         conditions.append('ss.id = ?')
         params.append(id)
@@ -5116,20 +5403,24 @@ _Lexicon = Tuple[
             'ss.ili_rowid IN (SELECT ilis.rowid FROM ilis WHERE ilis.id = ?)'
         )
         params.append(ili)
-    if lexicon_rowids:
-        conditions.append(f'ss.lexicon_rowid IN ({_qs(lexicon_rowids)})')
-        params.extend(lexicon_rowids)
+    if lexicons:
+        conditions.append(f'sslex.id || ":" || sslex.version IN ({_qs(lexicons)})')
+        params.extend(lexicons)
 
     condition = ''
     if conditions:
         condition = 'WHERE ' + '\n           AND '.join(conditions)
 
+    if not order:
+        order = 'ORDER BY ss.rowid ASC'
+
     query = f'''
           {cte}
         SELECT DISTINCT ss.id, ss.pos,
                         (SELECT ilis.id FROM ilis WHERE ilis.rowid=ss.ili_rowid),
-                        ss.lexicon_rowid, ss.rowid
+                        sslex.id || ":" || sslex.version
           FROM synsets AS ss
+          JOIN lexicons AS sslex ON sslex.rowid = ss.lexicon_rowid
           {join}
          {condition}
          {order}
@@ -5139,73 +5430,167 @@ _Lexicon = Tuple[
     yield from rows
 
 
+def get_entry_forms(id: str, lexicons: Sequence[str]) -&gt; Iterator[_Form]:
+    form_query = f'''
+        SELECT f.rowid, f.form, f.id, f.script
+          FROM forms AS f
+          JOIN entries AS e ON e.rowid = entry_rowid
+          JOIN lexicons AS lex ON lex.rowid = e.lexicon_rowid
+         WHERE e.id = ?
+           AND lex.id || ":" || lex.version IN ({_qs(lexicons)})
+         ORDER BY f.rank
+    '''
+    pron_query = '''
+        SELECT value, variety, notation, phonemic, audio
+          FROM pronunciations
+         WHERE form_rowid = ?
+    '''
+    tag_query = 'SELECT tag, category FROM tags WHERE form_rowid = ?'
+
+    cur = connect().cursor()
+    for row in cur.execute(form_query, (id, *lexicons)).fetchall():
+        params = (row[0],)
+        prons: list[_Pronunciation] = cur.execute(pron_query, params).fetchall()
+        tags: list[_Tag] = cur.execute(tag_query, params).fetchall()
+        yield (*row[1:], prons, tags)
+
+
 </t>
 <t tx="karstenw.20230225123952.15">def get_synsets_for_ilis(
-        ilis: Collection[str],
-        lexicon_rowids: Sequence[int],
+    ilis: Collection[str],
+    lexicons: Sequence[str],
 ) -&gt; Iterator[_Synset]:
     conn = connect()
     query = f'''
-        SELECT DISTINCT ss.id, ss.pos, ili.id, ss.lexicon_rowid, ss.rowid
+        SELECT DISTINCT ss.id, ss.pos, ili.id,
+                        sslex.id || ":" || sslex.version
           FROM synsets as ss
           JOIN ilis as ili ON ss.ili_rowid = ili.rowid
+          JOIN lexicons AS sslex ON sslex.rowid = ss.lexicon_rowid
          WHERE ili.id IN ({_qs(ilis)})
-           AND ss.lexicon_rowid IN ({_qs(lexicon_rowids)})
+           AND sslex.id || ":" || sslex.version IN ({_qs(lexicons)})
     '''
-    params = *ilis, *lexicon_rowids
+    params = *ilis, *lexicons
     result_rows: Iterator[_Synset] = conn.execute(query, params)
     yield from result_rows
 
 
 </t>
 <t tx="karstenw.20230225123952.16">def get_synset_relations(
-    source_rowids: Collection[int],
+    synset_id: str,
+    synset_lexicon: str,
     relation_types: Collection[str],
-    lexicon_rowids: Sequence[int],
+    lexicons: Sequence[str],
 ) -&gt; Iterator[_Synset_Relation]:
     conn = connect()
-    params: List = []
+    params: list = []
     constraint = ''
     if relation_types and '*' not in relation_types:
         constraint = f'WHERE type IN ({_qs(relation_types)})'
         params.extend(relation_types)
-    params.extend(source_rowids)
-    params.extend(lexicon_rowids)
+    params.extend(lexicons)
+    params.append(synset_id)
+    params.append(synset_lexicon)
     query = f'''
-          WITH rt(rowid, type) AS
-               (SELECT rowid, type FROM relation_types {constraint})
-        SELECT DISTINCT rel.type, rel.rowid, tgt.id, tgt.pos,
-                        (SELECT ilis.id FROM ilis WHERE ilis.rowid = tgt.ili_rowid),
-                        tgt.lexicon_rowid, tgt.rowid
-          FROM (SELECT rt.type, target_rowid, srel.rowid
-                  FROM synset_relations AS srel
-                  JOIN rt ON srel.type_rowid = rt.rowid
-                 WHERE source_rowid IN ({_qs(source_rowids)})
-                   AND lexicon_rowid IN ({_qs(lexicon_rowids)})
-               ) AS rel
-          JOIN synsets AS tgt
-            ON tgt.rowid = rel.target_rowid
+        WITH
+          reltypes(rowid) AS
+            (SELECT rowid FROM relation_types {constraint}),
+          lexrowids(rowid) AS
+            (SELECT rowid FROM lexicons
+              WHERE id || ":" || version IN ({_vs(lexicons)})),
+          srcsynset(rowid) AS
+            (SELECT ss.rowid
+               FROM synsets AS ss
+               JOIN lexicons AS lex ON lex.rowid = ss.lexicon_rowid
+              WHERE ss.id = ?
+                AND lex.id || ":" || lex.version = ?),
+          matchingrels(rowid) AS
+            (SELECT srel.rowid
+               FROM synset_relations AS srel
+              WHERE srel.source_rowid IN srcsynset
+                AND srel.lexicon_rowid IN lexrowids
+                AND srel.type_rowid IN reltypes)
+        SELECT DISTINCT rt.type, lex.id || ":" || lex.version, srel.metadata,
+                        src.id, tgt.id, tgt.pos, tgtili.id,
+                        tgtlex.id || ":" || tgtlex.version
+          FROM matchingrels AS mr
+          JOIN synset_relations AS srel ON srel.rowid=mr.rowid
+          JOIN relation_types AS rt ON rt.rowid=srel.type_rowid
+          JOIN synsets AS src ON src.rowid = srel.source_rowid
+          JOIN synsets AS tgt ON tgt.rowid = srel.target_rowid
+          JOIN lexicons AS lex ON lex.rowid = srel.lexicon_rowid
+          JOIN lexicons AS tgtlex ON tgtlex.rowid = tgt.lexicon_rowid
+          LEFT JOIN ilis AS tgtili ON tgtili.rowid = tgt.ili_rowid  -- might be null
+         WHERE tgt.lexicon_rowid IN lexrowids  -- ensure target is included
     '''
     result_rows: Iterator[_Synset_Relation] = conn.execute(query, params)
     yield from result_rows
 
 
+def get_expanded_synset_relations(
+    ili_id: str,
+    relation_types: Collection[str],
+    expands: Sequence[str],
+) -&gt; Iterator[_Synset_Relation]:
+    conn = connect()
+    params: list = []
+    constraint = ''
+    if relation_types and '*' not in relation_types:
+        constraint = f'WHERE type IN ({_qs(relation_types)})'
+        params.extend(relation_types)
+    params.extend(expands)
+    params.append(ili_id)
+    query = f'''
+        WITH
+          reltypes(rowid) AS
+            (SELECT rowid FROM relation_types {constraint}),
+          lexrowids(rowid) AS
+            (SELECT rowid FROM lexicons WHERE id || ":" || version IN ({_vs(expands)})),
+          srcsynset(rowid) AS
+            (SELECT ss.rowid
+               FROM synsets AS ss
+               JOIN ilis ON ilis.rowid = ss.ili_rowid
+              WHERE ilis.id = ?
+                AND ss.lexicon_rowid IN lexrowids),
+          matchingrels(rowid) AS
+            (SELECT srel.rowid
+               FROM synset_relations AS srel
+              WHERE srel.source_rowid IN srcsynset
+                AND srel.lexicon_rowid IN lexrowids
+                AND srel.type_rowid IN reltypes)
+        SELECT DISTINCT rt.type, lex.id || ":" || lex.version, srel.metadata,
+                        src.id, tgt.id, tgt.pos, tgtili.id,
+                        tgtlex.id || ":" || tgtlex.version
+          FROM matchingrels AS mr
+          JOIN synset_relations AS srel ON srel.rowid=mr.rowid
+          JOIN relation_types AS rt ON rt.rowid=srel.type_rowid
+          JOIN synsets AS src ON src.rowid = srel.source_rowid
+          JOIN synsets AS tgt ON tgt.rowid = srel.target_rowid
+          JOIN ilis AS tgtili ON tgtili.rowid = tgt.ili_rowid
+          JOIN lexicons AS lex ON lex.rowid = srel.lexicon_rowid
+          JOIN lexicons AS tgtlex ON tgtlex.rowid = tgt.lexicon_rowid
+    '''
+    result_rows: Iterator[_Synset_Relation] = conn.execute(query, params)
+    yield from result_rows
+
 </t>
 <t tx="karstenw.20230225123952.17">def get_definitions(
-    synset_rowid: int,
-    lexicon_rowids: Sequence[int],
-) -&gt; List[Tuple[str, str, str, int]]:
+    synset_id: str,
+    lexicons: Sequence[str],
+) -&gt; list[_Definition]:
     conn = connect()
     query = f'''
         SELECT d.definition,
                d.language,
                (SELECT s.id FROM senses AS s WHERE s.rowid=d.sense_rowid),
-               d.rowid
+               d.metadata
           FROM definitions AS d
-         WHERE d.synset_rowid = ?
-           AND d.lexicon_rowid IN ({_qs(lexicon_rowids)})
+          JOIN synsets AS ss ON ss.rowid = d.synset_rowid
+          JOIN lexicons AS lex ON lex.rowid = d.lexicon_rowid
+         WHERE ss.id = ?
+           AND lex.id || ":" || lex.version IN ({_qs(lexicons)})
     '''
-    return conn.execute(query, (synset_rowid, *lexicon_rowids)).fetchall()
+    return conn.execute(query, (synset_id, *lexicons)).fetchall()
 
 
 _SANITIZED_EXAMPLE_PREFIXES = {
@@ -5216,27 +5601,29 @@ _SANITIZED_EXAMPLE_PREFIXES = {
 
 </t>
 <t tx="karstenw.20230225123952.18">def get_examples(
-    rowid: int,
+    id: str,
     table: str,
-    lexicon_rowids: Sequence[int],
-) -&gt; List[Tuple[str, str, int]]:
+    lexicons: Sequence[str],
+) -&gt; list[_Example]:
     conn = connect()
     prefix = _SANITIZED_EXAMPLE_PREFIXES.get(table)
     if prefix is None:
         raise wn.Error(f"'{table}' does not have examples")
     query = f'''
-        SELECT example, language, rowid
-          FROM {prefix}_examples
-         WHERE {prefix}_rowid = ?
-           AND lexicon_rowid IN ({_qs(lexicon_rowids)})
+        SELECT ex.example, ex.language, ex.metadata
+          FROM {prefix}_examples AS ex
+          JOIN {table} AS tbl ON tbl.rowid = ex.{prefix}_rowid
+          JOIN lexicons AS lex ON lex.rowid = ex.lexicon_rowid
+         WHERE tbl.id = ?
+           AND lex.id || ":" || lex.version IN ({_qs(lexicons)})
     '''
-    return conn.execute(query, (rowid, *lexicon_rowids)).fetchall()
+    return conn.execute(query, (id, *lexicons)).fetchall()
 
 
 </t>
 <t tx="karstenw.20230225123952.19">def find_syntactic_behaviours(
     id: Optional[str] = None,
-    lexicon_rowids: Sequence[int] = (),
+    lexicons: Sequence[str] = (),
 ) -&gt; Iterator[_SyntacticBehaviour]:
     conn = connect()
     query = '''
@@ -5246,129 +5633,154 @@ _SANITIZED_EXAMPLE_PREFIXES = {
             ON sbs.syntactic_behaviour_rowid = sb.rowid
           JOIN senses AS s
             ON s.rowid = sbs.sense_rowid
+          JOIN lexicons AS lex ON lex.rowid = sb.lexicon_rowid
     '''
-    conditions: List[str] = []
-    params: List = []
+    conditions: list[str] = []
+    params: list = []
     if id:
         conditions.append('sb.id = ?')
         params.append(id)
-    if lexicon_rowids:
-        conditions.append(f'sb.lexicon_rowid IN ({_qs(lexicon_rowids)})')
-        params.extend(lexicon_rowids)
+    if lexicons:
+        conditions.append(f'lex.id || ":" || lex.version IN ({_qs(lexicons)})')
+        params.extend(lexicons)
     if conditions:
         query += '\n WHERE ' + '\n   AND '.join(conditions)
-    rows: Iterator[Tuple[str, str, str]] = conn.execute(query, params)
+    rows: Iterator[tuple[str, str, str]] = conn.execute(query, params)
     for key, group in itertools.groupby(rows, lambda row: row[0:2]):
-        id, frame = key
+        id, frame = cast(tuple[str, str], key)
         sense_ids = [row[2] for row in group]
         yield id, frame, sense_ids
 
 
 </t>
-<t tx="karstenw.20230225123952.2">def find_lexicons(
+<t tx="karstenw.20230225123952.2">def resolve_lexicon_specifiers(
     lexicon: str,
     lang: Optional[str] = None,
-) -&gt; Iterator[_Lexicon]:
+) -&gt; list[str]:
     cur = connect().cursor()
-    found = False
+    specifiers: list[str] = []
     for specifier in lexicon.split():
         limit = '-1' if '*' in lexicon else '1'
         if ':' not in specifier:
             specifier += ':*'
         query = f'''
-            SELECT DISTINCT rowid, id, label, language, email, license,
-                            version, url, citation, logo
+            SELECT DISTINCT id || ":" || version
               FROM lexicons
              WHERE id || ":" || version GLOB :specifier
                AND (:language ISNULL OR language = :language)
              LIMIT {limit}
         '''
         params = {'specifier': specifier, 'language': lang}
-        for row in cur.execute(query, params):
-            yield row
-            found = True
+        specifiers.extend(row[0] for row in cur.execute(query, params))
     # only raise an error when the query specifies something
-    if not found and (lexicon != '*' or lang is not None):
+    if not specifiers and (lexicon != '*' or lang is not None):
         raise wn.Error(
             f'no lexicon found with lang={lang!r} and lexicon={lexicon!r}'
         )
-
+    return specifiers
 
 </t>
 <t tx="karstenw.20230225123952.20">def get_syntactic_behaviours(
-    rowid: int,
-    lexicon_rowids: Sequence[int],
-) -&gt; List[str]:
+    sense_id: str,
+    lexicons: Sequence[str],
+) -&gt; list[str]:
     conn = connect()
     query = f'''
         SELECT sb.frame
           FROM syntactic_behaviours AS sb
           JOIN syntactic_behaviour_senses AS sbs
             ON sbs.syntactic_behaviour_rowid = sb.rowid
-         WHERE sbs.sense_rowid = ?
-           AND sb.lexicon_rowid IN ({_qs(lexicon_rowids)})
+          JOIN senses AS s ON s.rowid = sbs.sense_rowid
+          JOIN lexicons AS lex ON lex.rowid = sb.lexicon_rowid
+         WHERE s.id = ?
+           AND lex.id || ":" || lex.version IN ({_qs(lexicons)})
     '''
-    return [row[0] for row in conn.execute(query, (rowid, *lexicon_rowids))]
+    return [row[0] for row in conn.execute(query, (sense_id, *lexicons))]
 
 
 </t>
 <t tx="karstenw.20230225123952.21">def _get_senses(
-    rowid: int,
+    id: str,
     sourcetype: str,
-    lexicon_rowids: Sequence[int],
+    lexicons: Sequence[str],
 ) -&gt; Iterator[_Sense]:
     conn = connect()
+    if sourcetype == 'entry':
+        sourcealias = 'e'
+    elif sourcetype == 'synset':
+        sourcealias = 'ss'
+    else:
+        raise wn.Error(f'invalid sense source type: {sourcetype}')
     query = f'''
-        SELECT s.id, e.id, ss.id, s.lexicon_rowid, s.rowid
+        SELECT s.id, e.id, ss.id, slex.id || ":" || slex.version
           FROM senses AS s
           JOIN entries AS e
             ON e.rowid = s.entry_rowid
           JOIN synsets AS ss
             ON ss.rowid = s.synset_rowid
-         WHERE s.{sourcetype}_rowid = ?
-           AND s.lexicon_rowid IN ({_qs(lexicon_rowids)})
+          JOIN lexicons AS slex
+            ON slex.rowid = s.lexicon_rowid
+         WHERE {sourcealias}.id = ?
+           AND slex.id || ":" || slex.version IN ({_qs(lexicons)})
          ORDER BY s.{sourcetype}_rank
     '''
-    return conn.execute(query, (rowid, *lexicon_rowids))
+    return conn.execute(query, (id, *lexicons))
 
 
 </t>
-<t tx="karstenw.20230225123952.22">def get_entry_senses(rowid: int, lexicon_rowids: Sequence[int]) -&gt; Iterator[_Sense]:
-    yield from _get_senses(rowid, 'entry', lexicon_rowids)
-
-
+<t tx="karstenw.20230225123952.22">def get_entry_senses(
+    sense_id: str,
+    lexicons: Sequence[str],
+) -&gt; Iterator[_Sense]:
 </t>
-<t tx="karstenw.20230225123952.23">def get_synset_members(rowid: int, lexicon_rowids: Sequence[int]) -&gt; Iterator[_Sense]:
-    yield from _get_senses(rowid, 'synset', lexicon_rowids)
+<t tx="karstenw.20230225123952.23">    yield from _get_senses(sense_id, 'entry', lexicons)
+
+
+def get_synset_members(
+    synset_id: str,
+    lexicons: Sequence[str],
+) -&gt; Iterator[_Sense]:
+    yield from _get_senses(synset_id, 'synset', lexicons)
 
 
 </t>
 <t tx="karstenw.20230225123952.24">def get_sense_relations(
-    source_rowid: int,
+    sense_id: str,
     relation_types: Collection[str],
-    lexicon_rowids: Sequence[int],
+    lexicons: Sequence[str],
 ) -&gt; Iterator[_Sense_Relation]:
-    params: List = []
+    params: list = []
     constraint = ''
     if relation_types and '*' not in relation_types:
         constraint = f'WHERE type IN ({_qs(relation_types)})'
         params.extend(relation_types)
-    params.append(source_rowid)
-    params.extend(lexicon_rowids)
+    params.extend(lexicons)
+    params.append(sense_id)
     query = f'''
-          WITH rt(rowid, type) AS
-               (SELECT rowid, type FROM relation_types {constraint})
-        SELECT DISTINCT rel.type, rel.rowid,
+        WITH
+          rt(rowid, type) AS
+            (SELECT rowid, type FROM relation_types {constraint}),
+          lexrowids(rowid) AS
+            (SELECT rowid FROM lexicons WHERE id || ":" || version IN ({_vs(lexicons)}))
+        SELECT DISTINCT rel.type, rel.lexicon, rel.metadata,
                         s.id, e.id, ss.id,
-                        s.lexicon_rowid, s.rowid
-          FROM (SELECT rt.type, target_rowid, srel.rowid
+                        slex.id || ":" || slex.version
+          FROM (SELECT rt.type,
+                       lex.id || ":" || lex.version AS lexicon,
+                       srel.metadata AS metadata,
+                       target_rowid
                   FROM sense_relations AS srel
                   JOIN rt ON srel.type_rowid = rt.rowid
-                 WHERE source_rowid = ?
-                   AND lexicon_rowid IN ({_qs(lexicon_rowids)})
+                  JOIN lexicons AS lex ON srel.lexicon_rowid = lex.rowid
+                  JOIN senses AS s ON s.rowid = srel.source_rowid
+                 WHERE s.id = ?
+                   AND srel.lexicon_rowid IN lexrowids
                ) AS rel
           JOIN senses AS s
             ON s.rowid = rel.target_rowid
+           AND s.lexicon_rowid IN lexrowids
+          JOIN lexicons AS slex
+            ON slex.rowid = s.lexicon_rowid
           JOIN entries AS e
             ON e.rowid = s.entry_rowid
           JOIN synsets AS ss
@@ -5380,63 +5792,98 @@ _SANITIZED_EXAMPLE_PREFIXES = {
 
 </t>
 <t tx="karstenw.20230225123952.25">def get_sense_synset_relations(
-        source_rowid: int,
-        relation_types: Collection[str],
-        lexicon_rowids: Sequence[int],
+    sense_id: str,
+    relation_types: Collection[str],
+    lexicons: Sequence[str],
 ) -&gt; Iterator[_Synset_Relation]:
-    params: List = []
+    params: list = []
     constraint = ''
     if '*' not in relation_types:
         constraint = f'WHERE type IN ({_qs(relation_types)})'
         params.extend(relation_types)
-    params.append(source_rowid)
-    params.extend(lexicon_rowids)
+    params.extend(lexicons)
+    params.append(sense_id)
     query = f'''
-          WITH rt(rowid, type) AS
-               (SELECT rowid, type FROM relation_types {constraint})
-        SELECT DISTINCT rel.type, rel.rowid, ss.id, ss.pos,
-                        (SELECT ilis.id FROM ilis WHERE ilis.rowid = ss.ili_rowid),
-                        ss.lexicon_rowid, ss.rowid
-          FROM (SELECT rt.type, target_rowid, srel.rowid
+        WITH
+          rt(rowid, type) AS
+            (SELECT rowid, type FROM relation_types {constraint}),
+          lexrowids(rowid) AS
+            (SELECT rowid FROM lexicons WHERE id || ":" || version IN ({_vs(lexicons)}))
+        SELECT DISTINCT rel.type, rel.lexicon, rel.metadata,
+                        rel.source_rowid, tgt.id, tgt.pos,
+                        (SELECT ilis.id FROM ilis WHERE ilis.rowid = tgt.ili_rowid),
+                        tgtlex.id || ":" || tgtlex.version
+          FROM (SELECT rt.type,
+                       lex.id || ":" || lex.version AS lexicon,
+                       srel.metadata AS metadata,
+                       source_rowid,
+                       target_rowid
                   FROM sense_synset_relations AS srel
                   JOIN rt ON srel.type_rowid = rt.rowid
-                 WHERE source_rowid = ?
-                   AND lexicon_rowid IN ({_qs(lexicon_rowids)})
+                  JOIN lexicons AS lex ON srel.lexicon_rowid = lex.rowid
+                  JOIN senses AS s ON s.rowid = srel.source_rowid
+                 WHERE s.id = ?
+                   AND srel.lexicon_rowid IN lexrowids
                ) AS rel
-          JOIN synsets AS ss
-            ON ss.rowid = rel.target_rowid
+          JOIN synsets AS tgt
+            ON tgt.rowid = rel.target_rowid
+           AND tgt.lexicon_rowid IN lexrowids
+          JOIN lexicons AS tgtlex
+            ON tgtlex.rowid = tgt.lexicon_rowid
     '''
     rows: Iterator[_Synset_Relation] = connect().execute(query, params)
     yield from rows
 
 
 _SANITIZED_METADATA_TABLES = {
-    'ilis': 'ilis',
-    'proposed_ilis': 'proposed_ilis',
-    'lexicons': 'lexicons',
+    # 'ilis': 'ilis',
+    # 'proposed_ilis': 'proposed_ilis',
+    # 'lexicons': 'lexicons',
     'entries': 'entries',
     'senses': 'senses',
     'synsets': 'synsets',
-    'sense_relations': 'sense_relations',
-    'sense_synset_relations': 'sense_synset_relations',
-    'synset_relations': 'synset_relations',
-    'sense_examples': 'sense_examples',
-    'counts': 'counts',
-    'synset_examples': 'synset_examples',
-    'definitions': 'definitions',
+    # 'sense_relations': 'sense_relations',
+    # 'sense_synset_relations': 'sense_synset_relations',
+    # 'synset_relations': 'synset_relations',
+    # 'sense_examples': 'sense_examples',
+    # 'counts': 'counts',
+    # 'synset_examples': 'synset_examples',
+    # 'definitions': 'definitions',
 }
 
 
 </t>
 <t tx="karstenw.20230225123952.26">def get_metadata(
-    rowid: int, table: str
+    id: str, lexicon: str, table: str
 ) -&gt; Metadata:
-    conn = connect()
     tablename = _SANITIZED_METADATA_TABLES.get(table)
     if tablename is None:
         raise wn.Error(f"'{table}' does not contain metadata")
-    query = f'SELECT metadata FROM {tablename} WHERE rowid=?'
-    return conn.execute(query, (rowid,)).fetchone()[0] or {}
+    query = f'''
+        SELECT tbl.metadata
+          FROM {tablename} AS tbl
+          JOIN lexicons AS lex ON lex.rowid = lexicon_rowid
+         WHERE tbl.id=?
+           AND lex.id || ":" || lex.version = ?
+    '''
+    return connect().execute(query, (id, lexicon)).fetchone()[0] or {}
+
+
+def get_ili_metadata(id: str) -&gt; Metadata:
+    query = 'SELECT metadata FROM ilis WHERE id = ?'
+    return connect().execute(query, (id,)).fetchone()[0] or {}
+
+
+def get_proposed_ili_metadata(synset: str, lexicon: str) -&gt; Metadata:
+    query = '''
+        SELECT pili.metadata
+          FROM proposed_ilis AS pili
+          JOIN synsets AS ss ON ss.rowid = synset_rowid
+          JOIN lexicons AS lex ON lex.rowid = ss.lexicon_rowid
+         WHERE ss.id = ?
+           AND lex.id || ":" || lex.version = ?
+    '''
+    return connect().execute(query, (synset, lexicon)).fetchone()[0] or {}
 
 
 _SANITIZED_LEXICALIZED_TABLES = {
@@ -5446,80 +5893,75 @@ _SANITIZED_LEXICALIZED_TABLES = {
 
 
 </t>
-<t tx="karstenw.20230225123952.27">def get_lexicalized(rowid: int, table: str) -&gt; bool:
+<t tx="karstenw.20230225123952.27">def get_lexicalized(id: str, lexicon: str, table: str) -&gt; bool:
     conn = connect()
     tablename = _SANITIZED_LEXICALIZED_TABLES.get(table)
     if tablename is None:
         raise wn.Error(f"'{table}' does not mark lexicalization")
-    if rowid == NON_ROWID:
+    if not id or not lexicon:
         return False
-    query = f'SELECT lexicalized FROM {tablename} WHERE rowid=?'
-    return conn.execute(query, (rowid,)).fetchone()[0]
-
-
+    query = f'''
+        SELECT tbl.lexicalized
+          FROM {tablename} AS tbl
+          JOIN lexicons AS lex ON lex.rowid = tbl.lexicon_rowid
 </t>
-<t tx="karstenw.20230225123952.28">def get_adjposition(rowid: int) -&gt; Optional[str]:
+<t tx="karstenw.20230225123952.28">         WHERE tbl.id = ?
+           AND lex.id || ":" || lex.version = ?
+    '''
+    return conn.execute(query, (id, lexicon)).fetchone()[0]
+
+
+def get_adjposition(sense_id: str, lexicon: str) -&gt; Optional[str]:
     conn = connect()
-    query = 'SELECT adjposition FROM adjpositions WHERE sense_rowid = ?'
-    row = conn.execute(query, (rowid,)).fetchone()
+    query = '''
+        SELECT adjposition
+          FROM adjpositions
+          JOIN senses AS s ON s.rowid = sense_rowid
+          JOIN lexicons AS lex ON lex.rowid = s.lexicon_rowid
+         WHERE s.id = ?
+           AND lex.id || ":" || lex.version = ?
+    '''
+    row = conn.execute(query, (sense_id, lexicon)).fetchone()
     if row:
         return row[0]
     return None
 
 
 </t>
-<t tx="karstenw.20230225123952.29">def get_form_pronunciations(form_rowid: int) -&gt; List[_Pronunciation]:
-    # TODO: restrict by lexicon ids
-    conn = connect()
-    query = '''
-        SELECT value, variety, notation, phonemic, audio
-          FROM pronunciations
-         WHERE form_rowid = ?
-    '''
-    rows: List[_Pronunciation] = conn.execute(query, (form_rowid,)).fetchall()
-    return rows
-
-
-</t>
-<t tx="karstenw.20230225123952.3">def get_lexicon(rowid: int) -&gt; _Lexicon:
-    conn = connect()
-    return _get_lexicon(conn, rowid)
-
-
-</t>
-<t tx="karstenw.20230225123952.30">def get_form_tags(form_rowid: int) -&gt; List[_Tag]:
-    # TODO: restrict by lexicon ids
-    conn = connect()
-    query = 'SELECT tag, category FROM tags WHERE form_rowid = ?'
-    rows: List[_Tag] = conn.execute(query, (form_rowid,)).fetchall()
-    return rows
-
-
-</t>
-<t tx="karstenw.20230225123952.31">def get_sense_counts(sense_rowid: int, lexicon_rowids: Sequence[int]) -&gt; List[_Count]:
+<t tx="karstenw.20230225123952.29">def get_sense_counts(sense_id: str, lexicons: Sequence[str]) -&gt; list[_Count]:
     conn = connect()
     query = f'''
-        SELECT count, rowid
-          FROM counts
-         WHERE sense_rowid = ?
-           AND lexicon_rowid IN ({_qs(lexicon_rowids)})
+        SELECT c.count, c.metadata
+          FROM counts AS c
+          JOIN senses AS s ON s.rowid = c.sense_rowid
+          JOIN lexicons AS lex ON lex.rowid = c.lexicon_rowid
+         WHERE s.id = ?
+           AND lex.id || ":" || lex.version IN ({_qs(lexicons)})
     '''
-    rows: List[_Count] = conn.execute(
-        query, (sense_rowid, *lexicon_rowids)
-    ).fetchall()
+    rows: list[_Count] = conn.execute(
+        query, (sense_id, *lexicons)
+</t>
+<t tx="karstenw.20230225123952.3">
+def get_lexicon(lexicon: str) -&gt; _Lexicon:
+    id, ver = split_lexicon_specifier(lexicon)
+</t>
+<t tx="karstenw.20230225123952.30"></t>
+<t tx="karstenw.20230225123952.31">    ).fetchall()
     return rows
 
 
 </t>
-<t tx="karstenw.20230225123952.32">def get_lexfile(synset_rowid: int) -&gt; Optional[str]:
+<t tx="karstenw.20230225123952.32">def get_lexfile(synset_id: str, lexicon: str) -&gt; Optional[str]:
     conn = connect()
     query = '''
         SELECT lf.name
           FROM lexfiles AS lf
           JOIN synsets AS ss ON ss.lexfile_rowid = lf.rowid
-         WHERE ss.rowid = ?
+          JOIN lexicons AS lex on lex.rowid = ss.lexicon_rowid
+         WHERE ss.id = ?
+           AND lex.id || ":" || lex.version = ?
     '''
-    row = conn.execute(query, (synset_rowid,)).fetchone()
+    row = conn.execute(query, (synset_id, lexicon)).fetchone()
     if row is not None and row[0] is not None:
         return row[0]
     return None
@@ -5532,68 +5974,77 @@ _SANITIZED_LEXICALIZED_TABLES = {
 </t>
 <t tx="karstenw.20230225123952.35">def _kws(xs: Collection) -&gt; str: return ','.join(f':{x}' for x in xs)
 </t>
-<t tx="karstenw.20230225123952.4">def _get_lexicon(conn: sqlite3.Connection, rowid: int) -&gt; _Lexicon:
-    query = '''
-        SELECT DISTINCT rowid, id, label, language, email, license,
-                        version, url, citation, logo
+<t tx="karstenw.20230225123952.4">    query = '''
+        SELECT DISTINCT id, label, language, email, license,
+                        version, url, citation, logo, metadata
         FROM lexicons
-        WHERE rowid = ?
+        WHERE id = ? AND version = ?
     '''
-    row: Optional[_Lexicon] = conn.execute(query, (rowid,)).fetchone()
+    row: Optional[_Lexicon] = connect().execute(query, (id, ver)).fetchone()
     if row is None:
-        raise LookupError(rowid)  # should we have a WnLookupError?
+        raise LookupError(lexicon)  # should we have a WnLookupError?
     return row
 
 
 </t>
-<t tx="karstenw.20230225123952.5">def get_modified(rowid: int) -&gt; bool:
-    query = 'SELECT modified FROM lexicons WHERE rowid = ?'
-    return connect().execute(query, (rowid,)).fetchone()[0]
+<t tx="karstenw.20230225123952.5">def get_modified(lexicon: str) -&gt; bool:
+    query = 'SELECT modified FROM lexicons WHERE id || ":" || version = ?'
+    return connect().execute(query, (lexicon,)).fetchone()[0]
 
 
 </t>
-<t tx="karstenw.20230225123952.6">def get_lexicon_dependencies(rowid: int) -&gt; List[Tuple[str, str, str, Optional[int]]]:
+<t tx="karstenw.20230225123952.6">def get_lexicon_dependencies(lexicon: str) -&gt; list[tuple[str, str, bool]]:
     query = '''
-        SELECT provider_id, provider_version, provider_url, provider_rowid
+        SELECT provider_id || ":" || provider_version, provider_url, provider_rowid
           FROM lexicon_dependencies
-         WHERE dependent_rowid = ?
+          JOIN lexicons AS lex ON lex.rowid = dependent_rowid
+         WHERE lex.id || ":" || lex.version = ?
     '''
-    return connect().execute(query, (rowid,)).fetchall()
-
-
+    return [
+        (spec, url, rowid is not None)
 </t>
-<t tx="karstenw.20230225123952.7">def get_lexicon_extension_bases(rowid: int, depth: int = -1) -&gt; List[int]:
+<t tx="karstenw.20230225123952.7">        for spec, url, rowid in connect().execute(query, (lexicon,))
+    ]
+
+
+def get_lexicon_extension_bases(lexicon: str, depth: int = -1) -&gt; list[str]:
     query = '''
           WITH RECURSIVE ext(x, d) AS
                (SELECT base_rowid, 1
                   FROM lexicon_extensions
-                 WHERE extension_rowid = :rowid
+                  JOIN lexicons AS lex ON lex.rowid = extension_rowid
+                 WHERE lex.id || ":" || lex.version = :specifier
                  UNION SELECT base_rowid, d+1
                          FROM lexicon_extensions
                          JOIN ext ON extension_rowid = x)
-        SELECT x FROM ext
+        SELECT baselex.id || ":" || baselex.version
+          FROM ext
+          JOIN lexicons AS baselex ON baselex.rowid = ext.x
          WHERE :depth &lt; 0 OR d &lt;= :depth
          ORDER BY d
     '''
-    rows = connect().execute(query, {'rowid': rowid, 'depth': depth})
+    rows = connect().execute(query, {'specifier': lexicon, 'depth': depth})
     return [row[0] for row in rows]
 
 
 </t>
-<t tx="karstenw.20230225123952.8">def get_lexicon_extensions(rowid: int, depth: int = -1) -&gt; List[int]:
+<t tx="karstenw.20230225123952.8">def get_lexicon_extensions(lexicon: str, depth: int = -1) -&gt; list[str]:
     query = '''
           WITH RECURSIVE ext(x, d) AS
                (SELECT extension_rowid, 1
                   FROM lexicon_extensions
-                 WHERE base_rowid = :rowid
+                  JOIN lexicons AS lex ON lex.rowid = base_rowid
+                 WHERE lex.id || ":" || lex.version = :specifier
                  UNION SELECT extension_rowid, d+1
                          FROM lexicon_extensions
                          JOIN ext ON base_rowid = x)
-        SELECT x FROM ext
+        SELECT extlex.id || ":" || extlex.version
+          FROM ext
+          JOIN lexicons AS extlex ON extlex.rowid = ext.x
          WHERE :depth &lt; 0 OR d &lt;= :depth
          ORDER BY d
     '''
-    rows = connect().execute(query, {'rowid': rowid, 'depth': depth})
+    rows = connect().execute(query, {'specifier': lexicon, 'depth': depth})
     return [row[0] for row in rows]
 
 
@@ -5601,40 +6052,38 @@ _SANITIZED_LEXICALIZED_TABLES = {
 <t tx="karstenw.20230225123952.9">def find_ilis(
     id: Optional[str] = None,
     status: Optional[str] = None,
-    lexicon_rowids: Sequence[int] = (),
-) -&gt; Iterator[_ILI]:
-    if status != 'proposed':
-        yield from _find_existing_ilis(
-            id=id, status=status, lexicon_rowids=lexicon_rowids
-        )
-    if not id and (not status or status == 'proposed'):
-        yield from find_proposed_ilis(lexicon_rowids=lexicon_rowids)
+    lexicons: Sequence[str] = (),
+) -&gt; Iterator[Union[_ExistingILI, _ProposedILI]]:
+    if status == 'proposed' and not id:
+        yield from find_proposed_ilis(lexicons=lexicons)
+    else:
+        yield from find_existing_ilis(id=id, status=status, lexicons=lexicons)
 
 
+def find_existing_ilis(
 </t>
-<t tx="karstenw.20230225123954.1">from typing import (
-    Optional, Union, Callable, Mapping, Sequence, Tuple, Dict, Set, Any,
-)
+<t tx="karstenw.20230225123954.1">from collections.abc import Callable, Mapping, Sequence
+from typing import Any, Optional, Union
 from pathlib import Path
 
 # For functions taking a filesystem path as a str or a pathlib.Path
 AnyPath = Union[str, Path]
 
 # LMF versions for comparison
-VersionInfo = Tuple[int, ...]
+VersionInfo = tuple[int, ...]
 
 # Synset and Sense relations map a relation type to one or more ids
 RelationMap = Mapping[str, Sequence[str]]
 
 # User-facing metadata representation
-Metadata = Dict[str, Any]
+Metadata = dict[str, Any]
 
 # A callable that returns a normalized word form for a given word form
 NormalizeFunction = Callable[[str], str]
 
 # Lemmatization returns a mapping of parts of speech (or None) to
 # lists of wordforms that are potential lemmas for some query word
-LemmatizeResult = Dict[Optional[str], Set[str]]
+LemmatizeResult = dict[Optional[str], set[str]]
 
 # A callable that returns a LemmatizationResult for a given word form
 # and optional part of speech
@@ -5642,16 +6091,11 @@ LemmatizeFunction = Callable[[str, Optional[str]], LemmatizeResult]
 </t>
 <t tx="karstenw.20230225123957.1">"""Non-public Wn utilities."""
 
-from typing import TypeVar, Iterable, List
-import sys
+from collections.abc import Iterable, Hashable
+from typing import TypeVar
 from pathlib import Path
 import hashlib
 from unicodedata import normalize, combining
-# version check is for mypy; see https://github.com/python/mypy/issues/1153
-if sys.version_info &gt;= (3, 7):
-    import importlib.resources as resources
-else:
-    import importlib_resources as resources  # noqa: F401
 
 
 from wn._types import VersionInfo
@@ -5660,6 +6104,15 @@ from wn._types import VersionInfo
 </t>
 <t tx="karstenw.20230225123957.10">def normalize_form(s: str) -&gt; str:
     return ''.join(c for c in normalize('NFKD', s.lower()) if not combining(c))
+
+
+def format_lexicon_specifier(id: str, version: str) -&gt; str:
+    return f"{id}:{version}"
+
+
+def split_lexicon_specifier(lexicon: str) -&gt; tuple[str, str]:
+    id, _, ver = lexicon.partition(":")
+    return id, ver
 </t>
 <t tx="karstenw.20230225123957.2">def version_info(version_string: str) -&gt; VersionInfo:
     return tuple(map(int, version_string.split('.')))
@@ -5711,8 +6164,17 @@ T = TypeVar('T')
 
 
 </t>
-<t tx="karstenw.20230225123957.9">def flatten(iterable: Iterable[Iterable[T]]) -&gt; List[T]:
+<t tx="karstenw.20230225123957.9">def flatten(iterable: Iterable[Iterable[T]]) -&gt; list[T]:
     return [x for xs in iterable for x in xs]
+
+
+H = TypeVar('H', bound=Hashable)
+
+
+def unique_list(items: Iterable[H]) -&gt; list[H]:
+    # use a dictionary as an order-preserving set
+    targets = {item: True for item in items}
+    return list(targets)
 
 
 </t>
@@ -5870,7 +6332,7 @@ REVERSE_RELATIONS = {
     'holo_portion': 'mero_portion',
     'mero_substance': 'holo_substance',
     'holo_substance': 'mero_substance',
-    'also': 'also',
+    # 'also': '',
     'state_of': 'be_in_state',
     'be_in_state': 'state_of',
     'causes': 'is_caused_by',
@@ -5921,7 +6383,7 @@ REVERSE_RELATIONS = {
     'co_instrument_patient': 'co_patient_instrument',
     'co_result_instrument': 'co_instrument_result',
     'co_instrument_result': 'co_result_instrument',
-    'pertainym': 'pertainym',
+    # 'pertainym': '',
     'derivation': 'derivation',
     'simple_aspect_ip': 'simple_aspect_pi',
     'simple_aspect_pi': 'simple_aspect_ip',
@@ -6042,11 +6504,10 @@ specificity.
 
 """
 
-from typing import (
-    Callable, Optional, Iterator, Iterable, Dict, List, Tuple, Set, TextIO
-)
+from typing import Optional, TextIO
 from pathlib import Path
 from collections import Counter
+from collections.abc import Callable, Iterable, Iterator
 from math import log
 
 from wn._types import AnyPath
@@ -6057,7 +6518,7 @@ from wn.util import synset_id_formatter
 
 # Just use a subset of all available parts of speech
 IC_PARTS_OF_SPEECH = frozenset((NOUN, VERB, ADJ, ADV))
-Freq = Dict[str, Dict[Optional[str], float]]
+Freq = dict[str, dict[Optional[str], float]]
 
 
 </t>
@@ -6153,7 +6614,7 @@ Freq = Dict[str, Dict[Optional[str], float]]
     freq = _initialize(wordnet, smoothing)
     counts = Counter(corpus)
 
-    hypernym_cache: Dict[Synset, List[Synset]] = {}
+    hypernym_cache: dict[Synset, list[Synset]] = {}
     for word, count in counts.items():
         synsets = wordnet.synsets(word)
         num = len(synsets)
@@ -6180,7 +6641,7 @@ Freq = Dict[str, Dict[Optional[str], float]]
             #
             # ...but it caches hypernym lookups for speed
 
-            agenda: List[Tuple[Synset, Set[Synset]]] = [(synset, set())]
+            agenda: list[tuple[Synset, set[Synset]]] = [(synset, set())]
             while agenda:
                 ss, seen = agenda.pop()
 
@@ -6247,7 +6708,7 @@ Freq = Dict[str, Dict[Optional[str], float]]
 
 
 </t>
-<t tx="karstenw.20230225124003.7">def _parse_ic_file(icfile: TextIO) -&gt; Iterator[Tuple[int, str, float, bool]]:
+<t tx="karstenw.20230225124003.7">def _parse_ic_file(icfile: TextIO) -&gt; Iterator[tuple[int, str, float, bool]]:
     """Parse the Information Content file.
 
     A sample of the format is::
@@ -6271,22 +6732,15 @@ Reader for the Lexical Markup Framework (LMF) format.
 """
 
 from typing import (
-    Type,
-    List,
-    Tuple,
-    Dict,
+    Any,
+    BinaryIO,
+    Literal,
     Optional,
     TextIO,
-    BinaryIO,
-    Any,
+    TypedDict,
     Union,
     cast
 )
-import sys
-if sys.version_info &gt;= (3, 8):
-    from typing import TypedDict, Literal
-else:
-    from typing_extensions import TypedDict, Literal
 import re
 from pathlib import Path
 import xml.etree.ElementTree as ET  # for general XML parsing
@@ -6301,9 +6755,9 @@ from wn.util import ProgressHandler, ProgressBar
 
 </t>
 <t tx="karstenw.20230225124007.10">class ExternalSynset(_HasId, _External, total=False):
-    definitions: List[Definition]
-    relations: List[Relation]
-    examples: List[Example]
+    definitions: list[Definition]
+    relations: list[Relation]
+    examples: list[Example]
 
 
 </t>
@@ -6313,19 +6767,19 @@ from wn.util import ProgressHandler, ProgressBar
 
 </t>
 <t tx="karstenw.20230225124007.12">class Sense(_HasId, _HasSynset, _HasMeta, total=False):
-    relations: List[Relation]
-    examples: List[Example]
-    counts: List[Count]
+    relations: list[Relation]
+    examples: list[Example]
+    counts: list[Count]
     lexicalized: bool
     adjposition: str
-    subcat: List[str]
+    subcat: list[str]
 
 
 </t>
 <t tx="karstenw.20230225124007.13">class ExternalSense(_HasId, _External, total=False):
-    relations: List[Relation]
-    examples: List[Example]
-    counts: List[Count]
+    relations: list[Relation]
+    examples: list[Example]
+    counts: list[Count]
 
 
 </t>
@@ -6343,8 +6797,8 @@ from wn.util import ProgressHandler, ProgressBar
 
 </t>
 <t tx="karstenw.20230225124007.16">class _FormChildren(TypedDict, total=False):
-    pronunciations: List[Pronunciation]
-    tags: List[Tag]
+    pronunciations: list[Pronunciation]
+    tags: list[Tag]
 
 
 </t>
@@ -6380,14 +6834,14 @@ from wn.util import ProgressHandler, ProgressBar
 
 </t>
 <t tx="karstenw.20230225124007.22">class SyntacticBehaviour(_SyntacticBehaviourBase, total=False):
-    senses: List[str]
+    senses: list[str]
 
 
 </t>
 <t tx="karstenw.20230225124007.23">class _LexicalEntryBase(_HasId, _HasMeta, total=False):
-    forms: List[Form]
-    senses: List[Sense]
-    frames: List[SyntacticBehaviour]
+    forms: list[Form]
+    senses: list[Sense]
+    frames: list[SyntacticBehaviour]
 
 
 </t>
@@ -6398,19 +6852,21 @@ from wn.util import ProgressHandler, ProgressBar
 </t>
 <t tx="karstenw.20230225124007.25">class ExternalLexicalEntry(_HasId, _External, total=False):
     lemma: ExternalLemma
-    forms: List[Union[Form, ExternalForm]]
-    senses: List[Union[Sense, ExternalSense]]
+    forms: list[Union[Form, ExternalForm]]
+    senses: list[Union[Sense, ExternalSense]]
 
 
 </t>
-<t tx="karstenw.20230225124007.26">class Dependency(_HasId, _HasVersion, total=False):
+<t tx="karstenw.20230225124007.26">class LexiconSpecifier(_HasId):  # public but not an LMF entry
+    version: str
+
+
+class Dependency(LexiconSpecifier, total=False):
     url: str
 
 
 </t>
-<t tx="karstenw.20230225124007.27">class _LexiconBase(_HasMeta):
-    id: str
-    version: str
+<t tx="karstenw.20230225124007.27">class _LexiconRequired(LexiconSpecifier, _HasMeta):
     label: str
     language: str
     email: str
@@ -6418,26 +6874,29 @@ from wn.util import ProgressHandler, ProgressBar
 
 
 </t>
-<t tx="karstenw.20230225124007.28">class Lexicon(_LexiconBase, total=False):
+<t tx="karstenw.20230225124007.28">class _LexiconBase(_LexiconRequired, total=False):
     url: str
     citation: str
     logo: str
-    requires: List[Dependency]
-    entries: List[LexicalEntry]
-    synsets: List[Synset]
-    frames: List[SyntacticBehaviour]
 
 
+class Lexicon(_LexiconBase, total=False):
+    requires: list[Dependency]
+    entries: list[LexicalEntry]
+    synsets: list[Synset]
 </t>
-<t tx="karstenw.20230225124007.29">class LexiconExtension(_LexiconBase, total=False):
-    url: str
-    citation: str
-    logo: str
+<t tx="karstenw.20230225124007.29">    frames: list[SyntacticBehaviour]
+
+
+class _LexiconExtensionBase(_LexiconBase):
     extends: Dependency
-    requires: List[Dependency]
-    entries: List[Union[LexicalEntry, ExternalLexicalEntry]]
-    synsets: List[Union[Synset, ExternalSynset]]
-    frames: List[SyntacticBehaviour]
+
+
+class LexiconExtension(_LexiconExtensionBase, total=False):
+    requires: list[Dependency]
+    entries: list[Union[LexicalEntry, ExternalLexicalEntry]]
+    synsets: list[Union[Synset, ExternalSynset]]
+    frames: list[SyntacticBehaviour]
 
 
 </t>
@@ -6445,12 +6904,15 @@ from wn.util import ProgressHandler, ProgressBar
     """Issued on non-conforming LFM values."""
 
 
-SUPPORTED_VERSIONS = {'1.0', '1.1'}
+SUPPORTED_VERSIONS = {'1.0', '1.1', '1.2', '1.3'}
 _XMLDECL = b'&lt;?xml version="1.0" encoding="UTF-8"?&gt;'
+_XMLSPACEATTR = 'http://www.w3.org/XML/1998/namespace space'  # xml:space
 _DOCTYPE = '&lt;!DOCTYPE LexicalResource SYSTEM "{schema}"&gt;'
 _SCHEMAS = {
     '1.0': 'http://globalwordnet.github.io/schemas/WN-LMF-1.0.dtd',
     '1.1': 'http://globalwordnet.github.io/schemas/WN-LMF-1.1.dtd',
+    '1.2': 'http://globalwordnet.github.io/schemas/WN-LMF-1.2.dtd',
+    '1.3': 'http://globalwordnet.github.io/schemas/WN-LMF-1.3.dtd',
 }
 _DOCTYPES = {
     _DOCTYPE.format(schema=schema): version for version, schema in _SCHEMAS.items()
@@ -6459,6 +6921,8 @@ _DOCTYPES = {
 _DC_URIS = {
     '1.0': 'http://purl.org/dc/elements/1.1/',
     '1.1': 'https://globalwordnet.github.io/schemas/dc/',
+    '1.2': 'https://globalwordnet.github.io/schemas/dc/',
+    '1.3': 'https://globalwordnet.github.io/schemas/dc/',
 }
 _DC_ATTRS = [
     'contributor',
@@ -6486,7 +6950,7 @@ _NS_ATTRS = {
     for version, uri in _DC_URIS.items()
 }
 
-_LMF_1_0_ELEMS: Dict[str, str] = {
+_LMF_1_0_ELEMS: dict[str, str] = {
     'LexicalResource': 'lexical-resource',
     'Lexicon': 'lexicons',
     'LexicalEntry': 'entries',
@@ -6518,6 +6982,8 @@ _LMF_1_1_ELEMS.update({
 _VALID_ELEMS = {
     '1.0': _LMF_1_0_ELEMS,
     '1.1': _LMF_1_1_ELEMS,
+    '1.2': _LMF_1_1_ELEMS,  # no new elements
+    '1.3': _LMF_1_1_ELEMS,  # no new elements
 }
 _LIST_ELEMS = {  # elements that collect into lists
     'Lexicon',
@@ -6572,7 +7038,7 @@ _META_ELEMS = {  # elements with metadata
 </t>
 <t tx="karstenw.20230225124007.30">class LexicalResource(TypedDict):
     lmf_version: str
-    lexicons: List[Union[Lexicon, LexiconExtension]]
+    lexicons: list[Union[Lexicon, LexiconExtension]]
 
 
 # Reading ##############################################################
@@ -6609,11 +7075,23 @@ _META_ELEMS = {  # elements with metadata
 
 
 </t>
-<t tx="karstenw.20230225124007.33">def scan_lexicons(source: AnyPath) -&gt; List[Dict]:
-    """Scan *source* and return only the top-level lexicon info."""
+<t tx="karstenw.20230225124007.33">class ScanInfo(LexiconSpecifier):
+    label: Optional[str]
+    extends: Optional[LexiconSpecifier]
+
+
+def scan_lexicons(source: AnyPath) -&gt; list[ScanInfo]:
+    """Scan *source* and return only the top-level lexicon info.
+
+    The returned info is a dictionary containing the `id`, `version`,
+    and `label` attributes from a lexicon. If the Lexicon is an
+    extension, an `extends` key maps to a dictionary with the `id` and
+    `version` of the base lexicon, otherwise it maps to
+    :python:`None`.
+    """
 
     source = Path(source).expanduser()
-    infos: List[Dict] = []
+    infos: list[ScanInfo] = []
 
     lex_re = re.compile(b'&lt;(Lexicon|LexiconExtension|Extends)\\b([^&gt;]*)&gt;', flags=re.M)
     attr_re = re.compile(b'''\\b(id|version|label)=["']([^"']+)["']''', flags=re.M)
@@ -6621,27 +7099,38 @@ _META_ELEMS = {  # elements with metadata
     with open(source, 'rb') as fh:
         for m in lex_re.finditer(fh.read()):
             lextype, remainder = m.groups()
-            info = {_m.group(1).decode('utf-8'): _m.group(2).decode('utf-8')
-                    for _m in attr_re.finditer(remainder)}
+            attrs = {
+                _m.group(1).decode("utf-8"): _m.group(2).decode("utf-8")
+                for _m in attr_re.finditer(remainder)
+            }
+            info: ScanInfo = {
+                "id": attrs["id"],
+                "version": attrs["version"],
+                "label": attrs.get("label"),
+                "extends": None,
+            }
             if 'id' not in info or 'version' not in info:
                 raise LMFError(f'&lt;{lextype.decode("utf-8")}&gt; missing id or version')
             if lextype != b'Extends':
                 infos.append(info)
             elif len(infos) &gt; 0:
-                infos[-1]['extends'] = info
+                infos[-1]['extends'] = {
+                    "id": info["id"],
+                    "version": info["version"]
+                }
             else:
                 raise LMFError('invalid use of &lt;Extends&gt; in WN-LMF file')
 
     return infos
 
 
-_Elem = Dict[str, Any]  # basic type for the loaded XML data
+_Elem = dict[str, Any]  # basic type for the loaded XML data
 
 
 </t>
 <t tx="karstenw.20230225124007.34">def load(
     source: AnyPath,
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar
 ) -&gt; LexicalResource:
     """Load wordnets encoded in the WN-LMF format.
 
@@ -6657,7 +7146,7 @@ _Elem = Dict[str, Any]  # basic type for the loaded XML data
         message='Read', total=num_elements, refresh_interval=10000
     )
 
-    root: Dict[str, _Elem] = {}
+    root: dict[str, _Elem] = {}
     parser = _make_parser(root, version, progress)
 
     with open(source, 'rb') as fh:
@@ -6678,7 +7167,7 @@ _Elem = Dict[str, Any]  # basic type for the loaded XML data
 
 
 </t>
-<t tx="karstenw.20230225124007.35">def _quick_scan(source: Path) -&gt; Tuple[str, int]:
+<t tx="karstenw.20230225124007.35">def _quick_scan(source: Path) -&gt; tuple[str, int]:
     with source.open('rb') as fh:
         version = _read_header(fh)
         # _read_header() only reads the first 2 lines
@@ -6696,19 +7185,17 @@ _Elem = Dict[str, Any]  # basic type for the loaded XML data
     LIST_ELEMS = _LIST_ELEMS &amp; set(ELEMS)
 
     p = xml.parsers.expat.ParserCreate(namespace_separator=' ')
-    has_text = False
 
     def start(name, attrs):
-        nonlocal has_text
-        if name in CDATA_ELEMS:
-            has_text = True
-
         if name in _META_ELEMS:
             meta = {}
             for attr in list(attrs):
                 if attr in NS_ATTRS:
                     meta[NS_ATTRS[attr]] = attrs.pop(attr)
             attrs['meta'] = meta or None
+
+        if name in CDATA_ELEMS:
+            attrs['text'] = ''
 
         if name.startswith('External'):
             attrs['external'] = True
@@ -6725,19 +7212,17 @@ _Elem = Dict[str, Any]  # basic type for the loaded XML data
         stack.append(attrs)
 
     def char_data(data):
-        if has_text:
-            parent = stack[-1]
-            # sometimes the buffering occurs in the middle of text; if
-            # so, append the current data
-            if 'text' in parent:
-                parent['text'] += data
-            else:
-                parent['text'] = data
+        parent = stack[-1]
+        if 'text' in parent:
+            # sometimes the buffering occurs in the middle of text, so
+            # append the current data, don't just assign it
+            parent['text'] += data
 
     def end(name):
-        nonlocal has_text
-        has_text = False
-        stack.pop()
+        elem = stack.pop()
+        # normalize whitespace unless xml:space=preserve
+        if 'text' in elem and elem.get(_XMLSPACEATTR, '') != 'preserve':
+            elem['text'] = ' '.join(elem['text'].split())
         progress.update(force=(name == 'LexicalResource'))
 
     p.StartElementHandler = start
@@ -6801,7 +7286,6 @@ _Elem = Dict[str, Any]  # basic type for the loaded XML data
 
 
 _HasId = TypedDict('_HasId', {'id': str})
-_HasVersion = TypedDict('_HasVersion', {'version': str})
 _HasILI = TypedDict('_HasILI', {'ili': str})
 _HasSynset = TypedDict('_HasSynset', {'synset': str})
 _MaybeId = TypedDict('_MaybeId', {'id': str}, total=False)
@@ -6812,7 +7296,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 
 </t>
-<t tx="karstenw.20230225124007.40">def _validate_entries(elems: List[_Elem], extension: bool) -&gt; None:
+<t tx="karstenw.20230225124007.40">def _validate_entries(elems: list[_Elem], extension: bool) -&gt; None:
     for elem in elems:
         assert 'id' in elem
         if not extension:
@@ -6832,7 +7316,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 
 </t>
-<t tx="karstenw.20230225124007.41">def _validate_forms(elems: List[_Elem], extension: bool) -&gt; None:
+<t tx="karstenw.20230225124007.41">def _validate_forms(elems: list[_Elem], extension: bool) -&gt; None:
     for elem in elems:
         if not extension:
             assert not elem.get('external')
@@ -6848,7 +7332,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 
 </t>
-<t tx="karstenw.20230225124007.42">def _validate_senses(elems: List[_Elem], extension: bool) -&gt; None:
+<t tx="karstenw.20230225124007.42">def _validate_senses(elems: list[_Elem], extension: bool) -&gt; None:
     for elem in elems:
         assert 'id' in elem
         if not extension:
@@ -6874,7 +7358,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 
 </t>
-<t tx="karstenw.20230225124007.43">def _validate_frames(elems: List[_Elem]) -&gt; None:
+<t tx="karstenw.20230225124007.43">def _validate_frames(elems: list[_Elem]) -&gt; None:
     for elem in elems:
         assert 'subcategorizationFrame' in elem
         if elem.get('senses'):
@@ -6882,7 +7366,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 
 </t>
-<t tx="karstenw.20230225124007.44">def _validate_synsets(elems: List[_Elem], extension: bool) -&gt; None:
+<t tx="karstenw.20230225124007.44">def _validate_synsets(elems: list[_Elem], extension: bool) -&gt; None:
     for elem in elems:
         assert 'id' in elem
         if not extension:
@@ -6976,7 +7460,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 <t tx="karstenw.20230225124007.48">def _build_lexicon_attrib(
     lexicon: Union[Lexicon, LexiconExtension],
     version: VersionInfo
-) -&gt; Dict[str, str]:
+) -&gt; dict[str, str]:
     attrib = {
         'id': lexicon['id'],
         'label': lexicon['label'],
@@ -7064,7 +7548,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 </t>
 <t tx="karstenw.20230225124007.52">def _build_form(form: Union[Form, ExternalForm], version: VersionInfo) -&gt; ET.Element:
     attrib = {}
-    if version &gt;= (1, 1) and form['id']:
+    if version &gt;= (1, 1) and form.get('id'):
         attrib['id'] = form['id']
     if form.get('external', False):
         elem = ET.Element('ExternalForm', attrib=attrib)
@@ -7153,7 +7637,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
     out: TextIO,
     version: VersionInfo
 ) -&gt; None:
-    attrib: Dict[str, str] = {'id': synset['id']}
+    attrib: dict[str, str] = {'id': synset['id']}
     if synset.get('external', False):
         elem = ET.Element('ExternalSynset', attrib=attrib)
         elem.extend([_build_definition(defn) for defn in synset.get('definitions', [])])
@@ -7220,7 +7704,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
     version: VersionInfo
 ) -&gt; None:
     elem = _build_syntactic_behaviour(syntactic_behaviour, version)
-    print('    ' + _tostring(elem, 2), file=out)
+    print(_tostring(elem, 2), file=out)
 
 
 </t>
@@ -7263,7 +7747,7 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 
 </t>
-<t tx="karstenw.20230225124007.66">def _meta_dict(meta: Optional[Metadata]) -&gt; Dict[str, str]:
+<t tx="karstenw.20230225124007.66">def _meta_dict(meta: Optional[Metadata]) -&gt; dict[str, str]:
     if meta is not None:
         # Literal keys are required for typing purposes, so first
         # construct the dict and then remove those that weren't specified.
@@ -7307,11 +7791,11 @@ _External = TypedDict('_External', {'external': Literal['true']})
 <t tx="karstenw.20230225124007.9">class Synset(_HasId, _HasILI, _HasMeta, total=False):
     ili_definition: ILIDefinition
     partOfSpeech: str
-    definitions: List[Definition]
-    relations: List[Relation]
-    examples: List[Example]
+    definitions: list[Definition]
+    relations: list[Relation]
+    examples: list[Example]
     lexicalized: bool
-    members: List[str]
+    members: list[str]
     lexfile: str
 
 
@@ -7335,15 +7819,15 @@ _External = TypedDict('_External', {'external': Literal['true']})
 
 """
 
-from typing import Optional, Dict, Set, List, Tuple
+from typing import Optional
 from enum import Flag, auto
 
 import wn
 from wn._types import LemmatizeResult
 from wn.constants import NOUN, VERB, ADJ, ADJ_SAT, ADV, PARTS_OF_SPEECH
 
-POSExceptionMap = Dict[str, Set[str]]
-ExceptionMap = Dict[str, POSExceptionMap]
+POSExceptionMap = dict[str, set[str]]
+ExceptionMap = dict[str, POSExceptionMap]
 
 
 </t>
@@ -7361,9 +7845,9 @@ _WN = _System.WN
 _ALL = _System.ALL
 
 
-Rule = Tuple[str, str, _System]
+Rule = tuple[str, str, _System]
 
-DETACHMENT_RULES: Dict[str, List[Rule]] = {
+DETACHMENT_RULES: dict[str, list[Rule]] = {
     NOUN: [
         ("s",    "",    _ALL),
         ("ces",  "x",   _WN),
@@ -7437,7 +7921,7 @@ morphy = Morphy()
         for pos, rules in DETACHMENT_RULES.items()
     }
     exceptions: ExceptionMap = {pos: {} for pos in PARTS_OF_SPEECH}
-    all_lemmas: Dict[str, Set[str]] = {pos: set() for pos in PARTS_OF_SPEECH}
+    all_lemmas: dict[str, set[str]] = {pos: set() for pos in PARTS_OF_SPEECH}
     if wordnet:
         for word in wordnet.words():
             pos = word.pos
@@ -7479,8 +7963,8 @@ morphy = Morphy()
     return result
 
 </t>
-<t tx="karstenw.20230225124215.6">def _morphstr(self, form: str, pos: str) -&gt; Set[str]:
-    candidates: Set[str] = set()
+<t tx="karstenw.20230225124215.6">def _morphstr(self, form: str, pos: str) -&gt; set[str]:
+    candidates: set[str] = set()
 
     initialized = self._initialized
     if initialized:
@@ -7506,7 +7990,8 @@ morphy = Morphy()
 Wordnet and ILI Packages and Collections
 """
 
-from typing import Optional, Iterator, List, Tuple
+from collections.abc import Iterator
+from typing import Optional
 from pathlib import Path
 import tarfile
 import tempfile
@@ -7533,7 +8018,7 @@ _ADDITIONAL_FILE_SUFFIXES = ('', '.txt', '.md', '.rst')
     return self._find_file(self._path / 'citation', ('.bib',))
 
 </t>
-<t tx="karstenw.20230225124217.11">def _find_file(self, base: Path, suffixes: Tuple[str, ...]) -&gt; Optional[Path]:
+<t tx="karstenw.20230225124217.11">def _find_file(self, base: Path, suffixes: tuple[str, ...]) -&gt; Optional[Path]:
     for suffix in suffixes:
         base = base.with_suffix(suffix)
         if base.is_file():
@@ -7597,7 +8082,7 @@ def type(self) -&gt; Optional[str]:
 
     @others
 </t>
-<t tx="karstenw.20230225124217.21">def packages(self) -&gt; List[Package]:
+<t tx="karstenw.20230225124217.21">def packages(self) -&gt; list[Package]:
     """Return the list of packages in the collection."""
     return [Package(path)
             for path in self._path.iterdir()
@@ -7663,12 +8148,13 @@ def _get_decompressed(source: Path) -&gt; Iterator[Path]:
         tmp = tempfile.NamedTemporaryFile(suffix='.xml', delete=False)
         path = Path(tmp.name)
         try:
+            # for typing issues, see https://github.com/python/mypy/issues/15031
             if gzipped:
                 with gzip.open(source, 'rb') as gzip_src:
-                    shutil.copyfileobj(gzip_src, tmp)
+                    shutil.copyfileobj(gzip_src, tmp)  # type: ignore
             else:  # xzipped
                 with lzma.open(source, 'rb') as lzma_src:
-                    shutil.copyfileobj(lzma_src, tmp)
+                    shutil.copyfileobj(lzma_src, tmp)  # type: ignore
 
             tmp.close()  # Windows cannot reliably reopen until it's closed
 
@@ -7699,8 +8185,8 @@ def _get_decompressed(source: Path) -&gt; Iterator[Path]:
                 f'tarfile member paths may not be absolute or contain ..: {info.name}'
             )
 </t>
-<t tx="karstenw.20230225124217.3">def _package_directory_types(path: Path) -&gt; List[Tuple[Path, str]]:
-    types: List[Tuple[Path, str]] = []
+<t tx="karstenw.20230225124217.3">def _package_directory_types(path: Path) -&gt; list[tuple[Path, str]]:
+    types: list[tuple[Path, str]] = []
     if path.is_dir():
         for p in path.iterdir():
             typ = _resource_file_type(p)
@@ -7748,7 +8234,6 @@ def _get_decompressed(source: Path) -&gt; Iterator[Path]:
 </t>
 <t tx="karstenw.20230225124221.1">"""Synset similarity metrics."""
 
-from typing import List
 import math
 
 import wn
@@ -7980,7 +8465,7 @@ from wn.ic import Freq, information_content
     synset1: Synset,
     synset2: Synset,
     simulate_root: bool
-) -&gt; List[Synset]:
+) -&gt; list[Synset]:
     lcs = synset1.lowest_common_hypernyms(synset2, simulate_root=simulate_root)
     if not lcs:
         raise wn.Error(f'no common hypernyms for {synset1!r} and {synset2!r}')
@@ -7997,7 +8482,7 @@ from wn.ic import Freq, information_content
 </t>
 <t tx="karstenw.20230225124223.1">"""Functions for working with hypernym/hyponym taxonomies."""
 
-from typing import Optional, Tuple, List, Set, Dict, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import wn
 from wn.constants import ADJ, ADJ_SAT
@@ -8014,7 +8499,7 @@ _FAKE_ROOT = '*ROOT*'
 </t>
 <t tx="karstenw.20230225124223.10">def _shortest_hyp_paths(
         synset: 'Synset', other: 'Synset', simulate_root: bool
-) -&gt; Dict[Tuple['Synset', int], List['Synset']]:
+) -&gt; dict[tuple['Synset', int], list['Synset']]:
     if synset == other:
         return {(synset, 0): []}
 
@@ -8027,9 +8512,9 @@ _FAKE_ROOT = '*ROOT*'
 
     # Compute depths of common hypernyms from their distances.
     # Doing this now avoid more expensive lookups later.
-    depths: Dict['Synset', int] = {}
+    depths: dict[Synset, int] = {}
     # subpaths accumulates paths to common hypernyms from both sides
-    subpaths: Dict['Synset', Tuple[List[List['Synset']], List[List['Synset']]]]
+    subpaths: dict[Synset, tuple[list[list[Synset]], list[list[Synset]]]]
     subpaths = {ss: ([], []) for ss in common}
     for which, paths in (0, from_self), (1, from_other):
         for path in paths:
@@ -8042,7 +8527,7 @@ _FAKE_ROOT = '*ROOT*'
                     if ss not in depths or depths[ss] &lt; depth:
                         depths[ss] = depth
 
-    shortest: Dict[Tuple['Synset', int], List['Synset']] = {}
+    shortest: dict[tuple[Synset, int], list[Synset]] = {}
     for ss in common:
         from_self_subpaths, from_other_subpaths = subpaths[ss]
         shortest_from_self = min(from_self_subpaths, key=len)
@@ -8056,7 +8541,7 @@ _FAKE_ROOT = '*ROOT*'
 </t>
 <t tx="karstenw.20230225124223.11">def shortest_path(
         synset: 'Synset', other: 'Synset', simulate_root: bool = False
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return the shortest path from *synset* to the *other* synset.
 
     Arguments:
@@ -8089,7 +8574,7 @@ _FAKE_ROOT = '*ROOT*'
 </t>
 <t tx="karstenw.20230225124223.12">def common_hypernyms(
         synset: 'Synset', other: 'Synset', simulate_root: bool = False
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return the common hypernyms for the current and *other* synsets.
 
     Arguments:
@@ -8121,13 +8606,13 @@ _FAKE_ROOT = '*ROOT*'
     from_self = _hypernym_paths(synset, simulate_root, True)
     from_other = _hypernym_paths(other, simulate_root, True)
     common = set(flatten(from_self)).intersection(flatten(from_other))
-    return sorted(common)
+    return sorted(common, key=lambda ss: ss.id)
 
 
 </t>
 <t tx="karstenw.20230225124223.13">def lowest_common_hypernyms(
         synset: 'Synset', other: 'Synset', simulate_root: bool = False
-) -&gt; List['Synset']:
+) -&gt; list['Synset']:
     """Return the common hypernyms furthest from the root.
 
     Arguments:
@@ -8154,7 +8639,7 @@ _FAKE_ROOT = '*ROOT*'
     else:
         return [ss for ss, d in pathmap if d == max_depth]
 </t>
-<t tx="karstenw.20230225124223.2">def roots(wordnet: 'Wordnet', pos: Optional[str] = None) -&gt; List['Synset']:
+<t tx="karstenw.20230225124223.2">def roots(wordnet: 'Wordnet', pos: Optional[str] = None) -&gt; list['Synset']:
     """Return the list of root synsets in *wordnet*.
 
     Arguments:
@@ -8177,7 +8662,7 @@ _FAKE_ROOT = '*ROOT*'
 
 
 </t>
-<t tx="karstenw.20230225124223.3">def leaves(wordnet: 'Wordnet', pos: Optional[str] = None) -&gt; List['Synset']:
+<t tx="karstenw.20230225124223.3">def leaves(wordnet: 'Wordnet', pos: Optional[str] = None) -&gt; list['Synset']:
     """Return the list of leaf synsets in *wordnet*.
 
     Arguments:
@@ -8218,7 +8703,7 @@ _FAKE_ROOT = '*ROOT*'
         19
 
     """
-    seen: Set['Synset'] = set()
+    seen: set[Synset] = set()
     depth = 0
     for ss in _synsets_for_pos(wordnet, pos):
         if all(hyp in seen for hyp in ss.hypernyms()):
@@ -8231,7 +8716,7 @@ _FAKE_ROOT = '*ROOT*'
 
 
 </t>
-<t tx="karstenw.20230225124223.5">def _synsets_for_pos(wordnet: 'Wordnet', pos: Optional[str]) -&gt; List['Synset']:
+<t tx="karstenw.20230225124223.5">def _synsets_for_pos(wordnet: 'Wordnet', pos: Optional[str]) -&gt; list['Synset']:
     """Get the list of synsets for a part of speech. If *pos* is 'a' or
     's', also include those for the other.
 
@@ -8247,13 +8732,13 @@ _FAKE_ROOT = '*ROOT*'
 </t>
 <t tx="karstenw.20230225124223.6">def _hypernym_paths(
         synset: 'Synset', simulate_root: bool, include_self: bool
-) -&gt; List[List['Synset']]:
+) -&gt; list[list['Synset']]:
     paths = list(synset.relation_paths('hypernym', 'instance_hypernym'))
     if include_self:
         paths = [[synset] + path for path in paths] or [[synset]]
     if simulate_root and synset.id != _FAKE_ROOT:
         root = _core.Synset.empty(
-            id=_FAKE_ROOT, _lexid=synset._lexid, _wordnet=synset._wordnet
+            id=_FAKE_ROOT, _lexicon=synset._lexicon, _lexconf=synset._lexconf
         )
         paths = [path + [root] for path in paths] or [[root]]
     return paths
@@ -8263,7 +8748,7 @@ _FAKE_ROOT = '*ROOT*'
 <t tx="karstenw.20230225124223.7">def hypernym_paths(
     synset: 'Synset',
     simulate_root: bool = False
-) -&gt; List[List['Synset']]:
+) -&gt; list[list['Synset']]:
     """Return the list of hypernym paths to a root synset.
 
     Arguments:
@@ -8359,7 +8844,8 @@ _FAKE_ROOT = '*ROOT*'
 
 </t>
 <t tx="karstenw.20230225124225.1">"""Wn utility classes."""
-from typing import TextIO, Callable
+from collections.abc import Callable
+from typing import TextIO
 import sys
 
 
@@ -8584,6 +9070,9 @@ W301  Synset is empty (not associated with any lexical entries).
 W302  ILI is repeated across synsets.
 W303  Proposed ILI is missing a definition.
 W304  Existing ILI has a spurious definition.
+W305  Synset has a blank definition.
+W306  Synset has a blank example.
+W307  Synset repeats an existing definition.
 E401  Relation target is missing or invalid.
 W402  Relation type is invalid for the source and target.
 W403  Redundant relation between source and target.
@@ -8594,9 +9083,13 @@ W502  Relation is a self-loop.
 
 """
 
-from typing import (Sequence, Iterator, Tuple, List, Dict,
-                    Optional, Type, Union, Callable, cast)
+from typing import Optional, Union, cast
 from collections import Counter
+from collections.abc import (
+    Callable,
+    Iterator,
+    Sequence,
+)
 from itertools import chain
 
 from wn import lmf
@@ -8609,10 +9102,10 @@ from wn.constants import (
 from wn.util import ProgressHandler, ProgressBar
 
 
-_Ids = Dict[str, Counter]
-_Result = Dict[str, Dict]
+_Ids = dict[str, Counter]
+_Result = dict[str, dict]
 _CheckFunction = Callable[[lmf.Lexicon, _Ids], _Result]
-_Report = Dict[str, Dict[str, Union[str, _Result]]]
+_Report = dict[str, dict[str, Union[str, _Result]]]
 
 
 </t>
@@ -8621,6 +9114,34 @@ _Report = Dict[str, Dict[str, Union[str, _Result]]]
     return {ss['id']: {'ili_definitin': ss['ili_definition']}
             for ss in _synsets(lex)
             if ss['ili'] and ss['ili'] != 'in' and ss.get('ili_definition')}
+
+
+def _blank_synset_definition(lex: lmf.Lexicon, ids: _Ids) -&gt; _Result:
+    """synset has a blank definition"""
+    return {
+        ss['id']: {} for ss in _synsets(lex)
+        if any(dfn["text"].strip() == "" for dfn in ss.get("definitions", []))
+    }
+
+def _blank_synset_example(lex: lmf.Lexicon, ids: _Ids) -&gt; _Result:
+    """synset has a blank example"""
+    return {
+        ss['id']: {} for ss in _synsets(lex)
+        if any(ex["text"].strip() == "" for ex in ss.get("examples", []))
+    }
+
+
+def _repeated_synset_definition(lex: lmf.Lexicon, ids: _Ids) -&gt; _Result:
+    """synset repeats an existing definition"""
+    repeated = _multiples(
+        dfn["text"]
+        for ss in _synsets(lex)
+        for dfn in ss.get("definitions", [])
+    )
+    return {
+        ss["id"]: {} for ss in _synsets(lex)
+        if any(dfn["text"] in repeated for dfn in ss.get("definitions", []))
+    }
 
 
 </t>
@@ -8654,10 +9175,19 @@ _Report = Dict[str, Dict[str, Union[str, _Result]]]
 <t tx="karstenw.20230225124228.13">def _redundant_relation(lex: lmf.Lexicon, ids: _Ids) -&gt; _Result:
     """redundant relation between source and target"""
     redundant = _multiples(chain(
-        ((s['id'], r['relType'], r['target']) for s, r in _sense_relations(lex)),
-        ((ss['id'], r['relType'], r['target']) for ss, r in _synset_relations(lex)),
+        (
+            (s['id'], r['relType'], r['target'], _get_dc_type(r))
+            for s, r in _sense_relations(lex)
+        ),
+        (
+            (ss['id'], r['relType'], r['target'], _get_dc_type(r))
+            for ss, r in _synset_relations(lex)
+        ),
     ))
-    return {src: {'type': typ, 'target': tgt} for src, typ, tgt in redundant}
+    return {
+        src: ({'type': typ, 'target': tgt} | ({'dc:type': dctyp} if dctyp else {}))
+        for src, typ, tgt, dctyp in redundant
+    }
 
 
 </t>
@@ -8702,9 +9232,9 @@ _Report = Dict[str, Dict[str, Union[str, _Result]]]
 
 
 </t>
-<t tx="karstenw.20230225124228.18">def _entries(lex: lmf.Lexicon) -&gt; List[lmf.LexicalEntry]: return lex.get('entries', [])
+<t tx="karstenw.20230225124228.18">def _entries(lex: lmf.Lexicon) -&gt; list[lmf.LexicalEntry]: return lex.get('entries', [])
 </t>
-<t tx="karstenw.20230225124228.19">def _forms(e: lmf.LexicalEntry) -&gt; List[lmf.Form]: return e.get('forms', [])
+<t tx="karstenw.20230225124228.19">def _forms(e: lmf.LexicalEntry) -&gt; list[lmf.Form]: return e.get('forms', [])
 </t>
 <t tx="karstenw.20230225124228.2">def _non_unique_id(lex: lmf.Lexicon, ids: _Ids) -&gt; _Result:
     """ID is not unique within the lexicon"""
@@ -8712,20 +9242,20 @@ _Report = Dict[str, Dict[str, Union[str, _Result]]]
         [lex['id']],
         (f['id'] for e in _entries(lex) for f in _forms(e) if f.get('id')),
         (sb['id'] for sb in lex.get('frames', []) if sb.get('id')),
-        ids['entry'],
-        ids['sense'],
-        ids['synset'],
+        ids['entry'].elements(),
+        ids['sense'].elements(),
+        ids['synset'].elements(),
     ))
 
 
 </t>
-<t tx="karstenw.20230225124228.20">def _senses(e: lmf.LexicalEntry) -&gt; List[lmf.Sense]: return e.get('senses', [])
+<t tx="karstenw.20230225124228.20">def _senses(e: lmf.LexicalEntry) -&gt; list[lmf.Sense]: return e.get('senses', [])
 </t>
-<t tx="karstenw.20230225124228.21">def _synsets(lex: lmf.Lexicon) -&gt; List[lmf.Synset]: return lex.get('synsets', [])
+<t tx="karstenw.20230225124228.21">def _synsets(lex: lmf.Lexicon) -&gt; list[lmf.Synset]: return lex.get('synsets', [])
 
 
 </t>
-<t tx="karstenw.20230225124228.22">def _sense_relations(lex: lmf.Lexicon) -&gt; Iterator[Tuple[lmf.Sense, lmf.Relation]]:
+<t tx="karstenw.20230225124228.22">def _sense_relations(lex: lmf.Lexicon) -&gt; Iterator[tuple[lmf.Sense, lmf.Relation]]:
     for e in _entries(lex):
         for s in _senses(e):
             for r in s.get('relations', []):
@@ -8733,10 +9263,14 @@ _Report = Dict[str, Dict[str, Union[str, _Result]]]
 
 
 </t>
-<t tx="karstenw.20230225124228.23">def _synset_relations(lex: lmf.Lexicon) -&gt; Iterator[Tuple[lmf.Synset, lmf.Relation]]:
+<t tx="karstenw.20230225124228.23">def _synset_relations(lex: lmf.Lexicon) -&gt; Iterator[tuple[lmf.Synset, lmf.Relation]]:
     for ss in _synsets(lex):
         for r in ss.get('relations', []):
             yield (ss, r)
+
+
+def _get_dc_type(r: lmf.Relation) -&gt; Optional[str]:
+    return (r.get('meta') or {}).get('type')
 
 
 # Check codes and messages
@@ -8751,7 +9285,7 @@ _Report = Dict[str, Dict[str, Union[str, _Result]]]
 #   400 - relations
 #   500 - graph and taxonomy
 
-_codes: Dict[str, _CheckFunction] = {
+_codes: dict[str, _CheckFunction] = {
     # 100 - general
     'E101': _non_unique_id,
     # 200 - words and senses
@@ -8764,6 +9298,9 @@ _codes: Dict[str, _CheckFunction] = {
     'W302': _repeated_ili,
     'W303': _missing_ili_definition,
     'W304': _spurious_ili_definition,
+    'W305': _blank_synset_definition,
+    'W306': _blank_synset_example,
+    'W307': _repeated_synset_definition,
     # 400 - relations
     'E401': _missing_relation_target,
     'W402': _invalid_relation_type,
@@ -8776,7 +9313,7 @@ _codes: Dict[str, _CheckFunction] = {
 
 
 </t>
-<t tx="karstenw.20230225124228.24">def _select_checks(select: Sequence[str]) -&gt; List[Tuple[str, _CheckFunction, str]]:
+<t tx="karstenw.20230225124228.24">def _select_checks(select: Sequence[str]) -&gt; list[tuple[str, _CheckFunction, str]]:
     selectset = set(select)
     return [(code, func, func.__doc__ or '')
             for code, func in _codes.items()
@@ -8789,7 +9326,7 @@ _codes: Dict[str, _CheckFunction] = {
 <t tx="karstenw.20230225124228.25">def validate(
     lex: Union[lmf.Lexicon, lmf.LexiconExtension],
     select: Sequence[str] = ('E', 'W'),
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar
 ) -&gt; _Report:
     """Check *lex* for validity and return a report of the results.
 
@@ -8892,7 +9429,239 @@ _codes: Dict[str, _CheckFunction] = {
 
 
 </t>
-<t tx="karstenw.20230225125423.1"></t>
 <t tx="karstenw.20230225125511.1"></t>
+<t tx="karstenw.20250529173214.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20250529173235.1">from typing import Optional, Union
+
+import wn
+from wn._util import format_lexicon_specifier
+
+
+</t>
+<t tx="karstenw.20250529173235.10">def ili(
+    id: str,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None
+) -&gt; wn.ILI:
+    """Return the interlingual index with *id*.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The *id* argument is then passed to the
+    :meth:`Wordnet.ili` method.
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).ili(id=id)
+
+
+</t>
+<t tx="karstenw.20250529173235.11">def ilis(
+    status: Optional[str] = None,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None,
+) -&gt; list[wn.ILI]:
+    """Return the list of matching interlingual indices.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The remaining arguments are passed to the
+    :meth:`Wordnet.ilis` method.
+
+    &gt;&gt;&gt; len(wn.ilis())
+    120071
+    &gt;&gt;&gt; len(wn.ilis(status='proposed'))
+    2573
+    &gt;&gt;&gt; wn.ilis(status='proposed')[-1].definition()
+    'the neutrino associated with the tau lepton.'
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).ilis(status=status)
+
+</t>
+<t tx="karstenw.20250529173235.2">def projects() -&gt; list[dict]:
+    """Return the list of indexed projects.
+
+    This returns the same dictionaries of information as
+    :meth:`wn.config.get_project_info
+    &lt;wn._config.WNConfig.get_project_info&gt;`, but for all indexed
+    projects.
+
+    Example:
+
+        &gt;&gt;&gt; infos = wn.projects()
+        &gt;&gt;&gt; len(infos)
+        36
+        &gt;&gt;&gt; infos[0]['label']
+        'Open English WordNet'
+
+    """
+    index = wn.config.index
+    return [
+        wn.config.get_project_info(format_lexicon_specifier(project_id, version))
+        for project_id, project_info in index.items()
+        for version in project_info.get('versions', [])
+        if 'resource_urls' in project_info['versions'][version]
+    ]
+
+
+</t>
+<t tx="karstenw.20250529173235.3">def lexicons(
+    *,
+    lexicon: Optional[str] = "*",
+    lang: Optional[str] = None
+) -&gt; list[wn.Lexicon]:
+    """Return the lexicons matching a language or lexicon specifier.
+
+    Example:
+
+        &gt;&gt;&gt; wn.lexicons(lang='en')
+        [&lt;Lexicon ewn:2020 [en]&gt;, &lt;Lexicon omw-en:1.4 [en]&gt;]
+
+    """
+    try:
+        w = wn.Wordnet(lang=lang, lexicon=lexicon or '*')
+    except wn.Error:
+        return []
+    else:
+        return w.lexicons()
+
+
+</t>
+<t tx="karstenw.20250529173235.4">def word(
+    id: str,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None
+) -&gt; wn.Word:
+    """Return the word with *id* in *lexicon*.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The *id* argument is then passed to the
+    :meth:`Wordnet.word` method.
+
+    &gt;&gt;&gt; wn.word('ewn-cell-n')
+    Word('ewn-cell-n')
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).word(id)
+
+
+</t>
+<t tx="karstenw.20250529173235.5">def words(
+    form: Optional[str] = None,
+    pos: Optional[str] = None,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None,
+) -&gt; list[wn.Word]:
+    """Return the list of matching words.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The remaining arguments are passed to the
+    :meth:`Wordnet.words` method.
+
+    &gt;&gt;&gt; len(wn.words())
+    282902
+    &gt;&gt;&gt; len(wn.words(pos='v'))
+    34592
+    &gt;&gt;&gt; wn.words(form="scurry")
+    [Word('ewn-scurry-n'), Word('ewn-scurry-v')]
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).words(form=form, pos=pos)
+
+
+</t>
+<t tx="karstenw.20250529173235.6">def synset(
+    id: str,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None
+) -&gt; wn.Synset:
+    """Return the synset with *id* in *lexicon*.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The *id* argument is then passed to the
+    :meth:`Wordnet.synset` method.
+
+    &gt;&gt;&gt; wn.synset('ewn-03311152-n')
+    Synset('ewn-03311152-n')
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).synset(id=id)
+
+
+</t>
+<t tx="karstenw.20250529173235.7">def synsets(
+    form: Optional[str] = None,
+    pos: Optional[str] = None,
+    ili: Optional[Union[str, wn.ILI]] = None,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None,
+) -&gt; list[wn.Synset]:
+    """Return the list of matching synsets.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The remaining arguments are passed to the
+    :meth:`Wordnet.synsets` method.
+
+    &gt;&gt;&gt; len(wn.synsets('couch'))
+    4
+    &gt;&gt;&gt; wn.synsets('couch', pos='v')
+    [Synset('ewn-00983308-v')]
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).synsets(form=form, pos=pos, ili=ili)
+
+
+</t>
+<t tx="karstenw.20250529173235.8">def senses(
+    form: Optional[str] = None,
+    pos: Optional[str] = None,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None,
+) -&gt; list[wn.Sense]:
+    """Return the list of matching senses.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The remaining arguments are passed to the
+    :meth:`Wordnet.senses` method.
+
+    &gt;&gt;&gt; len(wn.senses('twig'))
+    3
+    &gt;&gt;&gt; wn.senses('twig', pos='n')
+    [Sense('ewn-twig-n-13184889-02')]
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).senses(form=form, pos=pos)
+
+
+</t>
+<t tx="karstenw.20250529173235.9">def sense(
+    id: str,
+    *,
+    lexicon: Optional[str] = None,
+    lang: Optional[str] = None
+) -&gt; wn.Sense:
+    """Return the sense with *id* in *lexicon*.
+
+    This will create a :class:`Wordnet` object using the *lang* and
+    *lexicon* arguments. The *id* argument is then passed to the
+    :meth:`Wordnet.sense` method.
+
+    &gt;&gt;&gt; wn.sense('ewn-flutter-v-01903884-02')
+    Sense('ewn-flutter-v-01903884-02')
+
+    """
+    return wn.Wordnet(lang=lang, lexicon=lexicon).sense(id=id)
+
+
+</t>
+<t tx="karstenw.20250529173630.1"></t>
 </tnodes>
 </leo_file>

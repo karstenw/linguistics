@@ -2,7 +2,7 @@
 Storage back-end interface.
 """
 
-from typing import Dict
+from importlib import resources
 from pathlib import Path
 import json
 import sqlite3
@@ -10,7 +10,7 @@ import logging
 
 import wn
 from wn._types import AnyPath
-from wn._util import resources, short_hash
+from wn._util import short_hash, format_lexicon_specifier
 
 
 logger = logging.getLogger('wn')
@@ -19,7 +19,6 @@ logger = logging.getLogger('wn')
 # Module Constants
 
 DEBUG = False
-NON_ROWID = 0  # imaginary rowid of non-existent row
 
 # This stores hashes of the schema to check for version differences.
 # When the schema changes, the hash will change. If the new hash is
@@ -60,7 +59,7 @@ sqlite3.register_converter('boolean', _convert_boolean)
 
 # The pool is a cache of open connections. Unless the database path is
 # changed, there should only be zero or one.
-pool: Dict[AnyPath, sqlite3.Connection] = {}
+pool: dict[AnyPath, sqlite3.Connection] = {}
 
 
 # The connect() function should be used for all connections
@@ -68,9 +67,11 @@ pool: Dict[AnyPath, sqlite3.Connection] = {}
 def connect() -> sqlite3.Connection:
     dbpath = wn.config.database_path
     if dbpath not in pool:
+        if not wn.config.data_directory.exists():
+            wn.config.data_directory.mkdir(parents=True, exist_ok=True)
         initialized = dbpath.is_file()
         conn = sqlite3.connect(
-            dbpath.as_posix(),
+            str(dbpath),
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=not wn.config.allow_multithreading,
         )
@@ -79,7 +80,7 @@ def connect() -> sqlite3.Connection:
         if DEBUG:
             conn.set_trace_callback(print)
         if not initialized:
-            logger.info('initializing database: %s', dbpath.as_posix())
+            logger.info('initializing database: %s', dbpath)
             _init_db(conn)
         _check_schema_compatibility(conn, dbpath)
 
@@ -88,7 +89,7 @@ def connect() -> sqlite3.Connection:
 
 
 def _init_db(conn: sqlite3.Connection) -> None:
-    schema = resources.read_text('wn', 'schema.sql')
+    schema = (resources.files('wn') / 'schema.sql').read_text()
     conn.executescript(schema)
     with conn:
         conn.executemany('INSERT INTO ili_statuses VALUES (null,?)',
@@ -114,7 +115,10 @@ def _check_schema_compatibility(conn: sqlite3.Connection, dbpath: Path) -> None:
         raise wn.DatabaseError(msg) from exc
     else:
         if specs:
-            installed = '\n  '.join(f'{id}:{ver}' for id, ver in specs)
+            installed = '\n  '.join(
+                format_lexicon_specifier(id, ver)
+                for id, ver in specs
+            )
             msg += f" Lexicons currently installed:\n  {installed}"
         else:
             msg += ' No lexicons are currently installed.'
@@ -125,3 +129,10 @@ def schema_hash(conn: sqlite3.Connection) -> str:
     query = 'SELECT sql FROM sqlite_master WHERE NOT sql ISNULL'
     schema = '\n\n'.join(row[0] for row in conn.execute(query))
     return short_hash(schema)
+
+
+def clear_connections() -> None:
+    """Close and delete any open database connections."""
+    for path in list(pool):
+        pool[path].close()
+        del pool[path]

@@ -2,10 +2,8 @@
 Adding and removing lexicons to/from the database.
 """
 
-from typing import (
-    Union, Optional, TypeVar, Type, Tuple, List, Dict, Set,
-    Iterator, Iterable, Sequence, cast
-)
+from collections.abc import Iterable, Iterator, Sequence
+from typing import Optional, TypeVar, Union, cast
 from pathlib import Path
 from itertools import islice
 import sqlite3
@@ -15,15 +13,18 @@ import wn
 from wn._types import AnyPath
 from wn.constants import _WORDNET, _ILI
 from wn._db import connect
-from wn._queries import find_lexicons, get_lexicon_extensions, get_lexicon
-from wn._util import normalize_form
+from wn._queries import (
+    resolve_lexicon_specifiers,
+    get_lexicon_extensions,
+)
+from wn._util import normalize_form, format_lexicon_specifier
 from wn.util import ProgressHandler, ProgressBar
 from wn.project import iterpackages
 from wn import lmf
 from wn import _ili
 
 
-logger = logging.getLogger('wn')
+log = logging.getLogger('wn')
 
 
 BATCH_SIZE = 1000
@@ -84,7 +85,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
 
 def add(
     source: AnyPath,
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar,
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar,
 ) -> None:
     """Add the LMF file at *source* to the database.
 
@@ -96,15 +97,14 @@ def add(
     The *progress_handler* parameter takes a subclass of
     :class:`wn.util.ProgressHandler`. An instance of the class will be
     created, used, and closed by this function.
-
     """
     if progress_handler is None:
         progress_handler = ProgressHandler
     progress = progress_handler(message='Database')
 
-    logger.info('adding project to database')
-    logger.info('  database: %s', wn.config.database_path)
-    logger.info('  project file: %s', source)
+    log.info('adding project to database')
+    log.info('  database: %s', wn.config.database_path)
+    log.info('  project file: %s', source)
 
     try:
         for package in iterpackages(source):
@@ -121,7 +121,66 @@ def add(
 def _add_lmf(
     source: Path,
     progress: ProgressHandler,
-    progress_handler: Type[ProgressHandler],
+    progress_handler: type[ProgressHandler],
+) -> None:
+    # abort if lexicons in *source* are already added
+    progress.flash(f'Checking {source!s}')
+    infos = lmf.scan_lexicons(source)
+    if not infos:
+        progress.flash(f'{source}: No lexicons found')
+        return
+
+    skipmap = _precheck(infos, progress)
+    if all(skipmap.values()):
+        return  # nothing to do
+
+    # all clear, try to add them
+    progress.flash(f'Reading {source!s}')
+    resource = lmf.load(source, progress_handler)
+    _add_lexical_resource(resource, skipmap, progress)
+
+
+def add_lexical_resource(
+    resource: lmf.LexicalResource,
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar,
+) -> None:
+    """Add the lexical resource *resource* to the database.
+
+    The *resource* argument is an in-memory lexical resource as from
+    :func:`wn.lmf.load` and not a file on disk.
+
+    >>> resource = wn.lmf.load('english-wordnet-2024.xml')
+    >>> wn.add_lexical_resource(resource)
+    Added ewn:2020 (English WordNet)
+
+    The *progress_handler* parameter takes a subclass of
+    :class:`wn.util.ProgressHandler`. An instance of the class will be
+    created, used, and closed by this function.
+    """
+    if progress_handler is None:
+        progress_handler = ProgressHandler
+    progress = progress_handler(message='Database')
+
+    try:
+        progress.flash('Checking resource')
+        if not resource["lexicons"]:
+            progress.flash('No lexicons found')
+            return
+
+        skipmap = _precheck(resource["lexicons"], progress)
+        if all(skipmap.values()):
+            return  # nothing to do
+
+        _add_lexical_resource(resource, skipmap, progress)
+
+    finally:
+        progress.close()
+
+
+def _add_lexical_resource(
+    resource: lmf.LexicalResource,
+    skipmap: dict[str, bool],
+    progress: ProgressHandler,
 ) -> None:
     with connect() as conn:
         cur = conn.cursor()
@@ -131,28 +190,10 @@ def _add_lmf(
         cur.execute('PRAGMA synchronous = OFF')
         cur.execute('PRAGMA journal_mode = MEMORY')
 
-        # abort if any lexicon in *source* is already added
-        progress.flash(f'Checking {source!s}')
-        all_infos = _precheck(source, cur)
-
-        if not all_infos:
-            progress.flash(f'{source}: No lexicons found')
-            return
-        for info in all_infos:
-            skip = info.get('skip', '')
-            if skip:
-                id, ver, lbl = info['id'], info['version'], info['label']
-                progress.flash(f'Skipping {id}:{ver} ({lbl}); {skip}\n')
-        if all('skip' in info for info in all_infos):
-            return
-
-        # all clear, try to add them
-        progress.flash(f'Reading {source!s}')
-        resource = lmf.load(source, progress_handler)
-
-        for lexicon, info in zip(resource['lexicons'], all_infos):
-            if 'skip' in info:
-                continue
+        for lexicon in resource['lexicons']:
+            spec = format_lexicon_specifier(lexicon["id"], lexicon["version"])
+            if skipmap[spec]:
+                continue  # _precheck() says this should be skipped
 
             progress.flash('Updating lookup tables')
             _update_lookup_tables(lexicon, cur)
@@ -162,7 +203,7 @@ def _add_lmf(
             entries: Sequence[_AnyEntry] = _entries(lexicon)
             synbhrs: Sequence[lmf.SyntacticBehaviour] = _collect_frames(lexicon)
 
-            lexid, extid = _insert_lexicon(lexicon, info, cur, progress)
+            lexid, extid = _insert_lexicon(lexicon, cur, progress)
 
             lexidmap = _build_lexid_map(lexicon, lexid, extid)
 
@@ -185,22 +226,41 @@ def _add_lmf(
             _insert_examples(synsets, lexid, lexidmap, 'synset_examples', cur, progress)
 
             progress.set(status='')  # clear type string
-            progress.flash(
-                f"Added {lexicon['id']}:{lexicon['version']} ({lexicon['label']})\n"
-            )
+            progress.flash(f"Added {spec} ({lexicon['label']})\n")
 
 
-def _precheck(source: Path, cur: sqlite3.Cursor) -> List[Dict]:
+def _precheck(
+    infos: Sequence[Union[lmf.ScanInfo, lmf.Lexicon, lmf.LexiconExtension]],
+    progress: ProgressHandler,
+) -> dict[str, bool]:
+    skipmap: dict[str, bool] = {}
     lexqry = 'SELECT * FROM lexicons WHERE id = :id AND version = :version'
-    infos = lmf.scan_lexicons(source)
-    for info in infos:
-        base = info.get('extends')
-        if cur.execute(lexqry, info).fetchone():
-            info['skip'] = 'already added'
-        if base and cur.execute(lexqry, base).fetchone() is None:
-            id_, ver = base['id'], base['version']
-            info['skip'] = f'base lexicon ({id_}:{ver}) not available'
-    return infos
+    with connect() as conn:
+        cur = conn.cursor()
+        for info in infos:
+            key = format_lexicon_specifier(info['id'], info['version'])
+
+            # TODO: MyPy seems to think this can be Any and I'm not sure why
+            base: Optional[lmf.LexiconSpecifier] = info.get('extends')  # type: ignore
+
+            skipmap[key] = False
+            reason = ''
+
+            # can't have two lexicons with the same specifier in the db
+            if cur.execute(lexqry, info).fetchone():
+                skipmap[key] = True
+                reason = 'already added'
+
+            # can't have an extension without the base
+            elif base and cur.execute(lexqry, base).fetchone() is None:
+                skipmap[key] = True
+                base_key = format_lexicon_specifier(base['id'], base['version'])
+                reason = f"base lexicon ({base_key}) not available"
+
+            if reason:
+                progress.flash(f"Skipping {key} ({info['label']}); {reason}\n")
+
+    return skipmap
 
 
 def _sum_counts(lex: _AnyLexicon) -> int:
@@ -248,7 +308,7 @@ def _update_lookup_tables(
                     for rel in s.get('relations', []))
     cur.executemany('INSERT OR IGNORE INTO relation_types VALUES (null,?)',
                     [(rt,) for rt in sorted(reltypes)])
-    lexfiles: Set[str] = {ss.get('lexfile', '')
+    lexfiles: set[str] = {ss.get('lexfile', '')
                           for ss in _local_synsets(_synsets(lexicon))
                           if ss.get('lexfile')}
     cur.executemany('INSERT OR IGNORE INTO lexfiles VALUES (null,?)',
@@ -257,10 +317,9 @@ def _update_lookup_tables(
 
 def _insert_lexicon(
     lexicon: _AnyLexicon,
-    info: dict,
     cur: sqlite3.Cursor,
     progress: ProgressHandler
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     progress.set(status='Lexicon Info')
     cur.execute(
         'INSERT INTO lexicons VALUES (null,?,?,?,?,?,?,?,?,?,?,?)',
@@ -320,7 +379,7 @@ def _insert_lexicon(
     return lexid, extid
 
 
-_LexIdMap = Dict[str, int]
+_LexIdMap = dict[str, int]
 
 
 def _build_lexid_map(lexicon: _AnyLexicon, lexid: int, extid: int) -> _LexIdMap:
@@ -343,7 +402,7 @@ def _build_lexid_map(lexicon: _AnyLexicon, lexid: int, extid: int) -> _LexIdMap:
 T = TypeVar('T')
 
 
-def _batch(sequence: Iterable[T]) -> Iterator[List[T]]:
+def _batch(sequence: Iterable[T]) -> Iterator[list[T]]:
     it = iter(sequence)
     batch = list(islice(it, 0, BATCH_SIZE))
     while len(batch):
@@ -504,7 +563,7 @@ def _insert_forms(
     progress.set(status='Word Forms')
     query = f'INSERT INTO forms VALUES (null,?,?,({ENTRY_QUERY}),?,?,?,?)'
     for batch in _batch(entries):
-        forms: List[Tuple[Optional[str], int, str, int,
+        forms: list[tuple[Optional[str], int, str, int,
                           str, Optional[str], Optional[str], int]] = []
         for entry in batch:
             eid = entry['id']
@@ -543,7 +602,7 @@ def _insert_pronunciations(
     progress.set(status='Pronunciations')
     query = f'INSERT INTO pronunciations VALUES (({FORM_QUERY}),?,?,?,?,?)'
     for batch in _batch(entries):
-        prons: List[Tuple[str, int, Optional[str], int,
+        prons: list[tuple[str, int, Optional[str], int,
                           str, Optional[str], Optional[str],
                           bool, Optional[str]]] = []
         for entry in batch:
@@ -579,7 +638,7 @@ def _insert_tags(
     progress.set(status='Word Form Tags')
     query = f'INSERT INTO tags VALUES (({FORM_QUERY}),?,?)'
     for batch in _batch(entries):
-        tags: List[Tuple[str, int, Optional[str], int, str, str]] = []
+        tags: list[tuple[str, int, Optional[str], int, str, str]] = []
         for entry in batch:
             eid = entry['id']
             lid = lexidmap.get(eid, lexid)
@@ -674,14 +733,14 @@ def _insert_counts(
     progress.update(len(data))
 
 
-def _collect_frames(lexicon: _AnyLexicon) -> List[lmf.SyntacticBehaviour]:
+def _collect_frames(lexicon: _AnyLexicon) -> list[lmf.SyntacticBehaviour]:
     # WN-LMF 1.0 syntactic behaviours are on lexical entries, and in
     # WN-LMF 1.1 they are at the lexticon level with IDs. This
     # function normalizes the two variants.
 
     # IDs are not required and frame strings must be unique in a
     # lexicon, so lookup syntactic behaviours by the frame string
-    synbhrs: Dict[str, lmf.SyntacticBehaviour] = {
+    synbhrs: dict[str, lmf.SyntacticBehaviour] = {
         frame['subcategorizationFrame']: {
             'id': frame['id'],
             'subcategorizationFrame': frame['subcategorizationFrame'],
@@ -727,7 +786,7 @@ def _insert_syntactic_behaviours(
     cur.executemany(query, sbdata)
 
     # syntactic behaviours don't have a required ID; index on frame
-    framemap: Dict[str, List[str]] = {
+    framemap: dict[str, list[str]] = {
         sb['subcategorizationFrame']: sb.get('senses', []) for sb in synbhrs
     }
     query = f'''
@@ -860,7 +919,7 @@ def _add_ili(
 
 def remove(
     lexicon: str,
-    progress_handler: Optional[Type[ProgressHandler]] = ProgressBar
+    progress_handler: Optional[type[ProgressHandler]] = ProgressBar
 ) -> None:
     """Remove lexicon(s) from the database.
 
@@ -885,33 +944,30 @@ def remove(
     conn = connect()
     conn.set_progress_handler(progress.update, 100000)
     try:
-        for rowid, id, _, _, _, _, version, *_ in find_lexicons(lexicon=lexicon):
-            extensions = _find_all_extensions(rowid)
+        for lexspec in resolve_lexicon_specifiers(lexicon=lexicon):
+            extensions = get_lexicon_extensions(lexspec)
 
             with conn:
 
-                for ext_id, ext_spec in reversed(extensions):
+                for ext_spec in reversed(extensions):
                     progress.set(status=f'{ext_spec} (extension)')
-                    conn.execute('DELETE from lexicons WHERE rowid = ?', (ext_id,))
+                    conn.execute(
+                        'DELETE FROM lexicons WHERE id || ":" || version = ?',
+                        (ext_spec,),
+                    )
                     progress.flash(f'Removed {ext_spec}\n')
 
-                spec = f'{id}:{version}'
                 extra = f' (and {len(extensions)} extension(s))' if extensions else ''
-                progress.set(status=f'{spec}', count=0)
-                conn.execute('DELETE from lexicons WHERE rowid = ?', (rowid,))
-                progress.flash(f'Removed {spec}{extra}\n')
+                progress.set(status=f'{lexspec}', count=0)
+                conn.execute(
+                    'DELETE FROM lexicons WHERE id || ":" || version = ?',
+                    (lexspec,),
+                )
+                progress.flash(f'Removed {lexspec}{extra}\n')
 
     finally:
         progress.close()
         conn.set_progress_handler(None, 0)
-
-
-def _find_all_extensions(rowid: int) -> List[Tuple[int, str]]:
-    exts: List[Tuple[int, str]] = []
-    for ext_id in get_lexicon_extensions(rowid):
-        lexinfo = get_lexicon(ext_id)
-        exts.append((ext_id, f'{lexinfo[1]}:{lexinfo[6]}'))
-    return exts
 
 
 def _entries(lex: _AnyLexicon) -> Sequence[_AnyEntry]: return lex.get('entries', [])

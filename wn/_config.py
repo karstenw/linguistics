@@ -3,7 +3,9 @@
 Local configuration settings.
 """
 
-from typing import Optional, Dict, Sequence, Any
+from collections.abc import Sequence
+from importlib.resources import as_file, files
+from typing import Any, Optional
 from pathlib import Path
 
 import tomli
@@ -11,12 +13,14 @@ import tomli
 from wn import ConfigurationError, ProjectError
 from wn._types import AnyPath
 from wn.constants import _WORDNET
-from wn._util import resources, short_hash
+from wn._util import short_hash, format_lexicon_specifier, split_lexicon_specifier
 
+# The index file is a project file of Wn
+with as_file(files('wn') / 'index.toml') as index_file:
+    INDEX_FILE_PATH = index_file
 # The directory where downloaded and added data will be stored.
 DEFAULT_DATA_DIRECTORY = Path.home() / '.wn_data'
 DATABASE_FILENAME = 'wn.db'
-
 
 class WNConfig:
 
@@ -28,7 +32,18 @@ class WNConfig:
 
     @property
     def data_directory(self) -> Path:
-        """The file system directory where Wn's data is stored."""
+        """The file system directory where Wn's data is stored.
+
+        Assign a new path to change where the database and downloads
+        are stored.
+
+        >>> wn.config.data_directory = "~/.cache/wn"
+        >>> wn.config.database_path
+        PosixPath('/home/username/.cache/wn/wn.db')
+        >>> wn.config.downloads_directory
+        PosixPath('/home/username/.cache/wn/downloads')
+
+        """
         dir = self._data_directory
         dir.mkdir(exist_ok=True)
         return dir
@@ -43,18 +58,28 @@ class WNConfig:
 
     @property
     def database_path(self):
-        """The path to the database file."""
+        """The path to the database file.
+
+        The database path is derived from :attr:`data_directory` and
+        cannot be changed directly.
+
+        """
         return self._dbpath
 
     @property
     def downloads_directory(self):
-        """The file system directory where downloads are cached."""
+        """The file system directory where downloads are cached.
+
+        The downloads directory is derived from :attr:`data_directory`
+        and cannot be changed directly.
+
+        """
         dir = self.data_directory / 'downloads'
         dir.mkdir(exist_ok=True)
         return dir
 
     @property
-    def index(self) -> Dict[str, Dict]:
+    def index(self) -> dict[str, dict]:
         """The project index."""
         return self._projects
 
@@ -114,13 +139,14 @@ class WNConfig:
               is accessed
 
         """
-        version_data: Dict[str, Any]
+        version_data: dict[str, Any]
         if url and not error:
             version_data = {'resource_urls': url.split()}
         elif error and not url:
             version_data = {'error': error}
         elif url and error:
-            raise ConfigurationError(f'{id}:{version} specifies both url and redirect')
+            spec = format_lexicon_specifier(id, version)
+            raise ConfigurationError(f'{spec} specifies both url and redirect')
         else:
             version_data = {}
         if license:
@@ -128,7 +154,7 @@ class WNConfig:
         project = self._projects[id]
         project['versions'][version] = version_data
 
-    def get_project_info(self, arg: str) -> Dict:
+    def get_project_info(self, arg: str) -> dict:
         """Return information about an indexed project version.
 
         If the project has been downloaded and cached, the ``"cache"``
@@ -145,14 +171,14 @@ class WNConfig:
             'Open English WordNet'
 
         """
-        id, _, version = arg.partition(':')
+        id, version = split_lexicon_specifier(arg)
         if id not in self._projects:
             raise ProjectError(f'no such project id: {id}')
-        project: Dict = self._projects[id]
+        project: dict = self._projects[id]
         if 'error' in project:
             raise ProjectError(project['error'])
 
-        versions: Dict = project['versions']
+        versions: dict = project['versions']
         if not version or version == '*':
             version = next(iter(versions), '')
         if not version:
@@ -216,8 +242,9 @@ class WNConfig:
                 )
             for version, info in project.get('versions', {}).items():
                 if 'url' in info and 'error' in project:
+                    spec = format_lexicon_specifier(id, version)
                     raise ConfigurationError(
-                        f'{id}:{version} url specified with default error'
+                        f'{spec} url specified with default error'
                     )
                 self.add_project_version(
                     id,
@@ -268,5 +295,4 @@ def _get_cache_path_for_urls(
 
 
 config = WNConfig()
-with resources.path('wn', 'index.toml') as index_path:
-    config.load_index(index_path)
+config.load_index(INDEX_FILE_PATH)

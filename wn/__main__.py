@@ -9,6 +9,7 @@ import wn
 from wn.project import iterpackages
 from wn import lmf
 from wn.validate import validate
+from wn._util import format_lexicon_specifier
 
 
 def _download(args):
@@ -45,7 +46,7 @@ def _validate(args):
     for package in iterpackages(args.FILE):
         resource = lmf.load(package.resource_file())
         for lexicon in resource['lexicons']:
-            spec = f'{lexicon["id"]}:{lexicon["version"]}'
+            spec = format_lexicon_specifier(lexicon["id"], lexicon["version"])
             print(f'{spec:<20}', end='')
             report = validate(lexicon, select=selectseq)
             if not any(check.get('items', []) for check in report.values()):
@@ -61,7 +62,7 @@ def _validate(args):
                     with open(args.output_file, 'w') as outfile:
                         json.dump(report, outfile, indent=2)
                 else:
-                    for code, check in report.items():
+                    for _code, check in report.items():
                         if not check['items']:
                             continue
                         print(f'  {check["message"]}')

@@ -1,15 +1,10 @@
 """Non-public Wn utilities."""
 
-from typing import TypeVar, Iterable, List
-import sys
+from collections.abc import Iterable, Hashable
+from typing import TypeVar
 from pathlib import Path
 import hashlib
 from unicodedata import normalize, combining
-# version check is for mypy; see https://github.com/python/mypy/issues/1153
-if sys.version_info >= (3, 7):
-    import importlib.resources as resources
-else:
-    import importlib_resources as resources  # noqa: F401
 
 
 from wn._types import VersionInfo
@@ -58,9 +53,27 @@ def short_hash(string: str) -> str:
 T = TypeVar('T')
 
 
-def flatten(iterable: Iterable[Iterable[T]]) -> List[T]:
+def flatten(iterable: Iterable[Iterable[T]]) -> list[T]:
     return [x for xs in iterable for x in xs]
+
+
+H = TypeVar('H', bound=Hashable)
+
+
+def unique_list(items: Iterable[H]) -> list[H]:
+    # use a dictionary as an order-preserving set
+    targets = {item: True for item in items}
+    return list(targets)
 
 
 def normalize_form(s: str) -> str:
     return ''.join(c for c in normalize('NFKD', s.lower()) if not combining(c))
+
+
+def format_lexicon_specifier(id: str, version: str) -> str:
+    return f"{id}:{version}"
+
+
+def split_lexicon_specifier(lexicon: str) -> tuple[str, str]:
+    id, _, ver = lexicon.partition(":")
+    return id, ver
