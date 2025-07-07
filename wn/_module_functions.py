@@ -214,4 +214,3 @@ def ilis(
 
     """
     return wn.Wordnet(lang=lang, lexicon=lexicon).ilis(status=status)
-

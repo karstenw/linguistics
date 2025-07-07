@@ -3,6 +3,32 @@
 ## [Unreleased][unreleased]
 
 
+## [v0.13.0]
+
+**Release date: 2025-06-13**
+
+## Added
+
+* `wn.compat` namespace (see [#55])
+* `wn.compat.sensekey` module ([#55]) with methods:
+  - `sense_key_getter()`
+  - `sense_getter()`
+  - `unescape_oewn_sense_key()`
+  - `escape_oewn_sense_key()`
+* `wn.project.get_project()` ([#53])
+* `wn.project.Project` ([#53])
+* `wn.project.ResourceOnlyPackage` ([#53])
+* `path` property on `wn.project.Project` classes ([#53])
+* `delete` parameter on `wn.project.iterpackages()` ([#53])
+
+## Changed
+
+* `wn.add()` allows synset members to be lexical entry IDs for rank
+  calculations ([#255])
+* `wn.add()` no longer requires `partOfSpeech` on synsets; this was
+  not a requirement of WN-LMF nor was it enforced in the database
+
+
 ## [v0.12.0]
 
 **Release date: 2025-04-22**
@@ -650,6 +676,7 @@ the https://github.com/nltk/wordnet/ code which had been effectively
 abandoned, but this is an entirely new codebase.
 
 
+[v0.13.0]: ../../releases/tag/v0.13.0
 [v0.12.0]: ../../releases/tag/v0.12.0
 [v0.11.0]: ../../releases/tag/v0.11.0
 [v0.10.1]: ../../releases/tag/v0.10.1
@@ -687,6 +714,8 @@ abandoned, but this is an entirely new codebase.
 [#40]: https://github.com/goodmami/wn/issues/40
 [#46]: https://github.com/goodmami/wn/issues/46
 [#47]: https://github.com/goodmami/wn/issues/47
+[#53]: https://github.com/goodmami/wn/issues/53
+[#55]: https://github.com/goodmami/wn/issues/55
 [#58]: https://github.com/goodmami/wn/issues/58
 [#59]: https://github.com/goodmami/wn/issues/59
 [#60]: https://github.com/goodmami/wn/issues/60
@@ -771,3 +800,4 @@ abandoned, but this is an entirely new codebase.
 [#241]: https://github.com/goodmami/wn/issues/241
 [#246]: https://github.com/goodmami/wn/issues/246
 [#250]: https://github.com/goodmami/wn/issues/250
+[#255]: https://github.com/goodmami/wn/issues/255
