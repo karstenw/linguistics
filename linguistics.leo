@@ -19,9 +19,9 @@
 <v t="karstenw.20230428163032.1"><vh>conceptnet init</vh></v>
 <v t="karstenw.20230317172931.1"><vh>tools</vh></v>
 </v>
-<v t="karstenw.20230524124241.1" a="E"><vh>@clean FlowerWord.py</vh>
+<v t="karstenw.20230524124241.1"><vh>@clean FlowerWord.py</vh>
 <v t="karstenw.20230524124307.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230524124417.1" a="E"><vh>FlowerWord</vh>
+<v t="karstenw.20230524124417.1"><vh>FlowerWord</vh>
 <v t="karstenw.20230524124417.2"><vh>__init__</vh></v>
 <v t="karstenw.20230524124417.3"><vh>hyponyms</vh></v>
 <v t="karstenw.20230524124417.4"><vh>hypernyms</vh></v>
@@ -65,7 +65,10 @@ import time
 
 import pprint
 pp = pprint.pprint
+
 import pdb
+kwlog = True
+kwdbg = True
 
 t1 = time.time()
 
@@ -83,16 +86,18 @@ if PACKAGE_DIR not in sys.path:
 
 
 </t>
-<t tx="karstenw.20230317172648.3"># make a function
-if 1:
-    import nltk
-    # wordnet = nltk.wordnet
+<t tx="karstenw.20230317172648.3">#
+# NLTK
+#
+import nltk
+# wordnet = nltk.wordnet
     
-    # data path init
-    nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+# data path init
+nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
 
 t4 = time.time()
-print("import nltk: %.3f" % (t4-t3)  )
+if kwlog:
+    print("import nltk: %.3f" % (t4-t3)  )
 
 
 
@@ -109,11 +114,12 @@ print("import nltk: %.3f" % (t4-t3)  )
 </t>
 <t tx="karstenw.20230317172648.4"># perhaps delete ? havent used this
 # TextBlob, Word, Sentence, Blobber, WordList
-if 1:
-    import textblob
+
+import textblob
 
 t6 = time.time()
-print("import textblob: %.3f" % (t6-t5)  )
+if kwlog:
+    print("import textblob: %.3f" % (t6-t5)  )
 
 # from . textblob import *
 # import textblob.Word
@@ -137,14 +143,14 @@ This is the wn interface for NodeBox and possibly others.
 
 """
 
-if 1:
-    import wn
+import wn
     
-    # data path init
-    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+# data path init
+wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
 t5 = time.time()
-print("import wn: %.3f" % (t5-t4)  )
+if kwlog:
+    print("import wn: %.3f" % (t5-t4)  )
 
 
 # not sure what to use yet
@@ -170,14 +176,14 @@ if 0:
 </t>
 <t tx="karstenw.20230317172816.1">t2 = time.time()
 
-if 1:
-    import pattern
+import pattern
 
 # no data path init - instead
 # change pattern webcache setting in pattern/web/cache/__init__.py
 
 t3 = time.time()
-print("import pattern: %.3f" % (t3-t2)  )
+if kwlog:
+    print("import pattern: %.3f" % (t3-t2)  )
 
 </t>
 <t tx="karstenw.20230317172931.1">if 0:
@@ -229,11 +235,13 @@ print("import conceptnetreader: %.3f" % (t7-t6)  )
 </t>
 <t tx="karstenw.20230518135556.1">import sys
 import os
-# import pdb
+
+import pdb
+
 import pprint
 import time
 
-# pdb.set_trace()
+pdb.set_trace()
 
 start = time.time()
 
