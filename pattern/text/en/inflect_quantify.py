@@ -353,13 +353,13 @@ quantify = count
 #--- REFLECT ---------------------------------------------------------------------------------------
 
 readable_types = (
-    ("^<type '"        , ""),
-    ("^<class '(.*)'\>", "\\1 class"),
-    ("'>"              , ""),
-    ("pyobjc"          , "PyObjC"),
+    ( r"^<type '"        , ""),
+    ( r"^<class '(.*)'\>", "\\1 class"),
+    ( r"'>"              , ""),
+    ( r"pyobjc"          , "PyObjC"),
     ("objc_class"      , "Objective-C class"),
     ("objc"            , "Objective-C"),
-    ("<objective-c class  (.*) at [0-9][0-9|a-z]*>" , "Objective-C \\1 class"),
+    ( r"<objective-c class  (.*) at [0-9][0-9|a-z]*>" ,  r"Objective-C \\1 class"),
     ("bool"            , "boolean"),
     ("int"             , "integer"),
     ("long"            , "long integer"),
@@ -371,7 +371,7 @@ readable_types = (
     ("instancemethod"  , "instance method"),
     ("builtin_function_or_method" , "built-in function"),
     ("classobj"        , "class object"),
-    ("\."              , " "),
+    ( r"\."              , " "),
     ("_"               , " ")
 )
 

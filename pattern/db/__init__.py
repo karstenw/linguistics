@@ -356,7 +356,7 @@ def decrypt_string(s, key=""):
     s = decode_utf8(s)
     return s
 
-RE_AMPERSAND = re.compile("\&(?!\#)")           # & not followed by #
+RE_AMPERSAND = re.compile( r"\&(?!\#)")           # & not followed by #
 RE_UNICODE = re.compile(r'&(#?)(x|X?)(\w+);') # &#201;
 
 
@@ -1892,7 +1892,7 @@ def csv_header_encode(field, type=STRING):
 def csv_header_decode(s):
     # csv_header_decode("age (INTEGER)") => ("age", INTEGER).
     p = r"STRING|INTEGER|FLOAT|TEXT|BLOB|BOOLEAN|DATE|"
-    p = re.match(r"(.*?) \((" + p + ")\)", s)
+    p = re.match( r"(.*?) \((" + p + r")\)", s)
     s = s.endswith(" ()") and s[:-3] or s
     return p and (string(p.group(1), default=None), p.group(2).lower()) or (string(s) or None, None)
 

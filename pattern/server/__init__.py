@@ -96,8 +96,8 @@ except:
 
 #### STRING FUNCTIONS ##############################################################################
 
-RE_AMPERSAND = re.compile("\&(?!\#)")           # & not followed by #
-RE_UNICODE = re.compile(r'&(#?)(x|X?)(\w+);') # &#201;
+RE_AMPERSAND = re.compile( r"\&(?!\#)")           # & not followed by #
+RE_UNICODE = re.compile( r'&(#?)(x|X?)(\w+);') # &#201;
 
 _TEMPORARY_FILES = []
 
