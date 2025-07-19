@@ -90,7 +90,7 @@ from . import locale
 
 import bs4 as BeautifulSoup
 
-# import pdb
+import pdb
 
 try:
     # Import persistent Cache.
@@ -988,8 +988,8 @@ def strip_comments(html):
 def strip_forms(html):
     return strip_between("<form.*?>", "</form>", html)
 
-RE_AMPERSAND = re.compile("\&(?!\#)")           # & not followed by #
-RE_UNICODE = re.compile(r'&(#?)(x|X?)(\w+);') # &#201;
+RE_AMPERSAND = re.compile( r"\&(?!\#)")           # & not followed by #
+RE_UNICODE = re.compile( r'&(#?)(x|X?)(\w+);') # &#201;
 
 
 def encode_entities(string):
@@ -1287,7 +1287,13 @@ class Google(SearchEngine):
         kwargs.setdefault("unicode", True)
         kwargs.setdefault("throttle", self.throttle)
         data = url.download(cached=cached, **kwargs)
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except Exception as err:
+            print(err)
+            pdb.set_trace()
+            print(data)
+            print()
         if data.get("error", {}).get("code") == 403:
             raise SearchEngineLimitError
         results = Results(GOOGLE, query, type)
