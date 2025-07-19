@@ -32,7 +32,7 @@ from functools import cmp_to_key
 PUNCTUATION = ".,;:!?()[]{}`'\"@#$^&*+-|=~_"
 
 RE_PUNCTUATION = "|".join(map(re.escape, PUNCTUATION))
-RE_PUNCTUATION = re.compile("(%s)" % RE_PUNCTUATION)
+RE_PUNCTUATION = re.compile( r"(%s)" % RE_PUNCTUATION)
 
 
 class Text(list):
