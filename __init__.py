@@ -4,7 +4,10 @@ import time
 
 import pprint
 pp = pprint.pprint
+
 import pdb
+kwlog = True
+kwdbg = True
 
 t1 = time.time()
 
@@ -23,25 +26,27 @@ if PACKAGE_DIR not in sys.path:
 
 t2 = time.time()
 
-if 1:
-    import pattern
+import pattern
 
 # no data path init - instead
 # change pattern webcache setting in pattern/web/cache/__init__.py
 
 t3 = time.time()
-print("import pattern: %.3f" % (t3-t2)  )
+if kwlog:
+    print("import pattern: %.3f" % (t3-t2)  )
 
-# make a function
-if 1:
-    import nltk
-    # wordnet = nltk.wordnet
+#
+# NLTK
+#
+import nltk
+# wordnet = nltk.wordnet
     
-    # data path init
-    nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+# data path init
+nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
 
 t4 = time.time()
-print("import nltk: %.3f" % (t4-t3)  )
+if kwlog:
+    print("import nltk: %.3f" % (t4-t3)  )
 
 
 
@@ -60,14 +65,14 @@ This is the wn interface for NodeBox and possibly others.
 
 """
 
-if 1:
-    import wn
+import wn
     
-    # data path init
-    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+# data path init
+wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
 t5 = time.time()
-print("import wn: %.3f" % (t5-t4)  )
+if kwlog:
+    print("import wn: %.3f" % (t5-t4)  )
 
 
 # not sure what to use yet
@@ -92,11 +97,12 @@ if 0:
 
 # perhaps delete ? havent used this
 # TextBlob, Word, Sentence, Blobber, WordList
-if 1:
-    import textblob
+
+import textblob
 
 t6 = time.time()
-print("import textblob: %.3f" % (t6-t5)  )
+if kwlog:
+    print("import textblob: %.3f" % (t6-t5)  )
 
 # from . textblob import *
 # import textblob.Word
