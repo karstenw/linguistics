@@ -45,18 +45,18 @@ import collections
 import sqlite3 as sqlite
 import cherrypy as cp
 
-import pdb
-
 try:
     import json
     json.encoder.FLOAT_REPR = lambda f: ("%.2f" % f)
 except AttributeError:
     pass
 
+py3 = False
 try: # Python 2.x vs 3.x
     import htmlentitydefs
 except ImportError:
     from html import entities as htmlentitydefs
+    py3 = True
 
 try: # Python 2.x vs 3.x
     from cStringIO import StringIO
@@ -179,27 +179,46 @@ def define(f):
         If the given function has **kwargs, returns True instead of dict.
     """
     def undecorate(f): # "__closure__" in Py3.
-        while getattr(f, "func_closure", None):
-            f = [v.cell_contents for v in getattr(f, "func_closure")]
+        searchedattr = "func_closure"
+        if py3:
+            searchedattr = "__closure__"
+        while getattr(f, searchedattr, None):
+            f = [v.cell_contents for v in getattr(f, searchedattr)]
             f = [v for v in f if callable(v)]
             f = f[0]   # We need guess (arg could also be a function).
         return f
+    
     f = undecorate(f)
-    a = inspect.getargspec(f) # (names, *args, **kwargs, values)
+    # a = inspect.getargspec(f) # (names, *args, **kwargs, values)
+    g = inspect.getfullargspec(f)
+    h = inspect.signature(f)
+
+    a = (g.args, g.varargs, g.varkw, g.defaults)
     # a[0] = names
     # a[1] = args
     # a[2] = kwargs
     # a[3] = values
     
-    # pdb.set_trace()
-
-    # 
+    # # 
+    
+    # lenght of positional parameters
     i = len(a[0]) - len(a[3] or [])
+    
+    # tuple of positionals
     x = tuple(a[0][:i])
+    
+    # make name-valie dict for default args
     y = dict(zip(a[0][i:], a[3] or []))
+    
+    # True if f has args
     x = x if not a[1] else True
+    
+    # True if f has kwargs
     y = y if not a[2] else True
+    
+    print("DEFINE:", (f.__name__, type(f), x, y) )
     return (f.__name__, type(f), x, y)
+
 
 #### DATABASE ######################################################################################
 
@@ -678,7 +697,8 @@ class Router(dict):
         # so that we can call this function without (all) keyword arguments,
         # if it does not take (all) query data.
         if callable(handler):
-            dict.__setitem__(self, p, (handler, define(handler)[2:]))
+            
+            dict.__setitem__(self, p, (handler, define(handler)[2:] ))
         else:
             dict.__setitem__(self, p, (handler, ((), {})))
 
@@ -695,6 +715,8 @@ class Router(dict):
             p0 = "/" + "/".join(path[:n - i])
             p0 = p0.lower()                   # "/api/1/en", "/api/1", "/api", ...
             p1 = path[n - i:]                   # [], ["en"], ["1", "en"], ...
+            
+            p0 = p0.encode("utf-8")
             if p0 in self:
                 (handler, (args, kwargs)) = self[p0]
                 i = len(p1)
@@ -1014,12 +1036,12 @@ class Application(object):
             If the value is an iterable, joins the values with a space.
         """
         if isinstance(v, str):
-            return v
+            return v.encode("utf-8")
         if isinstance(v, cp.lib.file_generator): # serve_file()
             return v
         if isinstance(v, dict):
             cp.response.headers["Content-Type"] = "application/json; charset=utf-8"
-            return json.dumps(v)
+            return json.dumps(v).encode("utf-8")
         if isinstance(v, types.GeneratorType):
             cp.response.stream = True
             return iter(self._cast(v) for v in v)
@@ -1028,9 +1050,9 @@ class Application(object):
         if isinstance(v, HTTPError):
             raise cp.HTTPError(v.status, message=v.message)
         if v is None:
-            return ""
+            return b""
         try: # (bool, int, float, object.__unicode__)
-            return str(v)
+            return str(v).encode("utf-8")
         except:
             return encode_entities(repr(v))
 
@@ -1038,19 +1060,23 @@ class Application(object):
     def default(self, *path, **data):
         """ Resolves URL paths to handler functions and casts the return value.
         """
+        
         # Enable cross-origin resource sharing (CORS, by default: "*")
         cp.response.headers["Access-Control-Allow-Origin"] = self._xhr
+        
         # If there is an app.thread.db connection,
         # pass it as a keyword argument named "db".
         # If there is a query parameter named "db",
         # it is overwritten (the reverse is not safe).
         for k, v in g.items():
             data[k] = v
+        
         # Call the handler function for the given path.
         # Call @app.error(404) if no handler is found.
         # Call @app.error(403) if rate limit forbidden (= no API key).
         # Call @app.error(429) if rate limit exceeded.
         # Call @app.error(503) if a database error occurs.
+        
         try:
             v = self.router(path, **data)
         except RouteError:
