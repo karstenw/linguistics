@@ -1269,6 +1269,7 @@ class Google(SearchEngine):
             raise SearchEngineTypeError
         if not query or count < 1 or start < 1 or start > (100 / count):
             return Results(GOOGLE, query, type)
+        
         # 1) Create request URL.
         url = URL(GOOGLE, query={
               "key": self.license or GOOGLE_LICENSE,
@@ -1287,11 +1288,13 @@ class Google(SearchEngine):
         kwargs.setdefault("unicode", True)
         kwargs.setdefault("throttle", self.throttle)
         data = url.download(cached=cached, **kwargs)
+        if data[0] in ('\ufeff', '\ufffe'):
+            data = data[1:]
+        # pdb.set_trace()
         try:
             data = json.loads(data)
         except Exception as err:
             print(err)
-            pdb.set_trace()
             print(data)
             print()
         if data.get("error", {}).get("code") == 403:
