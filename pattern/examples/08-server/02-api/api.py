@@ -6,7 +6,7 @@ from builtins import str, bytes, dict, int
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..","..")))
 import pattern
 
 from pattern.server import App
@@ -41,8 +41,11 @@ app = App("api")
 
 @app.route("/language", limit=100, time=HOUR)
 def predict_language(q=""):
-    #print(q)
     iso, confidence = language(q) # (takes some time to load the first time)
+    if 0:
+        print(q)
+        print("iso:", iso)
+        print("confidence:", iso)
     return {
           "language": iso,
         "confidence": round(confidence, 2)
