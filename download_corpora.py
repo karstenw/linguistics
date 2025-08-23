@@ -4,11 +4,11 @@ import sys
 import os
 
 import pdb
+kwdbg = False
+
 
 import pprint
 import time
-
-pdb.set_trace()
 
 start = time.time()
 
@@ -18,18 +18,16 @@ except NameError as err:
     print(err)
     PACKAGE_DIR = os.path.abspath( './' )
 
-print("PACKAGE_DIR:", PACKAGE_DIR)
-PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
+if kwdbg:
+    print("PACKAGE_DIR:", PACKAGE_DIR)
 
+PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
 
 if not os.path.exists( DATA_DIR ):
     os.makedirs( DATA_DIR )
 
-# print("PACKAGE_DIR:", PACKAGE_DIR)
-
 sys.path.insert(0, PACKAGE_DIR)
-
 
 # textblob uses nltk
 import nltk
