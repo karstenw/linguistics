@@ -208,3 +208,18 @@ from nltk import tag, tbl, text, tokenize, translate, tree, util
 # FIXME:  override any accidentally imported demo, see https://github.com/nltk/nltk/issues/2116
 def demo():
     print("To run the demo code for a module, type nltk.module.demo()")
+
+
+
+try:
+    _PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError as err:
+    # print(err)
+    _PACKAGE_DIR = os.path.abspath( './' )
+_PARENT_DIR, _ = os.path.split( _PACKAGE_DIR )
+_PARENT_DIR, _ = os.path.split( _PARENT_DIR )
+#print("_PARENT_DIR:", _PARENT_DIR)
+_DATA_DIR = os.path.join( _PARENT_DIR, "linguistics-data" )
+nltk_data_dir = os.path.join( _DATA_DIR, 'nltk-data' )
+#print("nltk_data_dir:", nltk_data_dir)
+data.path = [ nltk_data_dir ]
