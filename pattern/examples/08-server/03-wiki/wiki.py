@@ -6,7 +6,7 @@ from builtins import str, bytes, dict, int
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..","..")))
 import pattern
 
 from pattern.server import App, template, threadsafe
@@ -118,10 +118,10 @@ def view(page):
 
 def edit(page):
     s = open(page).read() if os.path.exists(page) else ""
-    s = '<form method="post" action="?save">' \
-        '<textarea name="content" rows="10" cols="80">%s</textarea><br>' \
-        '<input type="submit">' \
-        '</form>' % s
+    s = ('<form method="post" action="?save">'
+         '<textarea name="content" rows="10" cols="80">%s</textarea><br>'
+         '<input type="submit">'
+         '</form>') % s
     return template(wiki, name=name(page), content=s)
 
 # The save() function is called when edited content is posted to the server.
@@ -131,7 +131,7 @@ def edit(page):
 @threadsafe
 def save(page, src):
     f = open(page, "w")
-    f.write(src.encode("utf-8"))
+    f.write(src) #.encode("utf-8"))
     f.close()
     return view(page)
 
