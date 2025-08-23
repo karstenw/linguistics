@@ -7,7 +7,7 @@ Several accumulated linguistics modules ([pattern](https://github.com/clips/patt
 Additionally there is the new conceptnetreader library which gives access to a local conceptnet database.
 
 
-These are the installed sources of the libraries. I am currently using Python 3.11.4 but this also worked with 3.8.12
+These are the installed sources of the libraries. I am currently using Python 3.13.6 but this also worked with 3.11.4 and 3.8.12
 
 # ATTENTION
 
@@ -20,17 +20,17 @@ Before the first run, open and run `download_corpora.py` inside the linguistics 
 
 #### nltk corpora for textblob, wn and pattern
 
-The runtime for `download_corpora.py` is ca. 20 minutes.
+The runtime for `download_corpora.py` is ca. 5 minutes.
 
 If you run it from NodeBox there will be no feedback except the spinning beachball. 
 
-Alternatively you can run it from the terminal with a 3.8 or 3.11 python. Perhaps you must install the requirements first.
+Alternatively you can run it from the terminal with a current python3. Perhaps you must install the requirements first.
 
 #### conceptnet database
 
 For the conceptnet database open and run `install-conceptnet-database.py`.
 
-The runtime for `install-conceptnet-database.py` is ca. 10 minutes.
+The runtime for `install-conceptnet-database.py` is ca. 4 minutes.
 
 As with the nltk download there is no feedback but it can be run from the terminal to see what's going on.
 
