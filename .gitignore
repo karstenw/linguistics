@@ -13,6 +13,8 @@ cache
 #wn-data
 +*
 
+conceptnetreader/data/+*
+
 en/+docs
 pattern/examples/01-web/*.jpg
 pattern/examples/06-graph/test*
