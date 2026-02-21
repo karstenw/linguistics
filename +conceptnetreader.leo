@@ -28,13 +28,17 @@
 <v t="karstenw.20230521140353.2"><vh>dotprinter</vh></v>
 <v t="karstenw.20230521140353.3"><vh>tabline2items</vh></v>
 <v t="karstenw.20230521140353.4"><vh>getconnection</vh></v>
+<v t="karstenw.20260219155615.1"><vh>sqlcreatetable</vh></v>
+<v t="karstenw.20260219160832.1"><vh>sqlcreateindices</vh></v>
+<v t="karstenw.20260219160844.1"><vh>sqlcreatetriggers</vh></v>
+<v t="karstenw.20260219155047.1"><vh>init_dbfile</vh></v>
 <v t="karstenw.20230521140353.5"><vh>commit</vh></v>
 <v t="karstenw.20230521140521.1"><vh>executeQuery</vh></v>
 <v t="karstenw.20230521140353.6"><vh>dict_factory</vh></v>
 <v t="karstenw.20230521140353.7"><vh>getTableFieldnames</vh></v>
 <v t="karstenw.20230521140353.8"><vh>createStatement</vh></v>
 <v t="karstenw.20230521140353.9"><vh>createRecord</vh></v>
-<v t="karstenw.20230521140441.1"><vh>newHeadline</vh></v>
+<v t="karstenw.20230521140441.1"><vh>fetchAllRecords</vh></v>
 </v>
 </v>
 </v>
@@ -58,7 +62,8 @@ if os.path.exists( databasefile ):
         ('conceptnetrelation',  'TEXT'),
         ('patternrelation',     'TEXT'),
         ('symmetric',           'INT'),
-        ('reverse',             'INT')
+        ('reverse',             'INT'),
+        ('origrelation',        'INT')
     ],
     'concept': [
         ('idconcept',   'INTEGER PRIMARY KEY'),
@@ -155,7 +160,6 @@ inited = False
     loadedConcepts = {}
     concepts = []
     edges = []
-
     
     conceptIDs = []
     concepts = getconcept( conn, concept, context, lang, relation )
@@ -273,7 +277,7 @@ inited = False
     
     Currently only queries the left entry / concept1, TODO
     
-    Currently ignores the relationIDs parameter, which soulb be a list of relations.
+    Currently ignores the relationIDs parameter, which should be a list of relationIDs.
     
     """
 
@@ -382,7 +386,7 @@ inited = False
 
 
 </t>
-<t tx="karstenw.20230521140353.4">def getconnection( filepath ):
+<t tx="karstenw.20230521140353.4">def getconnection( filepath, doinit=0, database={} ):
     """open sqlite db at filepath.
 
     returns either:
@@ -401,7 +405,9 @@ inited = False
 
     cursor = conn.cursor()
     cursor.execute("PRAGMA automatic_index=1;")
-
+    
+    if doinit:
+        init_dbfile( conn, database )
     return conn
 
 
@@ -571,22 +577,6 @@ inited = False
     return cursor
 
 
-def commit( conn ):
-    ok = False
-    i = 0
-    while not ok:
-        if i &gt; 20:
-            break
-        try:
-            conn.commit()
-            ok = True
-        except sqlite3.OperationalError as err:
-            print("")   # debugprint
-            print( "ERR: " + repr(err) )
-            time.sleep( 0.01 )
-            i += 1
-
-
 </t>
 <t tx="karstenw.20230521140605.1"># py3 stuff
 py3 = False
@@ -632,6 +622,64 @@ except NameError:
     return s
 
 
+</t>
+<t tx="karstenw.20260219155047.1">def init_dbfile( connection, database, dotriggersandindices=False ):
+    result = []
+
+    # update this to current status first
+    c = connection.cursor()
+
+    for table in database.keys():
+        drop = u"DROP TABLE IF EXISTS %s;" % (table,)
+        c.execute( drop )
+
+        sql = sqlcreatetable(database, table)
+        c.execute( sql )
+
+        for trigger in sqlcreatetriggers(database, table):
+            if trigger:
+                if dotriggersandindices:
+                    c.execute( trigger )
+                result.append( trigger )
+
+        for index in sqlcreateindices(database, table):
+            if index:
+                if dotriggersandindices:
+                    c.execute( index )
+                result.append( index )
+
+    commit( connection )
+    c.close()
+    return result
+</t>
+<t tx="karstenw.20260219155615.1">def sqlcreatetable(db, tablename):
+
+    items = db.get(tablename, False)
+    
+    if not items:
+        return False
+    
+    c1 = 'CREATE TABLE "%s" (' % (tablename,)
+    cn = ');'
+    t = tablename
+
+    l = []
+    for item in items:
+        name,typ = item
+        name = makeunicode(name)
+        s = u'\t%s %s' % (name,typ)
+        l.append(s)
+    s = u",\n".join(l)
+    return u"\n".join( (c1,s,cn) )
+
+</t>
+<t tx="karstenw.20260219160832.1">def sqlcreateindices(db, tablename):
+    return []
+
+
+</t>
+<t tx="karstenw.20260219160844.1">def sqlcreatetriggers(db, tablename):
+    return []
 </t>
 </tnodes>
 </leo_file>

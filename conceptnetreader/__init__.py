@@ -94,7 +94,8 @@ database = {
         ('conceptnetrelation',  'TEXT'),
         ('patternrelation',     'TEXT'),
         ('symmetric',           'INT'),
-        ('reverse',             'INT')
+        ('reverse',             'INT'),
+        ('origrelation',        'INT')
     ],
     'concept': [
         ('idconcept',   'INTEGER PRIMARY KEY'),
@@ -185,7 +186,7 @@ def getedges( conn, conceptid, relationIDs=False, maxedges=0, weight=0.0 ):
     
     Currently only queries the left entry / concept1, TODO
     
-    Currently ignores the relationIDs parameter, which soulb be a list of relations.
+    Currently ignores the relationIDs parameter, which should be a list of relationIDs.
     
     """
 
@@ -256,7 +257,6 @@ def query_concept( concept, relation=None, context=None, maxedges=None, lang="en
     loadedConcepts = {}
     concepts = []
     edges = []
-
     
     conceptIDs = []
     concepts = getconcept( conn, concept, context, lang, relation )
@@ -358,7 +358,7 @@ def tabline2items( line ):
     return items
 
 
-def getconnection( filepath ):
+def getconnection( filepath, doinit=0, database={} ):
     """open sqlite db at filepath.
 
     returns either:
@@ -377,10 +377,66 @@ def getconnection( filepath ):
 
     cursor = conn.cursor()
     cursor.execute("PRAGMA automatic_index=1;")
-
+    
+    if doinit:
+        init_dbfile( conn, database )
     return conn
 
 
+def sqlcreatetable(db, tablename):
+
+    items = db.get(tablename, False)
+    
+    if not items:
+        return False
+    
+    c1 = 'CREATE TABLE "%s" (' % (tablename,)
+    cn = ');'
+    t = tablename
+
+    l = []
+    for item in items:
+        name,typ = item
+        name = makeunicode(name)
+        s = u'\t%s %s' % (name,typ)
+        l.append(s)
+    s = u",\n".join(l)
+    return u"\n".join( (c1,s,cn) )
+
+def sqlcreateindices(db, tablename):
+    return []
+
+
+def sqlcreatetriggers(db, tablename):
+    return []
+def init_dbfile( connection, database, dotriggersandindices=False ):
+    result = []
+
+    # update this to current status first
+    c = connection.cursor()
+
+    for table in database.keys():
+        drop = u"DROP TABLE IF EXISTS %s;" % (table,)
+        c.execute( drop )
+
+        sql = sqlcreatetable(database, table)
+        c.execute( sql )
+
+        for trigger in sqlcreatetriggers(database, table):
+            if trigger:
+                if dotriggersandindices:
+                    c.execute( trigger )
+                result.append( trigger )
+
+        for index in sqlcreateindices(database, table):
+            if index:
+                if dotriggersandindices:
+                    c.execute( index )
+                result.append( index )
+
+    commit( connection )
+    c.close()
+    return result
 def commit( conn ):
     ok = False
     i = 0
@@ -428,22 +484,6 @@ def executeQuery(conn, query, values=False, many=False):
     if error and count:
         pass
     return cursor
-
-
-def commit( conn ):
-    ok = False
-    i = 0
-    while not ok:
-        if i > 20:
-            break
-        try:
-            conn.commit()
-            ok = True
-        except sqlite3.OperationalError as err:
-            print("")   # debugprint
-            print( "ERR: " + repr(err) )
-            time.sleep( 0.01 )
-            i += 1
 
 
 def dict_factory(cursor, row):
