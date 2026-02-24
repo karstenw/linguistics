@@ -13,15 +13,19 @@
 <v t="karstenw.20230412164348.1" a="E"><vh>@clean conceptnetreader/__init__.py</vh>
 <v t="karstenw.20230412164348.2"><vh>Declarations</vh></v>
 <v t="karstenw.20230412164348.3"><vh>+ GLOBALS</vh></v>
-<v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
 <v t="karstenw.20230412164348.18"><vh>+ DB DEF +</vh></v>
+<v t="karstenw.20260222152934.1"><vh>+ RECORDS +</vh></v>
+<v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
 <v t="karstenw.20230503150110.1" a="E"><vh>+ CNR +</vh>
 <v t="karstenw.20230503201353.1"><vh>getconcept</vh></v>
 <v t="karstenw.20230504104816.1"><vh>getconceptByID</vh></v>
-<v t="karstenw.20230503212558.1"><vh>getedges</vh></v>
+<v t="karstenw.20260222160914.1"><vh>getedges</vh></v>
 <v t="karstenw.20230503150118.1"><vh>query_concept</vh></v>
+<v t="karstenw.20260222145208.1"><vh>query_idlist</vh></v>
+<v t="karstenw.20260222223643.1"><vh>filter_lang</vh></v>
 </v>
-<v t="karstenw.20230521140353.1"><vh>sdb</vh>
+<v t="karstenw.20230521140353.1" a="E"><vh>sdb</vh>
+<v t="karstenw.20260224171849.1"><vh>+ GLOBALS +</vh></v>
 <v t="karstenw.20230521140605.1"><vh>py3</vh></v>
 <v t="karstenw.20230521140814.1"><vh>makeunicode</vh></v>
 <v t="karstenw.20230521140804.1"><vh>datestring</vh></v>
@@ -35,11 +39,16 @@
 <v t="karstenw.20230521140353.5"><vh>commit</vh></v>
 <v t="karstenw.20230521140521.1"><vh>executeQuery</vh></v>
 <v t="karstenw.20230521140353.6"><vh>dict_factory</vh></v>
+<v t="karstenw.20260222154944.1"><vh>namedtuple_factory</vh></v>
 <v t="karstenw.20230521140353.7"><vh>getTableFieldnames</vh></v>
 <v t="karstenw.20230521140353.8"><vh>createStatement</vh></v>
 <v t="karstenw.20230521140353.9"><vh>createRecord</vh></v>
 <v t="karstenw.20230521140441.1"><vh>fetchAllRecords</vh></v>
+<v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 </v>
+</v>
+<v t="karstenw.20260224231701.1" a="E"><vh>TRASH</vh>
+<v t="karstenw.20230503212558.1"><vh>getedgesOLD</vh></v>
 </v>
 </v>
 </vnodes>
@@ -112,14 +121,27 @@ import json
 
 import itertools
 
+import functools
+
+import collections
+namedtuple = collections.namedtuple
+
+
 import pdb
-kwdbg = 1
-kwlog = 1
-kwerr = 1
+kwdbg = 0
+kwlog = 0
+kwerr = 0
 
 import pprint
 pp = pprint.pprint
 
+
+def sortlistfunction(thelist, thecompare, reverse=False):
+    if py3:
+        sortkeyfunction = functools.cmp_to_key( thecompare )
+        thelist.sort( key=sortkeyfunction, reverse=reverse )
+    else:
+        thelist.sort( thecompare, reverse=reverse )
 
 </t>
 <t tx="karstenw.20230412164348.3">analyzed = False
@@ -129,12 +151,15 @@ DATA_DIR = os.path.abspath( os.path.join( PACKAGE_DIR, '..', '..', 'linguistics-
 
 databasefile = os.path.join( DATA_DIR, "conceptnet.sqlite3")
 
+
 # languagecode( e.g. 'en') -&gt; languagerecord
 #  'de': {'autonym': 'Deutsch', 'idlanguage': 54, 'include': 3, 'languagecode': 'de', 'languagename': 'German'},
 languages = {}
 
+
 # id -&gt; {'idrelation': 1, 'conceptnetrelation': '/r/Antonym', 'patternrelation': 'is-opposite-of', 'symmetric': 1, 'reverse': 0}
 relations = {}
+
 
 # yet UNUSED
 # context -&gt; idcontext
@@ -142,9 +167,10 @@ contexts = {}
 
 inited = False
 
+
 </t>
 <t tx="karstenw.20230503150110.1"></t>
-<t tx="karstenw.20230503150118.1">def query_concept( concept, relation=None, context=None, maxedges=None, lang="en", weight=0.0 ):
+<t tx="karstenw.20230503150118.1">def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en", weight=0.6 ):
     """Retrieve a concept from the sqlite database.
     
     relation &amp; context are ignored in getedges.
@@ -157,41 +183,79 @@ inited = False
     lang = lang.lower()
 
     # caching currently only per run
-    loadedConcepts = {}
-    concepts = []
-    edges = []
+    conceptCache = {}
     
-    conceptIDs = []
+    concepts = []
+    resultConcepts = []
+    
     concepts = getconcept( conn, concept, context, lang, relation )
     if not concepts:
-        return concepts, edges, loadedConcepts
+        return concepts, resultConcepts, conceptCache
 
     # cache it
+    conceptIDs = set()
     for concept in concepts:
-        idconcept = concept['idconcept']
-        loadedConcepts[idconcept] = concept
-    rawedges = getedges( conn, concepts[0]['idconcept'], [], maxedges, weight )
-
-    for rawedge in rawedges:
-        cn1id, rel, cn2id, w, rev, sym = rawedge
-
-        if cn1id not in loadedConcepts:
-            cn1 = getconceptByID( conn, cn1id )
-            loadedConcepts[cn1id] = cn1
-
-        if cn2id not in loadedConcepts:
-            cn2 = getconceptByID( conn, cn2id )
-            loadedConcepts[cn2id] = cn2
-
-        cn1name = loadedConcepts[cn1id].get('concept', '')
-        cn1lang = loadedConcepts[cn1id].get('languagecode', '')
-
-        cn2name = loadedConcepts[cn2id].get('concept', '')
-        cn2lang = loadedConcepts[cn2id].get('languagecode', '')
-
-        edges.append( (cn1lang,cn1name,rel,cn2lang,cn2name,w,rev,sym) )
+        idconcept = concept.idconcept
+        conceptCache[idconcept] = concept
+        conceptIDs.add(idconcept)
+    
+    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs, [], maxedges=maxedges, weight=weight )
+    if kwdbg:
+        print("len(rawedges)", len(rawedges1) )
+        print("len(collectedConceptIDs)", len(collectedConceptIDs1))
+        print("107711 in collectedConceptIDs:", 107711 in collectedConceptIDs1 )
+    secondLoad = set()
+    for conceptID in collectedConceptIDs1:
+        if conceptID not in conceptCache:
+            secondLoad.add( conceptID )
+    
+    missingConcepts = getconceptByID( conn, secondLoad )
+    for concept in missingConcepts:
+        idconcept = concept.idconcept
+        conceptCache[idconcept] = concept
+        conceptIDs.add(idconcept)
+    
+    if 0:
+        # 2nd pass
+        rawedges2, collectedConceptIDs2 = getedges( conn, conceptIDs, [], 0, weight )
+        thirdLoad = set()
+        for conceptID in collectedConceptIDs2:
+            if conceptID not in conceptCache:
+                thirdLoad.add( conceptID )
+        missingConcepts = getconceptByID( conn, thirdLoad )
+        for concept in missingConcepts:
+            idconcept = concept.idconcept
+            conceptCache[idconcept] = concept
+            conceptIDs.add(idconcept)
+    else:
+        rawedges2 = rawedges1
+    
+    if maxedges &gt; 0:
+        rawedges2 = rawedges2[:maxedges]
+    
+    for edge in rawedges2:
+        idedge, concept1id, relationid, concept2id, weight = edge
+        relation = relations.get( edge.relationid, {} )
+        relationname = relation.get('patternrelation', "")
         
-    return concepts, edges, loadedConcepts
+        concept1 = conceptCache[concept1id]
+        cn1name = concept1.concept
+        cn1lang = concept1.languagecode
+        context1 = concept1.context
+
+        concept2 = conceptCache[concept2id]
+        cn2name = concept2.concept
+        cn2lang = concept2.languagecode
+        context2 = concept2.context
+        
+        record = FullConcept( idedge,
+                              concept1id, cn1name, cn1lang, context1,
+                              relationid, relationname, weight,
+                              concept2id, cn2name, cn2lang, context2)
+        resultConcepts.append( record )
+        
+    return concepts, resultConcepts, conceptCache
+
 
 </t>
 <t tx="karstenw.20230503151220.1">def initlib():
@@ -240,39 +304,44 @@ inited = False
 
 </t>
 <t tx="karstenw.20230503201353.1">def getconcept( conn, concept, context, lang, relation, slack=False ):
-
-    old_factory = conn.row_factory
-    conn.row_factory = dict_factory
+    """Query the concept table."""
 
     query = ("SELECT idconcept,languagecode,concept,typ,context "
              "FROM concept "
-             "WHERE concept=? AND languagecode=? " )
+             "WHERE concept=? " )
+    
+    searchvalues = [concept, ]
+    
     if slack:
         query = ("SELECT idconcept,languagecode,concept,typ,context "
                  "FROM concept "
                  'WHERE concept like "?" ' )
-        if lang:
-            query = query + ' AND languagecode=? '
-
-    searchvalues = [concept, lang]
-
+        searchvalues.append( concept )
+    
+    if lang:
+        query = query + ' AND languagecode=? '
+        searchvalues.append( lang )
+    
     if context:
-        query = query + " AND context=? "
+        query = query + ' AND context like "?" '
         searchvalues.append( context )
-
-    if relation:
+    
+    
+    if 0: #relation:
         query = query + " AND relation  in (%s) " % (relation,)
 
-    cursor = executeQuery(conn, query, searchvalues )
-    concepts = cursor.fetchall()
-
-    conn.row_factory = old_factory
+    concepts = executeQuery(conn, query, searchvalues )
+    # concepts = cursor.fetchall()
     
-    return concepts
+    result = []
+    for concept in concepts:
+        result.append(  ConceptRecord( *concept ) )
+
+    return result
 
 
 </t>
-<t tx="karstenw.20230503212558.1">def getedges( conn, conceptid, relationIDs=False, maxedges=0, weight=0.0 ):
+<t tx="karstenw.20230503212558.1">def getedgesOLD( conn, conceptid, relationIDs=False, maxedges=0, weight=0.0 ):
     """Query the edges for conceptID.
     
     Currently only queries the left entry / concept1, TODO
@@ -285,10 +354,16 @@ inited = False
     query = (
         "SELECT concept1id,relationid,concept2id,weight "
         "FROM edge "
-        "WHERE concept1id=%i "
-        "AND weight&gt;=%f "
-        "ORDER BY weight DESC " )
-
+        "WHERE concept1id=%i ")
+    
+    # if weight    
+    if weight &gt; 0.0:
+        query = query + "AND weight&gt;=%f "
+    
+    # sort result
+    query = query + "ORDER BY weight DESC "
+    
+    # insert parameters
     query = query % ( conceptid, weight)
 
     # maxedges return 
@@ -297,7 +372,7 @@ inited = False
         m = int(maxedges)
     except:
         pass
-    if m:
+    if m &gt; 0:
         query = query + " LIMIT %i" % (m,)
 
     cursor = executeQuery(conn, query )
@@ -316,6 +391,7 @@ inited = False
         relationname = relation.get( 'patternrelation', "" )
         reverse = relation.get( 'reverse', 0 )
         symmetric = relation.get( 'symmetric', 0 )
+        origrelation = relation.get( 'origrelation', 0 )
 
         if not relationname:
             continue
@@ -334,26 +410,31 @@ inited = False
 
 </t>
 <t tx="karstenw.20230504104816.1">def getconceptByID( conn, conceptid ):
+    """Retrieve concepts by ID. 
+    conceptid  - either idconcept or listtype of idconcept.
+    
+    returns list of ConceptRecord.
+    """
     
     old_factory = conn.row_factory
-    conn.row_factory = dict_factory
-
-    # pdb.set_trace()
+    conn.row_factory = namedtuple_factory
 
     query = ("SELECT idconcept,languagecode,concept,typ,context "
              "FROM concept "
-             "WHERE idconcept=? " )
-
-    searchvalues = [conceptid,]
-
-    cursor = executeQuery(conn, query, searchvalues )
-    concepts = cursor.fetchall()
-    result = {}
-    if concepts:
-        result = concepts[0]
-    conn.row_factory = old_factory
+             "WHERE idconcept=%s;" % (str(conceptid),))
     
-    return result
+    if type(conceptid) in (list, tuple, set):
+        # make sorted idlist
+        conceptid = list(conceptid)
+        conceptid.sort()
+        conceptidstr = [str(i) for i in conceptid]
+        sqlfileids = ','.join( conceptidstr )
+        query = ("SELECT idconcept,languagecode,concept,typ,context "
+                 "FROM concept "
+                 "WHERE idconcept in (%s);" % (sqlfileids,) )
+    concepts = executeQuery(conn, query ).fetchall()
+    conn.row_factory = old_factory
+    return concepts
 
 
 </t>
@@ -681,5 +762,208 @@ except NameError:
 <t tx="karstenw.20260219160844.1">def sqlcreatetriggers(db, tablename):
     return []
 </t>
+<t tx="karstenw.20260222145208.1">def query_idlist( conn, tablename, idfieldname, idlist ):
+    
+    """Retrieve all fields from a table tablename where `idfieldname` 
+    contains the elenemts from idlist.
+    """
+    
+    result = []
+
+    if kwdbg:
+        print("query_idlist( %s, %s )" % (tablename, idfieldname))
+
+    # collect SELECT fieldnames
+    if tablename == "edge":
+        fieldnames = edgenames
+        Record = EdgeRecord
+    elif tablename == "concept":
+        fieldnames = conceptnames
+        Record = ConceptRecord
+    else:
+        print("ILLEGAL TABLENAME:", tablename)
+        fieldnames, _ = tableItems(database, tablename)
+        classname = tablename.capitalize() + "Record"
+        Record = namedtuple( classname, fieldnames )
+        if kwdbg:
+            pdb.set_trace()
+            print("Please check created Record class...")
+
+    fieldnamesselect = ','.join( fieldnames )
+    
+    # collect SELECT ... in (IDVALUES...)
+    intIDs = [int(i) for i in idlist]
+    intIDs.sort()
+    fileidstr = [str(i) for i in intIDs]
+    sqlfileids = ','.join( fileidstr )
+    
+    q = ( "SELECT %s "
+          "FROM %s "
+          "WHERE %s IN (%s);")
+    q = q % ( fieldnamesselect, tablename, idfieldname, sqlfileids )
+    
+    if kwdbg:
+        print("query_idlist()")
+        print( q )
+    
+    records = executeQuery( conn, q )
+    
+    # pdb.set_trace()
+    
+    for record in records:
+        namedrecord = Record( *record )
+        result.append( namedrecord )
+
+    return result
+
+
+</t>
+<t tx="karstenw.20260222152934.1">def tableItems( db, tablename):
+    items = db.get(tablename, [])
+    
+    if not items:
+        return [ [], [] ]
+
+    fieldnames = []
+    fieldtypes = []
+    for item in items:
+        fieldnames.append( item[0] )
+        fieldtypes.append( item[1] )
+    return (fieldnames, fieldtypes)
+
+
+conceptnames, _ = tableItems(database, "concept")
+ConceptRecord = namedtuple( 'ConceptRecord', conceptnames )
+
+edgenames, _ = tableItems(database, "edge")
+EdgeRecord = namedtuple( 'EdgeRecord', edgenames )
+
+# idedge concept1id cn1name cn1lang  context1 relationid relationname concept2id cn2name cn2lang context2 weight 
+fullconceptnames = (
+        "idedge "
+        "concept1id concept1name concept1lang concept1context "
+        "relationid relationname weight "
+        "concept2id concept2name concept2lang concept2context")
+FullConcept = namedtuple( 'FullConcept', fullconceptnames )
+
+
+</t>
+<t tx="karstenw.20260222153130.1"># see RECORDS
+
+</t>
+<t tx="karstenw.20260222154944.1"># UNTESTED
+def namedtuple_factory(cursor, row):
+    global RecordTypeNumber
+    """Create a namedtuple class and return records with it."""
+    fieldnames = [d[0] for d in cursor.description]
+    namekey = ','.join( fieldnames )
+    if namekey not in RecordNamedTupletypes:
+        classname = "Record" + str(RecordTypeNumber)
+        RecordTypeNumber += 1
+        Record = namedtuple( classname, fieldnames )
+        RecordNamedTupletypes[namekey] = Record
+    else:
+        Record = RecordNamedTupletypes[namekey]
+    return Record( *row )
+
+
+</t>
+<t tx="karstenw.20260222160914.1">def getedges( conn, conceptIDs, relationIDs=False, maxedges=0, weight=0.0 ):
+    """Query the edges for conceptID.
+    
+    Queries left and right concept entry.
+    
+    Currently ignores the relationIDs parameter, which should be a list of relationIDs.
+    
+    returns a list of EdgeRecord, set of idconcept
+    """
+    
+    # fetch relations 
+    edges = query_idlist( conn, "edge", "concept1id", conceptIDs)
+    edges.extend( query_idlist( conn, "edge", "concept2id", conceptIDs) )
+    
+    # filter for weight
+    if weight &gt; 0.0:
+        edges = [rec for rec in edges if rec.weight &gt;= weight]
+    
+    # sort the edges
+    def edgesort( a,b ):
+        w1 = a.weight
+        w2 = b.weight
+        if w1 &gt; w2:
+            return 1
+        if w1 &lt; w2:
+            return -1
+        return 0
+    sortlistfunction(edges, edgesort, reverse=True )
+    
+    # reduce to maxedges
+    if maxedges &gt; 0:
+        edges = edges[:maxedges]
+    
+    collectedConceptIDs = set()
+    result = []
+    for edge in edges:
+        
+        # relationname ist UNUSED here
+        if 0:
+            # get relationname
+            relation = relations.get( edge.relationid, {} )
+            if not relation:
+                print("getedges(): missed relationID:", edge)
+                continue
+            relationname = relation.get( 'patternrelation', "" )
+            if not relationname:
+                print("getedges(): missed relationName:", edge)
+                continue
+
+        collectedConceptIDs.add( edge.concept1id )
+        collectedConceptIDs.add( edge.concept2id )
+        result.append( edge )
+    return result, collectedConceptIDs
+
+
+</t>
+<t tx="karstenw.20260222223643.1">def filter_lang( concepts, lang1list, lang2list ):
+    result = []
+    for concept in concepts:
+        if concept.concept1lang in lang1list:
+            if concept.concept2lang in lang2list:
+                result.append( concept )
+    return result
+
+
+</t>
+<t tx="karstenw.20260224171849.1">RecordNamedTupletypes = {}
+RecordTypeNumber = 1
+
+
+conceptnames, _ = tableItems(database, "concept")
+ConceptRecord = namedtuple( 'ConceptRecord', conceptnames )
+
+edgenames, _ = tableItems(database, "edge")
+EdgeRecord = namedtuple( 'EdgeRecord', edgenames )
+
+# idedge concept1id cn1name cn1lang  context1 relationid relationname concept2id cn2name cn2lang context2 weight 
+fullconceptnames = (
+        "idedge "
+        "concept1id concept1name concept1lang concept1context "
+        "relationid relationname weight "
+        "concept2id concept2name concept2lang concept2context")
+fullconceptnames = fullconceptnames.split()
+FullConcept = namedtuple( 'FullConcept', fullconceptnames )
+
+
+key = ','.join( conceptnames )
+#RecordNamedTupletypes[key] = ConceptRecord
+
+key = ','.join( edgenames )
+#RecordNamedTupletypes[key] = EdgeRecord
+
+key = ','.join( fullconceptnames )
+#RecordNamedTupletypes[key] = FullConcept
+
+</t>
+<t tx="karstenw.20260224231701.1"></t>
 </tnodes>
 </leo_file>

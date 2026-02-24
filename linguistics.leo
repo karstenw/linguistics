@@ -30,7 +30,7 @@
 <v t="karstenw.20230524124417.7"><vh>meronyms</vh></v>
 </v>
 </v>
-<v t="karstenw.20230518135525.1"><vh>@clean download_corpora.py</vh>
+<v t="karstenw.20230518135525.1" a="E"><vh>@clean download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
 </v>
 <v t="karstenw.20230521225929.1"><vh>@clean install-conceptnet-database.py</vh>
@@ -40,7 +40,10 @@
 <v t="karstenw.20230521225929.5"><vh>handleDataArchive</vh></v>
 <v t="karstenw.20230521225929.6"><vh>readstatic</vh></v>
 <v t="karstenw.20230521225929.7"><vh>importConceptnetTables</vh></v>
-<v t="karstenw.20230521225929.8" a="E"><vh>sdb</vh>
+<v t="karstenw.20230521225929.8"><vh>sdb</vh>
+<v t="karstenw.20260222150150.1"><vh>py3</vh></v>
+<v t="karstenw.20260222150155.1"><vh>makeunicode</vh></v>
+<v t="karstenw.20260222150200.1"><vh>datestring</vh></v>
 <v t="karstenw.20230521225929.9"><vh>dotprinter</vh></v>
 <v t="karstenw.20230521225929.10"><vh>tabline2items</vh></v>
 <v t="karstenw.20230521225929.11"><vh>getconnection</vh></v>
@@ -227,21 +230,21 @@ print("import conceptnetreader: %.3f" % (t7-t6)  )
 # data path init - not yet used
 # dbfile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
 </t>
-<t tx="karstenw.20230518135525.1">
-
-@others
-@language python
+<t tx="karstenw.20230518135525.1">@language python
 @tabwidth -4
+@others
 </t>
-<t tx="karstenw.20230518135556.1">import sys
+<t tx="karstenw.20230518135556.1">
+
+import sys
 import os
 
 import pdb
+kwdbg = False
+
 
 import pprint
 import time
-
-pdb.set_trace()
 
 start = time.time()
 
@@ -251,18 +254,16 @@ except NameError as err:
     print(err)
     PACKAGE_DIR = os.path.abspath( './' )
 
-print("PACKAGE_DIR:", PACKAGE_DIR)
-PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
+if kwdbg:
+    print("PACKAGE_DIR:", PACKAGE_DIR)
 
+PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
 
 if not os.path.exists( DATA_DIR ):
     os.makedirs( DATA_DIR )
 
-# print("PACKAGE_DIR:", PACKAGE_DIR)
-
 sys.path.insert(0, PACKAGE_DIR)
-
 
 # textblob uses nltk
 import nltk
@@ -647,48 +648,6 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
 
 
-# py3 stuff
-py3 = False
-try:
-    unicode('')
-    punicode = unicode
-    pstr = str
-    punichr = unichr
-except NameError:
-    punicode = str
-    pstr = bytes
-    py3 = True
-    punichr = chr
-    long = int
-
-def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
-    """Make input string normalized unicode."""
-    
-    if type(s) not in (pstr, punicode):
-        # apart from str/unicode/bytes we just need the repr
-        s = str( s )
-    if type(s) != punicode:
-        s = punicode(s, srcencoding)
-    s = unicodedata.normalize(normalizer, s)
-    return s
-
-
-def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
-    """Make an ISO datestring."""
-    if not dt:
-        now = str(datetime.datetime.now())
-    else:
-        now = str(dt)
-    if not dateonly:
-        now = now[:19]
-    else:
-        now = now[:10]
-    if nospaces:
-        now = now.replace(" ", "_")
-    if nocolons:
-        now = now.replace(":", "")
-    return now
-
 </t>
 <t tx="karstenw.20230521225929.8"></t>
 <t tx="karstenw.20230521225929.9">def dotprinter( count, scale=1000, lineitems=100 ):
@@ -835,6 +794,51 @@ wordnet = en.wordnet
                 result.append( synonym )
     result = list(set(result))
     return result
+
+</t>
+<t tx="karstenw.20260222150150.1"># py3 stuff
+py3 = False
+try:
+    unicode('')
+    punicode = unicode
+    pstr = str
+    punichr = unichr
+except NameError:
+    punicode = str
+    pstr = bytes
+    py3 = True
+    punichr = chr
+    long = int
+
+</t>
+<t tx="karstenw.20260222150155.1">def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
+    """Make input string normalized unicode."""
+    
+    if type(s) not in (pstr, punicode):
+        # apart from str/unicode/bytes we just need the repr
+        s = str( s )
+    if type(s) != punicode:
+        s = punicode(s, srcencoding)
+    s = unicodedata.normalize(normalizer, s)
+    return s
+
+
+</t>
+<t tx="karstenw.20260222150200.1">def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
+    """Make an ISO datestring."""
+    if not dt:
+        now = str(datetime.datetime.now())
+    else:
+        now = str(dt)
+    if not dateonly:
+        now = now[:19]
+    else:
+        now = now[:10]
+    if nospaces:
+        now = now.replace(" ", "_")
+    if nocolons:
+        now = now.replace(":", "")
+    return now
 
 </t>
 </tnodes>
