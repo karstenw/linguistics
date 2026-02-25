@@ -128,6 +128,15 @@ fullconceptnames = (
 FullConcept = namedtuple( 'FullConcept', fullconceptnames )
 
 
+langs = (
+    "af ang bg br ca ce co cop crh cs cu cy da de dlm dum el en enm eo es et eu fi "
+    "fo fr frk frm fro frp frr fur fy ga gd gl gmh gml goh got gsw haw hit ht hu ia "
+    "ie is it ku kw la lb li lij lmo mga mi mul nap nds nl no non nrf oc odt ofs oge "
+    "osp osx ota pcd pl pms prg pro pt ro roa-opt sc scn sco se sga sh sk sl stq sv "
+    "szl tr twf vec wa yi").split()
+reducedLanguages = set( langs )
+
+
 def initlib():
     """Init the library by loading languages, relations, contexts into globals."""
 
@@ -321,7 +330,8 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
         conceptCache[idconcept] = concept
         conceptIDs.add(idconcept)
     
-    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs, [], maxedges=maxedges, weight=weight )
+    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs, [],
+                        maxedges=0, weight=weight )
     if kwdbg:
         print("len(rawedges)", len(rawedges1) )
         print("len(collectedConceptIDs)", len(collectedConceptIDs1))
@@ -352,9 +362,6 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
     else:
         rawedges2 = rawedges1
     
-    if maxedges > 0:
-        rawedges2 = rawedges2[:maxedges]
-    
     for edge in rawedges2:
         idedge, concept1id, relationid, concept2id, weight = edge
         relation = relations.get( edge.relationid, {} )
@@ -364,18 +371,29 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
         cn1name = concept1.concept
         cn1lang = concept1.languagecode
         context1 = concept1.context
-
+        
         concept2 = conceptCache[concept2id]
         cn2name = concept2.concept
         cn2lang = concept2.languagecode
         context2 = concept2.context
+        
+        if cn1lang not in reducedLanguages:
+            #print("LANG DROPPED:", concept1)
+            continue
+        
+        if cn2lang not in reducedLanguages:
+            #print("LANG DROPPED:", concept2)
+            continue
         
         record = FullConcept( idedge,
                               concept1id, cn1name, cn1lang, context1,
                               relationid, relationname, weight,
                               concept2id, cn2name, cn2lang, context2)
         resultConcepts.append( record )
-        
+    
+    if maxedges > 0:
+        resultConcepts = resultConcepts[:maxedges]
+    
     return concepts, resultConcepts, conceptCache
 
 
