@@ -14,7 +14,7 @@
 <v t="karstenw.20230412164348.2"><vh>Declarations</vh></v>
 <v t="karstenw.20230412164348.3"><vh>+ GLOBALS</vh></v>
 <v t="karstenw.20230412164348.18"><vh>+ DB DEF +</vh></v>
-<v t="karstenw.20260222152934.1"><vh>+ RECORDS +</vh></v>
+<v t="karstenw.20260222152934.1"><vh>+ REDUCED LANGUAGESET +</vh></v>
 <v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
 <v t="karstenw.20230503150110.1" a="E"><vh>+ CNR +</vh>
 <v t="karstenw.20230503201353.1"><vh>getconcept</vh></v>
@@ -25,6 +25,7 @@
 <v t="karstenw.20260222223643.1"><vh>filter_lang</vh></v>
 </v>
 <v t="karstenw.20230521140353.1" a="E"><vh>sdb</vh>
+<v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 <v t="karstenw.20260224171849.1"><vh>+ GLOBALS +</vh></v>
 <v t="karstenw.20230521140605.1"><vh>py3</vh></v>
 <v t="karstenw.20230521140814.1"><vh>makeunicode</vh></v>
@@ -44,7 +45,6 @@
 <v t="karstenw.20230521140353.8"><vh>createStatement</vh></v>
 <v t="karstenw.20230521140353.9"><vh>createRecord</vh></v>
 <v t="karstenw.20230521140441.1"><vh>fetchAllRecords</vh></v>
-<v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 </v>
 </v>
 <v t="karstenw.20260224231701.1" a="E"><vh>TRASH</vh>
@@ -199,7 +199,8 @@ inited = False
         conceptCache[idconcept] = concept
         conceptIDs.add(idconcept)
     
-    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs, [], maxedges=maxedges, weight=weight )
+    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs, [],
+                        maxedges=0, weight=weight )
     if kwdbg:
         print("len(rawedges)", len(rawedges1) )
         print("len(collectedConceptIDs)", len(collectedConceptIDs1))
@@ -230,9 +231,6 @@ inited = False
     else:
         rawedges2 = rawedges1
     
-    if maxedges &gt; 0:
-        rawedges2 = rawedges2[:maxedges]
-    
     for edge in rawedges2:
         idedge, concept1id, relationid, concept2id, weight = edge
         relation = relations.get( edge.relationid, {} )
@@ -242,18 +240,29 @@ inited = False
         cn1name = concept1.concept
         cn1lang = concept1.languagecode
         context1 = concept1.context
-
+        
         concept2 = conceptCache[concept2id]
         cn2name = concept2.concept
         cn2lang = concept2.languagecode
         context2 = concept2.context
+        
+        if cn1lang not in reducedLanguages:
+            #print("LANG DROPPED:", concept1)
+            continue
+        
+        if cn2lang not in reducedLanguages:
+            #print("LANG DROPPED:", concept2)
+            continue
         
         record = FullConcept( idedge,
                               concept1id, cn1name, cn1lang, context1,
                               relationid, relationname, weight,
                               concept2id, cn2name, cn2lang, context2)
         resultConcepts.append( record )
-        
+    
+    if maxedges &gt; 0:
+        resultConcepts = resultConcepts[:maxedges]
+    
     return concepts, resultConcepts, conceptCache
 
 
@@ -438,7 +447,17 @@ inited = False
 
 
 </t>
-<t tx="karstenw.20230521140353.1"></t>
+<t tx="karstenw.20230521140353.1">#
+# Parts of the former sdb (simple database library)
+# which was merged into filepool
+# which is not ready for the world
+#
+# i.e. my collection of sqlite helpers
+#
+#
+
+
+</t>
 <t tx="karstenw.20230521140353.2">def dotprinter( count, scale=1000, lineitems=100 ):
     """Non-interactive terminal video game ;-)"""
 
@@ -763,9 +782,10 @@ except NameError:
     return []
 </t>
 <t tx="karstenw.20260222145208.1">def query_idlist( conn, tablename, idfieldname, idlist ):
-    
     """Retrieve all fields from a table tablename where `idfieldname` 
     contains the elenemts from idlist.
+    
+    Returns list of (EdgeRecord, ConceptRecord or AdhocRecord)
     """
     
     result = []
@@ -818,7 +838,17 @@ except NameError:
 
 
 </t>
-<t tx="karstenw.20260222152934.1">def tableItems( db, tablename):
+<t tx="karstenw.20260222152934.1">langs = (
+    "af ang bg br ca ce co cop crh cs cu cy da de dlm dum el en enm eo es et eu fi "
+    "fo fr frk frm fro frp frr fur fy ga gd gl gmh gml goh got gsw haw hit ht hu ia "
+    "ie is it ku kw la lb li lij lmo mga mi mul nap nds nl no non nrf oc odt ofs oge "
+    "osp osx ota pcd pl pms prg pro pt ro roa-opt sc scn sco se sga sh sk sl stq sv "
+    "szl tr twf vec wa yi").split()
+reducedLanguages = set( langs )
+
+
+</t>
+<t tx="karstenw.20260222153130.1">def tableItems( db, tablename):
     items = db.get(tablename, [])
     
     if not items:
@@ -831,24 +861,6 @@ except NameError:
         fieldtypes.append( item[1] )
     return (fieldnames, fieldtypes)
 
-
-conceptnames, _ = tableItems(database, "concept")
-ConceptRecord = namedtuple( 'ConceptRecord', conceptnames )
-
-edgenames, _ = tableItems(database, "edge")
-EdgeRecord = namedtuple( 'EdgeRecord', edgenames )
-
-# idedge concept1id cn1name cn1lang  context1 relationid relationname concept2id cn2name cn2lang context2 weight 
-fullconceptnames = (
-        "idedge "
-        "concept1id concept1name concept1lang concept1context "
-        "relationid relationname weight "
-        "concept2id concept2name concept2lang concept2context")
-FullConcept = namedtuple( 'FullConcept', fullconceptnames )
-
-
-</t>
-<t tx="karstenw.20260222153130.1"># see RECORDS
 
 </t>
 <t tx="karstenw.20260222154944.1"># UNTESTED
@@ -925,6 +937,9 @@ def namedtuple_factory(cursor, row):
 
 </t>
 <t tx="karstenw.20260222223643.1">def filter_lang( concepts, lang1list, lang2list ):
+    """From a list of ConceptRecords drop all those whose languagecode
+       is not in lang1list/lang2list.
+    """
     result = []
     for concept in concepts:
         if concept.concept1lang in lang1list:
@@ -955,13 +970,16 @@ FullConcept = namedtuple( 'FullConcept', fullconceptnames )
 
 
 key = ','.join( conceptnames )
-#RecordNamedTupletypes[key] = ConceptRecord
+RecordNamedTupletypes[key] = ConceptRecord
 
 key = ','.join( edgenames )
-#RecordNamedTupletypes[key] = EdgeRecord
+RecordNamedTupletypes[key] = EdgeRecord
 
 key = ','.join( fullconceptnames )
-#RecordNamedTupletypes[key] = FullConcept
+RecordNamedTupletypes[key] = FullConcept
+
+
+
 
 </t>
 <t tx="karstenw.20260224231701.1"></t>

@@ -99,35 +99,6 @@ database = {
 }
 
 
-def tableItems( db, tablename):
-    items = db.get(tablename, [])
-    
-    if not items:
-        return [ [], [] ]
-
-    fieldnames = []
-    fieldtypes = []
-    for item in items:
-        fieldnames.append( item[0] )
-        fieldtypes.append( item[1] )
-    return (fieldnames, fieldtypes)
-
-
-conceptnames, _ = tableItems(database, "concept")
-ConceptRecord = namedtuple( 'ConceptRecord', conceptnames )
-
-edgenames, _ = tableItems(database, "edge")
-EdgeRecord = namedtuple( 'EdgeRecord', edgenames )
-
-# idedge concept1id cn1name cn1lang  context1 relationid relationname concept2id cn2name cn2lang context2 weight 
-fullconceptnames = (
-        "idedge "
-        "concept1id concept1name concept1lang concept1context "
-        "relationid relationname weight "
-        "concept2id concept2name concept2lang concept2context")
-FullConcept = namedtuple( 'FullConcept', fullconceptnames )
-
-
 langs = (
     "af ang bg br ca ce co cop crh cs cu cy da de dlm dum el en enm eo es et eu fi "
     "fo fr frk frm fro frp frr fur fy ga gd gl gmh gml goh got gsw haw hit ht hu ia "
@@ -398,9 +369,10 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
 
 
 def query_idlist( conn, tablename, idfieldname, idlist ):
-    
     """Retrieve all fields from a table tablename where `idfieldname` 
     contains the elenemts from idlist.
+    
+    Returns list of (EdgeRecord, ConceptRecord or AdhocRecord)
     """
     
     result = []
@@ -453,12 +425,39 @@ def query_idlist( conn, tablename, idfieldname, idlist ):
 
 
 def filter_lang( concepts, lang1list, lang2list ):
+    """From a list of ConceptRecords drop all those whose languagecode
+       is not in lang1list/lang2list.
+    """
     result = []
     for concept in concepts:
         if concept.concept1lang in lang1list:
             if concept.concept2lang in lang2list:
                 result.append( concept )
     return result
+
+
+#
+# Parts of the former sdb (simple database library)
+# which was merged into filepool
+# which is not ready for the world
+#
+# i.e. my collection of sqlite helpers
+#
+#
+
+
+def tableItems( db, tablename):
+    items = db.get(tablename, [])
+    
+    if not items:
+        return [ [], [] ]
+
+    fieldnames = []
+    fieldtypes = []
+    for item in items:
+        fieldnames.append( item[0] )
+        fieldtypes.append( item[1] )
+    return (fieldnames, fieldtypes)
 
 
 RecordNamedTupletypes = {}
@@ -482,13 +481,16 @@ FullConcept = namedtuple( 'FullConcept', fullconceptnames )
 
 
 key = ','.join( conceptnames )
-#RecordNamedTupletypes[key] = ConceptRecord
+RecordNamedTupletypes[key] = ConceptRecord
 
 key = ','.join( edgenames )
-#RecordNamedTupletypes[key] = EdgeRecord
+RecordNamedTupletypes[key] = EdgeRecord
 
 key = ','.join( fullconceptnames )
-#RecordNamedTupletypes[key] = FullConcept
+RecordNamedTupletypes[key] = FullConcept
+
+
+
 
 # py3 stuff
 py3 = False
@@ -811,8 +813,6 @@ def fetchAllRecords(conn, tablename, sort1="", sort1dir="ASC",  sort2="", sort2d
     conn.row_factory = old_factory
     return result
 
-
-# see RECORDS
 
 if __name__ == "__main__":
     pass
