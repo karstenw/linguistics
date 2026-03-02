@@ -159,3 +159,5 @@ if 0:
         return wordnet.is_adverb( a )
 
 
+import FlowerWord
+

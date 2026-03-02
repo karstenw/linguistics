@@ -48,17 +48,21 @@ databasefile = os.path.join( DATA_DIR, "conceptnet.sqlite3")
 # languagecode( e.g. 'en') -> languagerecord
 #  'de': {'autonym': 'Deutsch', 'idlanguage': 54, 'include': 3, 'languagecode': 'de', 'languagename': 'German'},
 languages = {}
-
+languagenames = {}
 
 # id -> {'idrelation': 1, 'conceptnetrelation': '/r/Antonym', 'patternrelation': 'is-opposite-of', 'symmetric': 1, 'reverse': 0}
 relations = {}
-
+relationnames = {}
 
 # yet UNUSED
 # context -> idcontext
 contexts = {}
 
 inited = False
+
+# cache loaded concepts
+# id -> concept
+conceptCache = {}
 
 
 database = {
@@ -111,7 +115,7 @@ reducedLanguages = set( langs )
 def initlib():
     """Init the library by loading languages, relations, contexts into globals."""
 
-    global languages, relations, contexts, inited
+    global languages, relations, contexts, inited, languagenames, relationnames
 
     if not os.path.exists( databasefile ):
         return {},{},{}
@@ -125,21 +129,28 @@ def initlib():
         return languages, relations, contexts
     
     result = {}
+    resultnames = {}
     records = fetchAllRecords(conn, "language")
     for record in records:
         languagecode = record['languagecode']
+        languagename = record['languagename']
         result[languagecode] = record
+        resultnames[languagename] = languagecode
     languages = result.copy()
+    languagenames = resultnames.copy()
 
     result = {}
+    resultnames = {}
     records = fetchAllRecords(conn, "relation")
     for record in records:
         idrelation = record['idrelation']
         patternrelation = record['patternrelation']
         if patternrelation != "":
             result[idrelation] = record
+            resultnames[patternrelation] = idrelation
     relations = result.copy()
-
+    relationnames = resultnames.copy()
+    
     result = {}
     records = fetchAllRecords(conn, "context")
     for record in records:
@@ -152,7 +163,7 @@ def initlib():
     return languages, relations, contexts
 
 
-def getconcept( conn, concept, context, lang, relation, slack=False ):
+def getconcept( conn, concept, context, lang, slack=False ):
     """Query the concept table."""
 
     query = ("SELECT idconcept,languagecode,concept,typ,context "
@@ -175,12 +186,7 @@ def getconcept( conn, concept, context, lang, relation, slack=False ):
         query = query + ' AND context like "?" '
         searchvalues.append( context )
     
-    
-    if 0: #relation:
-        query = query + " AND relation  in (%s) " % (relation,)
-
     concepts = executeQuery(conn, query, searchvalues )
-    # concepts = cursor.fetchall()
     
     result = []
     for concept in concepts:
@@ -217,7 +223,7 @@ def getconceptByID( conn, conceptid ):
     return concepts
 
 
-def getedges( conn, conceptIDs, relationIDs=False, maxedges=0, weight=0.0 ):
+def getedges( conn, conceptIDs, relationIDs=None, maxedges=0, weight=0.0 ):
     """Query the edges for conceptID.
     
     Queries left and right concept entry.
@@ -246,33 +252,29 @@ def getedges( conn, conceptIDs, relationIDs=False, maxedges=0, weight=0.0 ):
         return 0
     sortlistfunction(edges, edgesort, reverse=True )
     
-    # reduce to maxedges
-    if maxedges > 0:
-        edges = edges[:maxedges]
-    
     collectedConceptIDs = set()
     result = []
     for edge in edges:
         
-        # relationname ist UNUSED here
-        if 0:
-            # get relationname
-            relation = relations.get( edge.relationid, {} )
-            if not relation:
-                print("getedges(): missed relationID:", edge)
-                continue
-            relationname = relation.get( 'patternrelation', "" )
-            if not relationname:
-                print("getedges(): missed relationName:", edge)
+        # filter by relationIDs
+        if relationIDs is not None:
+            if edge.relationid not in relationIDs:
                 continue
 
         collectedConceptIDs.add( edge.concept1id )
         collectedConceptIDs.add( edge.concept2id )
         result.append( edge )
+
+    # reduce to maxedges
+    if maxedges > 0:
+        if len(result) > maxedges:
+            result = result[:maxedges]
+    
     return result, collectedConceptIDs
 
 
-def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en", weight=0.6 ):
+def query_concept(  concept, relation=None, context=None,
+                    maxedges=1000, lang="en", weight=0.6 ):
     """Retrieve a concept from the sqlite database.
     
     relation & context are ignored in getedges.
@@ -284,13 +286,9 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
     concept = concept.replace("_", " ")
     lang = lang.lower()
 
-    # caching currently only per run
-    conceptCache = {}
-    
-    concepts = []
     resultConcepts = []
     
-    concepts = getconcept( conn, concept, context, lang, relation )
+    concepts = getconcept( conn, concept, "", lang )
     if not concepts:
         return concepts, resultConcepts, conceptCache
 
@@ -301,7 +299,7 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
         conceptCache[idconcept] = concept
         conceptIDs.add(idconcept)
     
-    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs, [],
+    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs,
                         maxedges=0, weight=weight )
     if kwdbg:
         print("len(rawedges)", len(rawedges1) )
@@ -318,25 +316,18 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
         conceptCache[idconcept] = concept
         conceptIDs.add(idconcept)
     
-    if 0:
-        # 2nd pass
-        rawedges2, collectedConceptIDs2 = getedges( conn, conceptIDs, [], 0, weight )
-        thirdLoad = set()
-        for conceptID in collectedConceptIDs2:
-            if conceptID not in conceptCache:
-                thirdLoad.add( conceptID )
-        missingConcepts = getconceptByID( conn, thirdLoad )
-        for concept in missingConcepts:
-            idconcept = concept.idconcept
-            conceptCache[idconcept] = concept
-            conceptIDs.add(idconcept)
-    else:
-        rawedges2 = rawedges1
-    
-    for edge in rawedges2:
+    for edge in rawedges1:
         idedge, concept1id, relationid, concept2id, weight = edge
-        relation = relations.get( edge.relationid, {} )
-        relationname = relation.get('patternrelation', "")
+        
+        relationrecord = relations.get( relationid, {} )
+        if not relationrecord:
+            continue
+        
+        if relation is not None:
+            if not intOrIterable(relationid, relation):
+                continue
+        
+        relationname = relationrecord.get('patternrelation', "")
         
         concept1 = conceptCache[concept1id]
         cn1name = concept1.concept
@@ -348,13 +339,14 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
         cn2lang = concept2.languagecode
         context2 = concept2.context
         
-        if cn1lang not in reducedLanguages:
-            #print("LANG DROPPED:", concept1)
-            continue
-        
-        if cn2lang not in reducedLanguages:
-            #print("LANG DROPPED:", concept2)
-            continue
+        if 0:
+            if cn1lang not in reducedLanguages:
+                #print("LANG DROPPED:", concept1)
+                continue
+            
+            if cn2lang not in reducedLanguages:
+                #print("LANG DROPPED:", concept2)
+                continue
         
         record = FullConcept( idedge,
                               concept1id, cn1name, cn1lang, context1,
@@ -366,6 +358,88 @@ def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en
         resultConcepts = resultConcepts[:maxedges]
     
     return concepts, resultConcepts, conceptCache
+
+
+def query_translations( concept, lang, weight=0.6, maxedges=0 ):
+    """Retrieve translations for a concept."""
+
+    conn = getconnection( databasefile)
+
+    concept = concept.lower()
+    concept = concept.replace("_", " ")
+    lang = lang.lower()
+    
+    concepts = []
+    resultConcepts = []
+    
+    concepts = getconcept( conn, concept, "", lang )
+    if not concepts:
+        return concepts, resultConcepts, conceptCache
+    
+    initialConcept = concepts[0]
+    
+    # cache it
+    conceptIDs = set()
+    for concept in concepts:
+        idconcept = concept.idconcept
+        conceptCache[idconcept] = concept
+        conceptIDs.add(idconcept)
+    
+    rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs,
+                                                maxedges=0, weight=weight )
+    secondLoad = set()
+    for conceptID in collectedConceptIDs1:
+        if conceptID not in conceptCache:
+            secondLoad.add( conceptID )
+    
+    missingConcepts = getconceptByID( conn, secondLoad )
+    for concept in missingConcepts:
+        idconcept = concept.idconcept
+        conceptCache[idconcept] = concept
+        conceptIDs.add(idconcept)
+    
+    relationname = "is-same-as"
+    wantedrelationid = relationnames.get( relationname, None )
+    
+    
+    doubletten = set()
+    for edge in rawedges1:
+        idedge, concept1id, relationid, concept2id, weight = edge
+        if wantedrelationid != relationid:
+            continue
+        
+        # if searchconcept is not first place, swap
+        if concept2id  == initialConcept.idconcept:
+            concept1id, concept2id = concept2id, concept1id
+        
+        if (concept1id, concept2id) in doubletten:
+            continue
+        doubletten.add( (concept1id, concept2id) )
+        
+        concept1 = conceptCache[concept1id]
+        cn1name = concept1.concept
+        cn1lang = concept1.languagecode
+        context1 = concept1.context
+        
+        concept2 = conceptCache[concept2id]
+        cn2name = concept2.concept
+        cn2lang = concept2.languagecode
+        context2 = concept2.context
+        
+        # we want the other languages
+        if concept2.languagecode == concept1.languagecode:
+            continue
+        
+        record = FullConcept( idedge,
+                              concept1id, cn1name, cn1lang, context1,
+                              relationid, relationname, weight,
+                              concept2id, cn2name, cn2lang, context2)
+        resultConcepts.append( record )
+    
+    if maxedges > 0:
+        resultConcepts = resultConcepts[:maxedges]
+    
+    return concepts, resultConcepts
 
 
 def query_idlist( conn, tablename, idfieldname, idlist ):
@@ -434,6 +508,13 @@ def filter_lang( concepts, lang1list, lang2list ):
             if concept.concept2lang in lang2list:
                 result.append( concept )
     return result
+
+
+def intOrIterable( value, argument ):
+    """Check if value is either equal to argument or contained in argument"""
+    if type( argument ) in (int, float, str, bytes):
+        return value == argument
+    return value in argument
 
 
 #
