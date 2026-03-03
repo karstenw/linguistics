@@ -374,7 +374,7 @@ def query_translations( concept, lang, weight=0.6, maxedges=0 ):
     
     concepts = getconcept( conn, concept, "", lang )
     if not concepts:
-        return concepts, resultConcepts, conceptCache
+        return concepts, resultConcepts
     
     initialConcept = concepts[0]
     
