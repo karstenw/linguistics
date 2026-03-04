@@ -36,20 +36,24 @@ if not os.path.exists( DATA_DIR ):
 
 ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
 sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
-conceptsdump = os.path.join( ZIPFOLDER, "concept.tab.gz" )
+conceptsdump1 = os.path.join( ZIPFOLDER, "concept_aa.tab.gz" )
+conceptsdump2 = os.path.join( ZIPFOLDER, "concept_ab.tab.gz" )
 edgesdump1 = os.path.join( ZIPFOLDER, "edge_aa.tab.gz" )
 edgesdump2 = os.path.join( ZIPFOLDER, "edge_ab.tab.gz" )
 edgesdump3 = os.path.join( ZIPFOLDER, "edge_ac.tab.gz" )
+edgesdump4 = os.path.join( ZIPFOLDER, "edge_ad.tab.gz" )
 
-importfiles = (conceptsdump, edgesdump1, edgesdump2, edgesdump3 )
+importfiles = (conceptsdump1, conceptsdump2,
+               edgesdump1, edgesdump2, edgesdump3, edgesdump4 )
 
 basefolder = os.path.join( DATA_DIR, "conceptnet-data" )
 if not os.path.exists( basefolder ):
     os.makedirs( basefolder )
 
 databasefile =  os.path.join( basefolder, "conceptnet.sqlite3" )
-if 1:
-    print("conceptsdump:", conceptsdump )
+if 0:
+    print("conceptsdump1:", conceptsdump1 )
+    print("conceptsdump2:", conceptsdump2 )
     print("edgesdump1:", edgesdump1 )
     print("edgesdump2:", edgesdump2 )
     print("edgesdump3:", edgesdump3 )
