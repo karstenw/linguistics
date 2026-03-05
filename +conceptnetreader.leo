@@ -26,7 +26,7 @@
 <v t="karstenw.20260222223643.1"><vh>filter_lang</vh></v>
 <v t="karstenw.20260226103048.1"><vh>intOrIterable</vh></v>
 </v>
-<v t="karstenw.20230521140353.1" a="E"><vh>sdb</vh>
+<v t="karstenw.20230521140353.1"><vh>sdb</vh>
 <v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 <v t="karstenw.20260224171849.1"><vh>+ GLOBALS +</vh></v>
 <v t="karstenw.20230521140605.1"><vh>py3</vh></v>
@@ -59,12 +59,12 @@
 <t tx="karstenw.20230412164348.1">@language python
 @tabwidth -4
 @others
-if __name__ == "__main__":
-    pass
 
 if os.path.exists( databasefile ):
     initlib()
 
+if __name__ == "__main__":
+    pass
 
 </t>
 <t tx="karstenw.20230412164348.18">database = {
@@ -176,7 +176,8 @@ conceptCache = {}
 
 </t>
 <t tx="karstenw.20230503150110.1"></t>
-<t tx="karstenw.20230503150118.1">def query_concept( concept, relation=None, context=None, maxedges=1000, lang="en", weight=0.6 ):
+<t tx="karstenw.20230503150118.1">def query_concept(  concept, relation=None, context=None,
+                    maxedges=1000, lang="en", weight=0.6 ):
     """Retrieve a concept from the sqlite database.
     
     relation &amp; context are ignored in getedges.
@@ -241,12 +242,12 @@ conceptCache = {}
         cn2lang = concept2.languagecode
         context2 = concept2.context
         
-        if 0:
-            if cn1lang not in reducedLanguages:
+        if 1:
+            if cn1lang not in coreLanguageCodes:
                 #print("LANG DROPPED:", concept1)
                 continue
             
-            if cn2lang not in reducedLanguages:
+            if cn2lang not in coreLanguageCodes:
                 #print("LANG DROPPED:", concept2)
                 continue
         
@@ -836,14 +837,33 @@ except NameError:
 
 
 </t>
-<t tx="karstenw.20260222152934.1">langs = (
+<t tx="karstenw.20260222152934.1">reducedLanguages = set( (
     "af ang bg br ca ce co cop crh cs cu cy da de dlm dum el en enm eo es et eu fi "
     "fo fr frk frm fro frp frr fur fy ga gd gl gmh gml goh got gsw haw hit ht hu ia "
     "ie is it ku kw la lb li lij lmo mga mi mul nap nds nl no non nrf oc odt ofs oge "
     "osp osx ota pcd pl pms prg pro pt ro roa-opt sc scn sco se sga sh sk sl stq sv "
-    "szl tr twf vec wa yi").split()
-reducedLanguages = set( langs )
+    "szl tr twf vec wa yi").split() )
 
+
+coreLanguageCodes = set( (
+    "en fr it de es ru pt nl da cs sv ro la"
+).split() )
+
+
+# UNUSED
+myLanguages = set( (
+    "en fr it de es nl ru pt ja zh"
+    # old english
+    "ang cy enm ga gd mga osx sco sga "
+    # old german
+    "gmh gml goh got gws nds prg yi "
+    # old french
+    "br co frk frm fro frp nrf pro "
+    # old spanish
+    "ca eu gl osp "
+    # old italian
+    "fur la lom nap ne vec sc scn "
+).split() )
 
 </t>
 <t tx="karstenw.20260222153130.1">def tableItems( db, tablename):
@@ -998,7 +1018,7 @@ RecordNamedTupletypes[key] = FullConcept
     
     concepts = getconcept( conn, concept, "", lang )
     if not concepts:
-        return concepts, resultConcepts, conceptCache
+        return concepts, resultConcepts
     
     initialConcept = concepts[0]
     

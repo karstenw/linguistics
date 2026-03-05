@@ -103,14 +103,33 @@ database = {
 }
 
 
-langs = (
+reducedLanguages = set( (
     "af ang bg br ca ce co cop crh cs cu cy da de dlm dum el en enm eo es et eu fi "
     "fo fr frk frm fro frp frr fur fy ga gd gl gmh gml goh got gsw haw hit ht hu ia "
     "ie is it ku kw la lb li lij lmo mga mi mul nap nds nl no non nrf oc odt ofs oge "
     "osp osx ota pcd pl pms prg pro pt ro roa-opt sc scn sco se sga sh sk sl stq sv "
-    "szl tr twf vec wa yi").split()
-reducedLanguages = set( langs )
+    "szl tr twf vec wa yi").split() )
 
+
+coreLanguageCodes = set( (
+    "en fr it de es ru pt nl da cs sv ro la"
+).split() )
+
+
+# UNUSED
+myLanguages = set( (
+    "en fr it de es nl ru pt ja zh"
+    # old english
+    "ang cy enm ga gd mga osx sco sga "
+    # old german
+    "gmh gml goh got gws nds prg yi "
+    # old french
+    "br co frk frm fro frp nrf pro "
+    # old spanish
+    "ca eu gl osp "
+    # old italian
+    "fur la lom nap ne vec sc scn "
+).split() )
 
 def initlib():
     """Init the library by loading languages, relations, contexts into globals."""
@@ -339,12 +358,12 @@ def query_concept(  concept, relation=None, context=None,
         cn2lang = concept2.languagecode
         context2 = concept2.context
         
-        if 0:
-            if cn1lang not in reducedLanguages:
+        if 1:
+            if cn1lang not in coreLanguageCodes:
                 #print("LANG DROPPED:", concept1)
                 continue
             
-            if cn2lang not in reducedLanguages:
+            if cn2lang not in coreLanguageCodes:
                 #print("LANG DROPPED:", concept2)
                 continue
         
@@ -895,10 +914,10 @@ def fetchAllRecords(conn, tablename, sort1="", sort1dir="ASC",  sort2="", sort2d
     return result
 
 
-if __name__ == "__main__":
-    pass
 
 if os.path.exists( databasefile ):
     initlib()
 
+if __name__ == "__main__":
+    pass
 

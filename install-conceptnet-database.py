@@ -64,25 +64,6 @@ if 0:
 exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
 exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
-def handleDataArchive_OLD( zipfilepath, extractdir ):
-    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
-
-    with zipfile.ZipFile( zipfilepath ) as archivezip:
-        zipmembers = archivezip.infolist()
-        for zipmember in zipmembers:
-            filename = zipmember.filename
-            if filename.startswith('_'):
-                print("SKIPPED ZIFILEMEMBER:", filename)
-                continue
-            basename, ext = os.path.splitext( filename )
-            if ext not in (".tab", ".sqlite3"):
-                print("SKIPPED:", filename)
-                continue
-            zipmember.filename = zipmember.filename.replace( "data/", "")
-            print("EXTRACT zipfilename:", zipmember.filename )
-            archivezip.extract( zipmember, extractdir )
-    print("EXTRACT DONE!")
-
 
 def handleDataArchive( zipfilepath, extractdir ):
     """Obsolete. Switched to single .gz files due to 100MB limit for github."""
@@ -132,17 +113,18 @@ def readstatic( path ):
 
 def importConceptnetTables( importfiles ):
     total = time.time()    
-    # side effect - create sqlite database and fill it with the contant tables (language, relation, context)
+    # side effect - create sqlite database and fill it with the
+    # constant tables (language, relation, context)
     conn = getconnection( databasefile )
-
-    bucketsize = 50000
-
+    
+    bucketsize = 100000
+    
     def emptyBucket(conn, bucket, tablename):
         c = conn.cursor()
         insert = 'INSERT INTO "%s" VALUES (?,?,?,?,?);' % (tablename,)
         c.executemany( insert, bucket )
         commit( conn )
-
+    
     bucket = []
     
     # pdb.set_trace()
@@ -186,8 +168,8 @@ def importConceptnetTables( importfiles ):
         "CREATE INDEX idx_language on concept (languagecode);",
         "CREATE INDEX idx_concept on concept (concept);",
         "CREATE INDEX idx_context on concept (context);",
-
-        "CREATE INDEX idx_idedge  on edge (idedge);",
+        
+        # "CREATE INDEX idx_idedge  on edge (idedge);",
         "CREATE INDEX idx_concept1id  on edge (concept1id);",
         "CREATE INDEX idx_concept2id  on edge (concept2id);",
         "CREATE INDEX idx_weight  on edge (weight);"
@@ -267,7 +249,7 @@ def dotprinter( count, scale=1000, lineitems=100 ):
 def tabline2items( line ):
     line = line.strip(" \r\n")
     line = makeunicode( line )
-    items = line.split( u"\t" )
+    items = line.split( "\t" )
     return items
 
 
@@ -342,15 +324,15 @@ def createStatement( tablename, fieldnames ):
     Create SELECT, INSERT and UPDATE statements from tablename and
     fieldname list.
     """
-    u = u"UPDATE %s SET " % (tablename,)
+    u = "UPDATE %s SET " % (tablename,)
     nkeys = len(fieldnames)
 
-    lfieldnames = u",".join(fieldnames)
-    ifieldnames = u'(' + lfieldnames + u')'
+    lfieldnames = ",".join(fieldnames)
+    ifieldnames = '(' + lfieldnames + ')'
     qfieldnames = lfieldnames
 
-    repmarks = [u'?'] * nkeys
-    repmarks = u','.join( repmarks )
+    repmarks = [ '?'] * nkeys
+    repmarks = ','.join( repmarks )
 
     q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
     if nkeys > 1:
@@ -359,10 +341,10 @@ def createStatement( tablename, fieldnames ):
     i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
     
     ufielditems = []
-    s = u"%s=?"
+    s = "%s=?"
     for f in fieldnames:
         ufielditems.append( s % f )
-    ufieldnames = u",".join( ufielditems )
+    ufieldnames = ",".join( ufielditems )
     u = u + ufieldnames
 
     result = []
