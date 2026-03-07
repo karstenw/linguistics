@@ -16,7 +16,7 @@
 <v t="karstenw.20230412164348.18"><vh>+ DB DEF +</vh></v>
 <v t="karstenw.20260222152934.1"><vh>+ REDUCED LANGUAGESET +</vh></v>
 <v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
-<v t="karstenw.20230503150110.1" a="E"><vh>+ CNR +</vh>
+<v t="karstenw.20230503150110.1"><vh>+ CNR +</vh>
 <v t="karstenw.20230503201353.1"><vh>getconcept</vh></v>
 <v t="karstenw.20230504104816.1"><vh>getconceptByID</vh></v>
 <v t="karstenw.20260222160914.1"><vh>getedges</vh></v>
@@ -26,7 +26,7 @@
 <v t="karstenw.20260222223643.1"><vh>filter_lang</vh></v>
 <v t="karstenw.20260226103048.1"><vh>intOrIterable</vh></v>
 </v>
-<v t="karstenw.20230521140353.1"><vh>sdb</vh>
+<v t="karstenw.20230521140353.1" a="E"><vh>sdb</vh>
 <v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 <v t="karstenw.20260224171849.1"><vh>+ GLOBALS +</vh></v>
 <v t="karstenw.20230521140605.1"><vh>py3</vh></v>
@@ -204,10 +204,7 @@ conceptCache = {}
     
     rawedges1, collectedConceptIDs1 = getedges( conn, conceptIDs,
                         maxedges=0, weight=weight )
-    if kwdbg:
-        print("len(rawedges)", len(rawedges1) )
-        print("len(collectedConceptIDs)", len(collectedConceptIDs1))
-        print("107711 in collectedConceptIDs:", 107711 in collectedConceptIDs1 )
+    
     secondLoad = set()
     for conceptID in collectedConceptIDs1:
         if conceptID not in conceptCache:
@@ -446,7 +443,9 @@ conceptCache = {}
 
 
 </t>
-<t tx="karstenw.20230521140353.1">#
+<t tx="karstenw.20230521140353.1">################################################################################
+
+#
 # Parts of the former sdb (simple database library)
 # which was merged into filepool
 # which is not ready for the world
@@ -564,14 +563,14 @@ conceptCache = {}
     """
     u = u"UPDATE %s SET " % (tablename,)
     nkeys = len(fieldnames)
-
+    
     lfieldnames = u",".join(fieldnames)
     ifieldnames = u'(' + lfieldnames + u')'
     qfieldnames = lfieldnames
-
+    
     repmarks = [u'?'] * nkeys
     repmarks = u','.join( repmarks )
-
+    
     q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
     if nkeys &gt; 1:
         q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
@@ -584,28 +583,28 @@ conceptCache = {}
         ufielditems.append( s % f )
     ufieldnames = u",".join( ufielditems )
     u = u + ufieldnames
-
+    
     result = []
     return (q,i,u)
 
 
 </t>
 <t tx="karstenw.20230521140353.9">def createRecord( conn, tablename, recordDict, docommit=True):
-
+    
     fieldnames = []
     fieldvalues = []
-
+    
     tablefieldnames = getTableFieldnames(conn, tablename)
-
+    
     for item in recordDict.items():
         k,v= item
         if k in tablefieldnames:
             fieldnames.append( k )
             fieldvalues.append( v )
-
+    
     q,i,u = createStatement( tablename, fieldnames )
     c = conn.cursor()
-
+    
     if not fieldnames:
         i = "INSERT INTO `%s` DEFAULT VALUES;" % tablename
         c.execute( i )
@@ -620,24 +619,24 @@ conceptCache = {}
 </t>
 <t tx="karstenw.20230521140441.1">def fetchAllRecords(conn, tablename, sort1="", sort1dir="ASC",  sort2="", sort2dir="ASC"):
     """Return a list with all record dicts from table tablename."""
-
+    
     result = []
-
+    
     old_factory = conn.row_factory
     conn.row_factory = dict_factory
-
+    
     fieldnames = getTableFieldnames(conn, tablename)
     q, _, _ = createStatement( tablename, fieldnames )
-
+    
     if sort1:
         q = q + u" ORDER BY %s %s" % (sort1, sort1dir)
-
+        
         if sort2:
             q = q + u", %s %s" % (sort2, sort2dir)
     
     cursor = executeQuery(conn, q)
     result = cursor.fetchall()
-
+    
     conn.row_factory = old_factory
     return result
 
@@ -788,10 +787,10 @@ except NameError:
     """
     
     result = []
-
+    
     if kwdbg:
         print("query_idlist( %s, %s )" % (tablename, idfieldname))
-
+    
     # collect SELECT fieldnames
     if tablename == "edge":
         fieldnames = edgenames
@@ -807,7 +806,7 @@ except NameError:
         if kwdbg:
             pdb.set_trace()
             print("Please check created Record class...")
-
+    
     fieldnamesselect = ','.join( fieldnames )
     
     # collect SELECT ... in (IDVALUES...)
@@ -832,7 +831,7 @@ except NameError:
     for record in records:
         namedrecord = Record( *record )
         result.append( namedrecord )
-
+    
     return result
 
 
@@ -871,7 +870,7 @@ myLanguages = set( (
     
     if not items:
         return [ [], [] ]
-
+    
     fieldnames = []
     fieldtypes = []
     for item in items:
