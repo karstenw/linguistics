@@ -4,10 +4,10 @@
 
 Several accumulated linguistics modules ([pattern](https://github.com/clips/pattern), [wn](https://github.com/goodmami/wn), [textblob](https://pypi.org/project/textblob/) & [nltk](https://www.nltk.org/) ) for Nodebox 1 to replace the "en" library.
 
-Additionally there is the new conceptnetreader library which gives access to a local conceptnet database.
+Additionally there is the new conceptnetreader library which gives access to a local conceptnet database. 
 
 
-These are the installed sources of the libraries. I am currently using Python 3.13.6 but this also worked with 3.11.4 and 3.8.12
+These are the installed sources of the libraries. I am currently using Python 3.13.13 but this also worked with 3.11.4 and 3.8.12
 
 # ATTENTION
 
