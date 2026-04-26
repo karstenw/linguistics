@@ -31,11 +31,9 @@ pp = pprint.pprint
 
 
 def sortlistfunction(thelist, thecompare, reverse=False):
-    if py3:
-        sortkeyfunction = functools.cmp_to_key( thecompare )
-        thelist.sort( key=sortkeyfunction, reverse=reverse )
-    else:
-        thelist.sort( thecompare, reverse=reverse )
+    sortkeyfunction = functools.cmp_to_key( thecompare )
+    thelist.sort( key=sortkeyfunction, reverse=reverse )
+
 
 analyzed = False
 
@@ -182,7 +180,7 @@ def initlib():
     return languages, relations, contexts
 
 
-def getconcept( conn, concept, context, lang, slack=False ):
+def getconcept( conn, concept, context, lang=None, slack=False ):
     """Query the concept table."""
 
     query = ("SELECT idconcept,languagecode,concept,typ,context "
@@ -198,8 +196,14 @@ def getconcept( conn, concept, context, lang, slack=False ):
         searchvalues.append( concept )
     
     if lang:
-        query = query + ' AND languagecode=? '
-        searchvalues.append( lang )
+        if type( lang ) in (list, tuple):
+            # TODO: make a list here "languagecode in ("en", "de")
+            langs = ["'%s'" % (i,) for i in lang]
+            langs = ','.join( langs )
+            query = query + ' AND languagecode in (%s) ' % (langs,)
+        else:
+            query = query + ' AND languagecode=? '
+            searchvalues.append( lang )
     
     if context:
         query = query + ' AND context like "?" '
@@ -303,7 +307,9 @@ def query_concept(  concept, relation=None, context=None,
 
     concept = concept.lower()
     concept = concept.replace("_", " ")
-    lang = lang.lower()
+    langtype = type(lang)
+    if langtype in (str, bytes):
+        lang = str(lang.lower())
 
     resultConcepts = []
     
@@ -591,28 +597,14 @@ RecordNamedTupletypes[key] = FullConcept
 
 
 
-# py3 stuff
-py3 = False
-try:
-    unicode('')
-    punicode = unicode
-    pstr = str
-    punichr = unichr
-except NameError:
-    punicode = str
-    pstr = bytes
-    py3 = True
-    punichr = chr
-    long = int
-
 def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
     """Make input string normalized unicode."""
-    
-    if type(s) not in (pstr, punicode):
+
+    if type(s) not in (bytes, str):
         # apart from str/unicode/bytes we just need the repr
         s = str( s )
-    if type(s) != punicode:
-        s = punicode(s, srcencoding)
+    if type(s) != str:
+        s = str(s, srcencoding)
     s = unicodedata.normalize(normalizer, s)
     return s
 
@@ -832,34 +824,38 @@ def getTableFieldnames(conn, tablename):
 
 def createStatement( tablename, fieldnames ):
     """
-    Create SELECT, INSERT and UPDATE statements from tablename and
-    fieldname list.
+    Create SELECT, INSERT and UPDATE statements from tablename and fieldname list.
     """
-    u = u"UPDATE %s SET " % (tablename,)
-    nkeys = len(fieldnames)
+
+    fieldcount = len(fieldnames)
+
+    commafieldnames = ",".join(fieldnames)
+
+    repmarks = ['?'] * fieldcount
+    repmarks = ','.join( repmarks )
+
+    qry = "SELECT (%s) FROM %s" % ( commafieldnames, tablename )
+    if fieldcount > 1:
+        qry = "SELECT %s FROM %s" % ( commafieldnames, tablename )
+
+    # qry
     
-    lfieldnames = u",".join(fieldnames)
-    ifieldnames = u'(' + lfieldnames + u')'
-    qfieldnames = lfieldnames
-    
-    repmarks = [u'?'] * nkeys
-    repmarks = u','.join( repmarks )
-    
-    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
-    if nkeys > 1:
-        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
-    
-    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
-    
+    ins = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, commafieldnames, repmarks)
+
+    # ins
+
     ufielditems = []
-    s = u"%s=?"
+    upd = "UPDATE %s SET " % (tablename,)
+
+    s = "%s=?"
     for f in fieldnames:
         ufielditems.append( s % f )
-    ufieldnames = u",".join( ufielditems )
-    u = u + ufieldnames
-    
-    result = []
-    return (q,i,u)
+    ufieldnames = ",".join( ufielditems )
+    upd = upd + ufieldnames
+
+    # upd
+
+    return (qry,ins,upd)
 
 
 def createRecord( conn, tablename, recordDict, docommit=True):
