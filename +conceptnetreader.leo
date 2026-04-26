@@ -16,7 +16,7 @@
 <v t="karstenw.20230412164348.18"><vh>+ DB DEF +</vh></v>
 <v t="karstenw.20260222152934.1"><vh>+ REDUCED LANGUAGESET +</vh></v>
 <v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
-<v t="karstenw.20230503150110.1"><vh>+ CNR +</vh>
+<v t="karstenw.20230503150110.1" a="E"><vh>+ CNR +</vh>
 <v t="karstenw.20230503201353.1"><vh>getconcept</vh></v>
 <v t="karstenw.20230504104816.1"><vh>getconceptByID</vh></v>
 <v t="karstenw.20260222160914.1"><vh>getedges</vh></v>
@@ -29,7 +29,6 @@
 <v t="karstenw.20230521140353.1" a="E"><vh>sdb</vh>
 <v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 <v t="karstenw.20260224171849.1"><vh>+ GLOBALS +</vh></v>
-<v t="karstenw.20230521140605.1"><vh>py3</vh></v>
 <v t="karstenw.20230521140814.1"><vh>makeunicode</vh></v>
 <v t="karstenw.20230521140804.1"><vh>datestring</vh></v>
 <v t="karstenw.20230521140353.2"><vh>dotprinter</vh></v>
@@ -44,7 +43,11 @@
 <v t="karstenw.20230521140353.6"><vh>dict_factory</vh></v>
 <v t="karstenw.20260222154944.1"><vh>namedtuple_factory</vh></v>
 <v t="karstenw.20230521140353.7"><vh>getTableFieldnames</vh></v>
-<v t="karstenw.20230521140353.8"><vh>createStatement</vh></v>
+<v t="karstenw.20260416110525.1"><vh>createStatement</vh>
+<v t="karstenw.20260416110525.2"><vh>&lt;&lt; query &gt;&gt;</vh></v>
+<v t="karstenw.20260416110525.3"><vh>&lt;&lt; ins &gt;&gt;</vh></v>
+<v t="karstenw.20260416110525.4"><vh>&lt;&lt; update &gt;&gt;</vh></v>
+</v>
 <v t="karstenw.20230521140353.9"><vh>createRecord</vh></v>
 <v t="karstenw.20230521140441.1"><vh>fetchAllRecords</vh></v>
 </v>
@@ -139,11 +142,9 @@ pp = pprint.pprint
 
 
 def sortlistfunction(thelist, thecompare, reverse=False):
-    if py3:
-        sortkeyfunction = functools.cmp_to_key( thecompare )
-        thelist.sort( key=sortkeyfunction, reverse=reverse )
-    else:
-        thelist.sort( thecompare, reverse=reverse )
+    sortkeyfunction = functools.cmp_to_key( thecompare )
+    thelist.sort( key=sortkeyfunction, reverse=reverse )
+
 
 </t>
 <t tx="karstenw.20230412164348.3">analyzed = False
@@ -187,7 +188,9 @@ conceptCache = {}
 
     concept = concept.lower()
     concept = concept.replace("_", " ")
-    lang = lang.lower()
+    langtype = type(lang)
+    if langtype in (str, bytes):
+        lang = str(lang.lower())
 
     resultConcepts = []
     
@@ -313,7 +316,7 @@ conceptCache = {}
 
 
 </t>
-<t tx="karstenw.20230503201353.1">def getconcept( conn, concept, context, lang, slack=False ):
+<t tx="karstenw.20230503201353.1">def getconcept( conn, concept, context, lang=None, slack=False ):
     """Query the concept table."""
 
     query = ("SELECT idconcept,languagecode,concept,typ,context "
@@ -329,8 +332,14 @@ conceptCache = {}
         searchvalues.append( concept )
     
     if lang:
-        query = query + ' AND languagecode=? '
-        searchvalues.append( lang )
+        if type( lang ) in (list, tuple):
+            # TODO: make a list here "languagecode in ("en", "de")
+            langs = ["'%s'" % (i,) for i in lang]
+            langs = ','.join( langs )
+            query = query + ' AND languagecode in (%s) ' % (langs,)
+        else:
+            query = query + ' AND languagecode=? '
+            searchvalues.append( lang )
     
     if context:
         query = query + ' AND context like "?" '
@@ -556,39 +565,6 @@ conceptCache = {}
 
 
 </t>
-<t tx="karstenw.20230521140353.8">def createStatement( tablename, fieldnames ):
-    """
-    Create SELECT, INSERT and UPDATE statements from tablename and
-    fieldname list.
-    """
-    u = u"UPDATE %s SET " % (tablename,)
-    nkeys = len(fieldnames)
-    
-    lfieldnames = u",".join(fieldnames)
-    ifieldnames = u'(' + lfieldnames + u')'
-    qfieldnames = lfieldnames
-    
-    repmarks = [u'?'] * nkeys
-    repmarks = u','.join( repmarks )
-    
-    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
-    if nkeys &gt; 1:
-        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
-    
-    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
-    
-    ufielditems = []
-    s = u"%s=?"
-    for f in fieldnames:
-        ufielditems.append( s % f )
-    ufieldnames = u",".join( ufielditems )
-    u = u + ufieldnames
-    
-    result = []
-    return (q,i,u)
-
-
-</t>
 <t tx="karstenw.20230521140353.9">def createRecord( conn, tablename, recordDict, docommit=True):
     
     fieldnames = []
@@ -676,21 +652,6 @@ conceptCache = {}
 
 
 </t>
-<t tx="karstenw.20230521140605.1"># py3 stuff
-py3 = False
-try:
-    unicode('')
-    punicode = unicode
-    pstr = str
-    punichr = unichr
-except NameError:
-    punicode = str
-    pstr = bytes
-    py3 = True
-    punichr = chr
-    long = int
-
-</t>
 <t tx="karstenw.20230521140804.1">def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
     """Make an ISO datestring."""
     if not dt:
@@ -710,12 +671,12 @@ except NameError:
 </t>
 <t tx="karstenw.20230521140814.1">def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
     """Make input string normalized unicode."""
-    
-    if type(s) not in (pstr, punicode):
+
+    if type(s) not in (bytes, str):
         # apart from str/unicode/bytes we just need the repr
         s = str( s )
-    if type(s) != punicode:
-        s = punicode(s, srcencoding)
+    if type(s) != str:
+        s = str(s, srcencoding)
     s = unicodedata.normalize(normalizer, s)
     return s
 
@@ -1084,6 +1045,49 @@ RecordNamedTupletypes[key] = FullConcept
     
     return concepts, resultConcepts
 
+
+</t>
+<t tx="karstenw.20260416110525.1">def createStatement( tablename, fieldnames ):
+    """
+    Create SELECT, INSERT and UPDATE statements from tablename and fieldname list.
+    """
+
+    fieldcount = len(fieldnames)
+
+    commafieldnames = ",".join(fieldnames)
+
+    repmarks = ['?'] * fieldcount
+    repmarks = ','.join( repmarks )
+
+    &lt;&lt; query &gt;&gt;
+    # qry
+    
+    &lt;&lt; ins &gt;&gt;
+    # ins
+
+    &lt;&lt; update &gt;&gt;
+    # upd
+
+    return (qry,ins,upd)
+
+
+</t>
+<t tx="karstenw.20260416110525.2">qry = "SELECT (%s) FROM %s" % ( commafieldnames, tablename )
+if fieldcount &gt; 1:
+    qry = "SELECT %s FROM %s" % ( commafieldnames, tablename )
+
+</t>
+<t tx="karstenw.20260416110525.3">ins = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, commafieldnames, repmarks)
+
+</t>
+<t tx="karstenw.20260416110525.4">ufielditems = []
+upd = "UPDATE %s SET " % (tablename,)
+
+s = "%s=?"
+for f in fieldnames:
+    ufielditems.append( s % f )
+ufieldnames = ",".join( ufielditems )
+upd = upd + ufieldnames
 
 </t>
 </tnodes>
