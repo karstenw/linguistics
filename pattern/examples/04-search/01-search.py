@@ -37,6 +37,7 @@ print("")
 # to each word, for example NN (noun) or JJ (adjective).
 # A parsed sentence can be scanned for part-of-speech tags:
 s = parsetree("big white rabbit")
+print('s=parsetree("big white rabbit")', s)
 print(search("JJ", s))  # all adjectives
 print(search("NN", s))  # all nouns
 print(search("NP", s))  # all noun phrases
