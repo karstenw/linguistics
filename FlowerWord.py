@@ -24,6 +24,13 @@ import pattern.text.en
 en = pattern.text.en
 wordnet = en.wordnet
 
+# synonym = a word that is similar in meaning,
+# hypernym = a word with a broader meaning,       (tree => plant)
+# hyponym = a word with a more specific meaning, (tree => oak)
+# holonym = a word that is the whole of parts,   (tree => forest)
+# meronym = a word that is a part of the whole,  (tree => trunk)
+# antonym = a word that is opposite in meaning.
+
 class FlowerWord:
     def __init__(self, word):
         # pdb.set_trace()
@@ -34,10 +41,9 @@ class FlowerWord:
         self.gloss = ""
         self.synset = None
         self.synonyms = []
-        self.antonym = ""
-        self.gloss = ""
         self.lexname = ""
-
+        
+        
         if len(self.synsets) > 0:
             synonyms = self.synsets[0].synonyms
             try:
@@ -47,11 +53,11 @@ class FlowerWord:
             except:
                 w = self.synsets[0]
                 #print("Use synset:", w)
-
+            
             self.antonym = w.antonym
             self.gloss = w.gloss
             self.lexname = w.lexname
-
+    
     def hyponyms(self):
         result = []
         for synset in self.synsets:
@@ -102,7 +108,7 @@ class FlowerWord:
         for synset in self.synsets:
             meronyms = synset.meronyms()
             for meronym in meronyms:
-                synonyms = hyponym.synonyms
+                synonyms = meronym.synonyms
                 for synonym in synonyms:
                     synonym = synonym.replace("_", " ")
                     result.append( synonym )
