@@ -34,6 +34,10 @@
 from __future__ import unicode_literals
 from __future__ import division
 
+import pdb
+
+import xml.etree.ElementTree
+
 from builtins import str, bytes, dict, int
 from builtins import map, zip, filter
 from builtins import object, range
@@ -47,8 +51,8 @@ try:
     from config import WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA
     MBSP = True # Memory-Based Shallow Parser for Python.
 except:
-    SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = \
-        "&slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma"
+    SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = (
+        "&slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma" )
     MBSP = False
 
 # B- marks the start of a chunk: the/DT/B-NP cat/NN/I-NP
@@ -157,6 +161,7 @@ class Word(object):
                 string = string.decode("utf-8") # ensure Unicode
             except:
                 pass
+        
         self.sentence = sentence
         self.index    = index
         self.string   = string   # "was"
@@ -207,7 +212,8 @@ class Word(object):
         # See also. Sentence.__repr__().
         ch, I, O, B = self.chunk, INSIDE + "-", OUTSIDE, BEGIN + "-"
         tags = [OUTSIDE for i in range(len(self.sentence.token))]
-        for i, tag in enumerate(self.sentence.token): # Default: [WORD, POS, CHUNK, PNP, RELATION, ANCHOR, LEMMA]
+        for i, tag in enumerate(self.sentence.token):
+            # Default: [WORD, POS, CHUNK, PNP, RELATION, ANCHOR, LEMMA]
             if tag == WORD:
                 tags[i] = encode_entities(self.string)
             elif tag == POS or tag == "pos" and self.type:
@@ -217,7 +223,8 @@ class Word(object):
             elif tag == PNP and self.pnp:
                 tags[i] = (self == self.pnp[0] and B or I) + "PNP"
             elif tag == REL and ch and len(ch.relations) > 0:
-                tags[i] = ["-".join([str(x) for x in [ch.type] + list(reversed(r)) if x]) for r in ch.relations]
+                tags[i] = [ "-".join( [str(x) for x in [ch.type] + list(reversed(r)) if x])
+                                              for r in ch.relations]
                 tags[i] = "*".join(tags[i])
             elif tag == ANCHOR and ch:
                 tags[i] = ch.anchor_id or OUTSIDE
@@ -678,7 +685,9 @@ class Sentence(object):
         # Append Word and Chunk objects according to the token's tags.
         for chars in string.split(" "):
             if chars:
-                self.append(*self.parse_token(chars, token))
+                l = self.parse_token(chars, token)
+                # self.append(*self.parse_token(chars, token))
+                self.append( *l )
 
     @property
     def word(self):
@@ -825,14 +834,17 @@ class Sentence(object):
         # Decode &slash; characters (usually in words and lemmata).
         # Assume None for missing tags (except the word itself, which defaults to an empty string).
         custom = {}
+        # pdb.set_trace()
         for k, v in zip(tags, token.split("/")):
-            if SLASH0 in v:
+            if v and SLASH0 in v:
                 v = v.replace(SLASH, "/")
             if k == "pos":
                 k = POS
             if k not in p:
                 custom[k] = None
-            if v != OUTSIDE or k == WORD or k == LEMMA: # "type O negative" => "O" != OUTSIDE.
+            if (    v != OUTSIDE
+                 or k == WORD
+                 or k == LEMMA ): # "type O negative" => "O" != OUTSIDE.
                 (p if k not in custom else custom)[k] = v
         # Split IOB-prefix from the chunk tag:
         # B- marks the start of a new chunk,
@@ -848,10 +860,10 @@ class Sentence(object):
             ch, p[REL], p[ROLE] = self._parse_relation(p[REL])
             # Infer a missing chunk tag from the relation tag (e.g., NP-SBJ-1 => NP).
             # For PP relation tags (e.g., PP-CLR-1), the first chunk is PP, the following chunks NP.
-            if ch == "PP" \
-             and self._previous \
-             and self._previous[REL] == p[REL] \
-             and self._previous[ROLE] == p[ROLE]:
+            if (    ch == "PP"
+                and self._previous
+                and self._previous[REL] == p[REL]
+                and self._previous[ROLE] == p[ROLE] ):
                 ch = "NP"
             if p[CHUNK] is None and ch != OUTSIDE:
                 p[CHUNK] = ch
@@ -906,7 +918,8 @@ class Sentence(object):
             Other Sentence._do_[tag] functions assume a new word has just been appended.
         """
         # Improve 3rd person singular "'s" lemma to "be", e.g., as in "he's fine".
-        if lemma == "'s" and type in ("VB", "VBZ"):
+        if (    lemma == "'s"
+            and type in ("VB", "VBZ") ):
             lemma = "be"
         self.words.append(Word(self, word, lemma, type, index=len(self.words)))
 
@@ -916,14 +929,16 @@ class Sentence(object):
             and if the word's chunk tag does not start with "B-" (i.e., iob != BEGIN).
             Punctuation marks (or other "O" chunk tags) are not chunked.
         """
-        if (type is None or type == OUTSIDE) and \
-           (role is None or role == OUTSIDE) and (relation is None or relation == OUTSIDE):
+        if (    (type is None or type == OUTSIDE)
+            and (role is None or role == OUTSIDE)
+            and (relation is None or relation == OUTSIDE) ):
             return
-        if iob != BEGIN \
-         and self.chunks \
-         and self.chunks[-1].type == type \
-         and self._relation == (relation, role) \
-         and self.words[-2].chunk is not None: # "one, two" => "one" & "two" different chunks.
+        if (        iob != BEGIN
+                and self.chunks
+                and self.chunks[-1].type == type
+                and self._relation == (relation, role)
+                and self.words[-2].chunk is not None ):
+            # "one, two" => "one" & "two" different chunks.
             self.chunks[-1].append(self.words[-1])
         else:
             ch = Chunk(self, [self.words[-1]], type, role, relation)
@@ -952,14 +967,17 @@ class Sentence(object):
                 m = find(lambda x: x.startswith("P"), anchor)
             else:
                 m = None
-            if self.pnp \
-             and pnp \
-             and pnp != OUTSIDE \
-             and pnp.startswith("B-") is False \
-             and self.words[-2].pnp is not None:
+            if (    self.pnp
+                 and pnp
+                and pnp != OUTSIDE
+                and pnp.startswith("B-") is False
+                and self.words[-2].pnp is not None ):
+                
                 self.pnp[-1].append(self.words[-1])
+            
             elif m is not None and m == self._attachment:
                 self.pnp[-1].append(self.words[-1])
+            
             else:
                 ch = PNPChunk(self, [self.words[-1]], type="PNP")
                 self.pnp.append(ch)
@@ -1474,7 +1492,7 @@ def parse_xml(sentence, tab="\t", id=""):
 
 #--- XML TO SENTENCE(S) ----------------------------------------------------------------------------
 
-# Classes XML and XMLNode provide an abstract interface to cElementTree.
+# Classes XML and XMLNode provide an abstract interface to xml.etree.ElementTree.
 # The advantage is that we can switch to a faster parser in the future
 # (as we did when switching from xml.dom.minidom to xml.etree).
 # cElemenTree is fast; but the fastest way is to simply store and reload the parsed Unicode string.
@@ -1488,8 +1506,7 @@ def parse_xml(sentence, tab="\t", id=""):
 
 class XML(object):
     def __init__(self, string):
-        from xml.etree import cElementTree
-        self.root = cElementTree.fromstring(string)
+        self.root = xml.etree.ElementTree.fromstring(string)
 
     def __call__(self, tag):
         return self.root.tag == tag \
