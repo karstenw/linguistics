@@ -817,7 +817,7 @@
 <v t="karstenw.20230303125114.1"><vh>+ dead code +</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303132600.1"><vh>text</vh>
+<v t="karstenw.20230303132600.1" a="E"><vh>text</vh>
 <v t="karstenw.20230303131659.1"><vh>@clean pattern/text/__init__.py</vh>
 <v t="karstenw.20230303131711.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303131711.2"><vh>ngrams</vh></v>
@@ -1053,7 +1053,7 @@
 <v t="karstenw.20230303131712.194"><vh>predicative</vh></v>
 <v t="karstenw.20230303131712.195"><vh>suggest</vh></v>
 </v>
-<v t="karstenw.20230303131752.1"><vh>@clean pattern/text/search.py</vh>
+<v t="karstenw.20230303131752.1" a="E"><vh>@clean pattern/text/search.py</vh>
 <v t="karstenw.20230303131819.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303131819.2"><vh>class Text</vh>
 <v t="karstenw.20230303131819.3"><vh>__init__</vh></v>
@@ -1075,11 +1075,14 @@
 <v t="karstenw.20230303131819.17"><vh>lemma</vh></v>
 </v>
 <v t="karstenw.20230303131819.18"><vh>_match</vh></v>
+<v t="karstenw.20260429181709.1"><vh>newHeadline</vh>
 <v t="karstenw.20230303131819.19"><vh>unique</vh></v>
 <v t="karstenw.20230303131819.20"><vh>find</vh></v>
 <v t="karstenw.20230303131819.21"><vh>combinations</vh></v>
 <v t="karstenw.20230303131819.22"><vh>product</vh></v>
 <v t="karstenw.20230303131819.23"><vh>variations</vh></v>
+</v>
+<v t="karstenw.20260429181755.1"><vh>newHeadline</vh></v>
 <v t="karstenw.20230303131819.24"><vh>class odict</vh>
 <v t="karstenw.20230303131819.25"><vh>__init__</vh></v>
 <v t="karstenw.20230303131819.26"><vh>fromkeys</vh></v>
@@ -1170,11 +1173,14 @@
 </v>
 <v t="karstenw.20230303131805.1"><vh>@clean pattern/text/tree.py</vh>
 <v t="karstenw.20230303131812.1"><vh>Declarations</vh></v>
+<v t="karstenw.20260429160241.1"><vh>Declaration Markers</vh></v>
+<v t="karstenw.20260429160241.2"><vh>LIST FUNCTIONS</vh>
 <v t="karstenw.20230303131812.2"><vh>find</vh></v>
 <v t="karstenw.20230303131812.3"><vh>intersects</vh></v>
 <v t="karstenw.20230303131812.4"><vh>unique</vh></v>
 <v t="karstenw.20230303131812.5"><vh>zip</vh></v>
 <v t="karstenw.20230303131812.6"><vh>unzip</vh></v>
+</v>
 <v t="karstenw.20230303131812.7"><vh>class Map</vh>
 <v t="karstenw.20230303131812.8"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.9"><vh>items</vh></v>
@@ -1183,6 +1189,7 @@
 <v t="karstenw.20230303131812.12"><vh>__len__</vh></v>
 <v t="karstenw.20230303131812.13"><vh>__iter__</vh></v>
 </v>
+<v t="karstenw.20260429160616.1"><vh>newHeadline</vh></v>
 <v t="karstenw.20230303131812.14"><vh>class Word</vh>
 <v t="karstenw.20230303131812.15"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.16"><vh>copy</vh></v>
@@ -1254,6 +1261,7 @@
 <v t="karstenw.20230303131812.77"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.78"><vh>append</vh></v>
 </v>
+<v t="karstenw.20260429160815.1" a="E"><vh>newHeadline</vh>
 <v t="karstenw.20230303131812.79"><vh>_uid</vh></v>
 <v t="karstenw.20230303131812.80"><vh>_is_tokenstring</vh></v>
 <v t="karstenw.20230303131812.81"><vh>class Sentence</vh>
@@ -1303,11 +1311,13 @@
 <v t="karstenw.20230303131812.125"><vh>from_xml</vh></v>
 <v t="karstenw.20230303131812.126"><vh>nltk_tree</vh></v>
 </v>
+</v>
 <v t="karstenw.20230303131812.127"><vh>class Slice</vh>
 <v t="karstenw.20230303131812.128"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.129"><vh>start</vh></v>
 <v t="karstenw.20230303131812.130"><vh>stop</vh></v>
 </v>
+<v t="karstenw.20260429161026.1"><vh>newHeadline</vh></v>
 <v t="karstenw.20230303131812.131"><vh>chunked</vh></v>
 <v t="karstenw.20230303131812.132"><vh>class Text</vh>
 <v t="karstenw.20230303131812.133"><vh>__init__</vh></v>
@@ -1329,7 +1339,7 @@
 <v t="karstenw.20230303131812.148"><vh>xml_encode</vh></v>
 <v t="karstenw.20230303131812.149"><vh>xml_decode</vh></v>
 <v t="karstenw.20230303131812.150"><vh>parse_xml</vh></v>
-<v t="karstenw.20230303131812.151"><vh>class XML</vh>
+<v t="karstenw.20230303131812.151" a="E"><vh>class XML</vh>
 <v t="karstenw.20230303131812.152"><vh>__init__</vh></v>
 <v t="karstenw.20230303131812.153"><vh>__call__</vh></v>
 </v>
@@ -1730,8 +1740,8 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303140243.1" a="E"><vh>vector</vh>
-<v t="karstenw.20230303140259.1" a="E"><vh>@clean pattern/vector/__init__.py</vh>
+<v t="karstenw.20230303140243.1"><vh>vector</vh>
+<v t="karstenw.20230303140259.1"><vh>@clean pattern/vector/__init__.py</vh>
 <v t="karstenw.20230303140319.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303140319.2"><vh>shi</vh></v>
 <v t="karstenw.20230303140319.3"><vh>shuffled</vh></v>
@@ -1902,7 +1912,7 @@
 </v>
 <v t="karstenw.20230303140319.159"><vh>sequence</vh></v>
 <v t="karstenw.20230303140319.160"><vh>hierarchical</vh></v>
-<v t="karstenw.20230303140319.161" a="E"><vh>class Classifier</vh>
+<v t="karstenw.20230303140319.161"><vh>class Classifier</vh>
 <v t="karstenw.20230303140319.162"><vh>__init__</vh></v>
 <v t="karstenw.20230303140319.163"><vh>features</vh></v>
 <v t="karstenw.20230303140319.164"><vh>classes</vh></v>
@@ -4785,7 +4795,7 @@ else:
 <t tx="karstenw.20230303123103.195">def csv_header_decode(s):
     # csv_header_decode("age (INTEGER)") =&gt; ("age", INTEGER).
     p = r"STRING|INTEGER|FLOAT|TEXT|BLOB|BOOLEAN|DATE|"
-    p = re.match(r"(.*?) \((" + p + ")\)", s)
+    p = re.match( r"(.*?) \((" + p + r")\)", s)
     s = s.endswith(" ()") and s[:-3] or s
     return p and (string(p.group(1), default=None), p.group(2).lower()) or (string(s) or None, None)
 
@@ -4877,7 +4887,7 @@ headers = property(_get_headers, _set_headers)
     s = re.sub("([^\"]|^)\"None\"", "\\1None", s)
     s = s if not password else encrypt_string(s, password)
     f = open(path, "w", encoding="utf-8")
-    f.write(BOM_UTF8)
+    #f.write(BOM_UTF8)
     f.write(s)
     f.close()
 
@@ -5883,7 +5893,7 @@ date_formats = [
     s = decode_utf8(s)
     return s
 
-RE_AMPERSAND = re.compile("\&amp;(?!\#)")           # &amp; not followed by #
+RE_AMPERSAND = re.compile( r"\&amp;(?!\#)")           # &amp; not followed by #
 RE_UNICODE = re.compile(r'&amp;(#?)(x|X?)(\w+);') # &amp;#201;
 
 
@@ -7034,8 +7044,8 @@ INFINITE = 1e20
     """
     import re
     W = (
-        "\(\[\{\,\;\=\-\+\*\/",
-        "\)\]\}\,\;\=\-\+\*\/"
+        r"\(\[\{\,\;\=\-\+\*\/",
+        r"\)\]\}\,\;\=\-\+\*\/"
     )
     for a, b in (
       (re.compile(r"\/\*.*?\*\/", re.S), ""),    # multi-line comments /**/
@@ -10232,18 +10242,18 @@ import collections
 import sqlite3 as sqlite
 import cherrypy as cp
 
-import pdb
-
 try:
     import json
     json.encoder.FLOAT_REPR = lambda f: ("%.2f" % f)
 except AttributeError:
     pass
 
+py3 = False
 try: # Python 2.x vs 3.x
     import htmlentitydefs
 except ImportError:
     from html import entities as htmlentitydefs
+    py3 = True
 
 try: # Python 2.x vs 3.x
     from cStringIO import StringIO
@@ -10405,12 +10415,12 @@ def elapsed(self):
         If the value is an iterable, joins the values with a space.
     """
     if isinstance(v, str):
-        return v
+        return v.encode("utf-8")
     if isinstance(v, cp.lib.file_generator): # serve_file()
         return v
     if isinstance(v, dict):
         cp.response.headers["Content-Type"] = "application/json; charset=utf-8"
-        return json.dumps(v)
+        return json.dumps(v).encode("utf-8")
     if isinstance(v, types.GeneratorType):
         cp.response.stream = True
         return iter(self._cast(v) for v in v)
@@ -10419,9 +10429,9 @@ def elapsed(self):
     if isinstance(v, HTTPError):
         raise cp.HTTPError(v.status, message=v.message)
     if v is None:
-        return ""
+        return b""
     try: # (bool, int, float, object.__unicode__)
-        return str(v)
+        return str(v).encode("utf-8")
     except:
         return encode_entities(repr(v))
 
@@ -10430,19 +10440,23 @@ def elapsed(self):
 def default(self, *path, **data):
     """ Resolves URL paths to handler functions and casts the return value.
     """
+    
     # Enable cross-origin resource sharing (CORS, by default: "*")
     cp.response.headers["Access-Control-Allow-Origin"] = self._xhr
+    
     # If there is an app.thread.db connection,
     # pass it as a keyword argument named "db".
     # If there is a query parameter named "db",
     # it is overwritten (the reverse is not safe).
     for k, v in g.items():
         data[k] = v
+    
     # Call the handler function for the given path.
     # Call @app.error(404) if no handler is found.
     # Call @app.error(403) if rate limit forbidden (= no API key).
     # Call @app.error(429) if rate limit exceeded.
     # Call @app.error(503) if a database error occurs.
+    
     try:
         v = self.router(path, **data)
     except RouteError:
@@ -11740,7 +11754,8 @@ def key(self, pairs=("rA", "aZ", "gQ", "hH", "hG", "aR", "DD"), n=32):
     # so that we can call this function without (all) keyword arguments,
     # if it does not take (all) query data.
     if callable(handler):
-        dict.__setitem__(self, p, (handler, define(handler)[2:]))
+        
+        dict.__setitem__(self, p, (handler, define(handler)[2:] ))
     else:
         dict.__setitem__(self, p, (handler, ((), {})))
 
@@ -11758,6 +11773,8 @@ def key(self, pairs=("rA", "aZ", "gQ", "hH", "hG", "aR", "DD"), n=32):
         p0 = "/" + "/".join(path[:n - i])
         p0 = p0.lower()                   # "/api/1/en", "/api/1", "/api", ...
         p1 = path[n - i:]                   # [], ["en"], ["1", "en"], ...
+        
+        p0 = p0.encode("utf-8")
         if p0 in self:
             (handler, (args, kwargs)) = self[p0]
             i = len(p1)
@@ -11888,27 +11905,46 @@ g = localdict(data=cp.thread_data)
         If the given function has **kwargs, returns True instead of dict.
     """
     def undecorate(f): # "__closure__" in Py3.
-        while getattr(f, "func_closure", None):
-            f = [v.cell_contents for v in getattr(f, "func_closure")]
+        searchedattr = "func_closure"
+        if py3:
+            searchedattr = "__closure__"
+        while getattr(f, searchedattr, None):
+            f = [v.cell_contents for v in getattr(f, searchedattr)]
             f = [v for v in f if callable(v)]
             f = f[0]   # We need guess (arg could also be a function).
         return f
+    
     f = undecorate(f)
-    a = inspect.getargspec(f) # (names, *args, **kwargs, values)
+    # a = inspect.getargspec(f) # (names, *args, **kwargs, values)
+    g = inspect.getfullargspec(f)
+    h = inspect.signature(f)
+
+    a = (g.args, g.varargs, g.varkw, g.defaults)
     # a[0] = names
     # a[1] = args
     # a[2] = kwargs
     # a[3] = values
     
-    # pdb.set_trace()
-
-    # 
+    # # 
+    
+    # lenght of positional parameters
     i = len(a[0]) - len(a[3] or [])
+    
+    # tuple of positionals
     x = tuple(a[0][:i])
+    
+    # make name-valie dict for default args
     y = dict(zip(a[0][i:], a[3] or []))
+    
+    # True if f has args
     x = x if not a[1] else True
+    
+    # True if f has kwargs
     y = y if not a[2] else True
+    
+    print("DEFINE:", (f.__name__, type(f), x, y) )
     return (f.__name__, type(f), x, y)
+
 
 </t>
 <t tx="karstenw.20230303123446.80">def values(self):
@@ -12027,8 +12063,8 @@ g = localdict(data=cp.thread_data)
 
 #### STRING FUNCTIONS ##############################################################################
 
-RE_AMPERSAND = re.compile("\&amp;(?!\#)")           # &amp; not followed by #
-RE_UNICODE = re.compile(r'&amp;(#?)(x|X?)(\w+);') # &amp;#201;
+RE_AMPERSAND = re.compile( r"\&amp;(?!\#)")           # &amp; not followed by #
+RE_UNICODE = re.compile( r'&amp;(#?)(x|X?)(\w+);') # &amp;#201;
 
 _TEMPORARY_FILES = []
 
@@ -12207,7 +12243,7 @@ from pattern.helpers import encode_string, decode_string
 decode_utf8 = decode_string
 encode_utf8 = encode_string
 
-PUNCTUATION = ".,;:!?()\[]{}`'\"@#$^&amp;*+-|=~_”—“"
+PUNCTUATION = r".,;:!?()\[]{}`'\"@#$^&amp;*+-|=~_”—“"
 
 </t>
 <t tx="karstenw.20230303131711.10">@property
@@ -15115,6 +15151,10 @@ def path(self):
 <t tx="karstenw.20230303131812.1">from __future__ import unicode_literals
 from __future__ import division
 
+import pdb
+
+import xml.etree.ElementTree
+
 from builtins import str, bytes, dict, int
 from builtins import map, zip, filter
 from builtins import object, range
@@ -15128,23 +15168,9 @@ try:
     from config import WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA
     MBSP = True # Memory-Based Shallow Parser for Python.
 except:
-    SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = \
-        "&amp;slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma"
+    SLASH, WORD, POS, CHUNK, PNP, REL, ANCHOR, LEMMA = (
+        "&amp;slash;", "word", "part-of-speech", "chunk", "preposition", "relation", "anchor", "lemma" )
     MBSP = False
-
-# B- marks the start of a chunk: the/DT/B-NP cat/NN/I-NP
-# I- words are inside a chunk.
-# O- words are outside a chunk (punctuation etc.).
-IOB, BEGIN, INSIDE, OUTSIDE = "IOB", "B", "I", "O"
-
-# -SBJ marks subjects: the/DT/B-NP-SBJ cat/NN/I-NP-SBJ
-# -OBJ marks objects.
-ROLE = "role"
-
-SLASH0 = SLASH[0]
-
-### LIST FUNCTIONS #################################################################################
-
 
 </t>
 <t tx="karstenw.20230303131812.10">def __repr__(self):
@@ -15222,14 +15248,17 @@ SLASH0 = SLASH[0]
     # Decode &amp;slash; characters (usually in words and lemmata).
     # Assume None for missing tags (except the word itself, which defaults to an empty string).
     custom = {}
+    # pdb.set_trace()
     for k, v in zip(tags, token.split("/")):
-        if SLASH0 in v:
+        if v and SLASH0 in v:
             v = v.replace(SLASH, "/")
         if k == "pos":
             k = POS
         if k not in p:
             custom[k] = None
-        if v != OUTSIDE or k == WORD or k == LEMMA: # "type O negative" =&gt; "O" != OUTSIDE.
+        if (    v != OUTSIDE
+             or k == WORD
+             or k == LEMMA ): # "type O negative" =&gt; "O" != OUTSIDE.
             (p if k not in custom else custom)[k] = v
     # Split IOB-prefix from the chunk tag:
     # B- marks the start of a new chunk,
@@ -15245,10 +15274,10 @@ SLASH0 = SLASH[0]
         ch, p[REL], p[ROLE] = self._parse_relation(p[REL])
         # Infer a missing chunk tag from the relation tag (e.g., NP-SBJ-1 =&gt; NP).
         # For PP relation tags (e.g., PP-CLR-1), the first chunk is PP, the following chunks NP.
-        if ch == "PP" \
-         and self._previous \
-         and self._previous[REL] == p[REL] \
-         and self._previous[ROLE] == p[ROLE]:
+        if (    ch == "PP"
+            and self._previous
+            and self._previous[REL] == p[REL]
+            and self._previous[ROLE] == p[ROLE] ):
             ch = "NP"
         if p[CHUNK] is None and ch != OUTSIDE:
             p[CHUNK] = ch
@@ -15305,7 +15334,8 @@ SLASH0 = SLASH[0]
         Other Sentence._do_[tag] functions assume a new word has just been appended.
     """
     # Improve 3rd person singular "'s" lemma to "be", e.g., as in "he's fine".
-    if lemma == "'s" and type in ("VB", "VBZ"):
+    if (    lemma == "'s"
+        and type in ("VB", "VBZ") ):
         lemma = "be"
     self.words.append(Word(self, word, lemma, type, index=len(self.words)))
 
@@ -15316,14 +15346,16 @@ SLASH0 = SLASH[0]
         and if the word's chunk tag does not start with "B-" (i.e., iob != BEGIN).
         Punctuation marks (or other "O" chunk tags) are not chunked.
     """
-    if (type is None or type == OUTSIDE) and \
-       (role is None or role == OUTSIDE) and (relation is None or relation == OUTSIDE):
+    if (    (type is None or type == OUTSIDE)
+        and (role is None or role == OUTSIDE)
+        and (relation is None or relation == OUTSIDE) ):
         return
-    if iob != BEGIN \
-     and self.chunks \
-     and self.chunks[-1].type == type \
-     and self._relation == (relation, role) \
-     and self.words[-2].chunk is not None: # "one, two" =&gt; "one" &amp; "two" different chunks.
+    if (        iob != BEGIN
+            and self.chunks
+            and self.chunks[-1].type == type
+            and self._relation == (relation, role)
+            and self.words[-2].chunk is not None ):
+        # "one, two" =&gt; "one" &amp; "two" different chunks.
         self.chunks[-1].append(self.words[-1])
     else:
         ch = Chunk(self, [self.words[-1]], type, role, relation)
@@ -15354,14 +15386,17 @@ SLASH0 = SLASH[0]
             m = find(lambda x: x.startswith("P"), anchor)
         else:
             m = None
-        if self.pnp \
-         and pnp \
-         and pnp != OUTSIDE \
-         and pnp.startswith("B-") is False \
-         and self.words[-2].pnp is not None:
+        if (    self.pnp
+             and pnp
+            and pnp != OUTSIDE
+            and pnp.startswith("B-") is False
+            and self.words[-2].pnp is not None ):
+            
             self.pnp[-1].append(self.words[-1])
+        
         elif m is not None and m == self._attachment:
             self.pnp[-1].append(self.words[-1])
+        
         else:
             ch = PNPChunk(self, [self.words[-1]], type="PNP")
             self.pnp.append(ch)
@@ -15584,14 +15619,6 @@ fromxml = from_xml
 <t tx="karstenw.20230303131812.127">class Slice(Sentence):
 
     @others
-#---------------------------------------------------------------------------------------------------
-# s = Sentence(parse("black cats and white dogs"))
-# s.words          =&gt; [Word('black/JJ'), Word('cats/NNS'), Word('and/CC'), Word('white/JJ'), Word('dogs/NNS')]
-# s.chunks         =&gt; [Chunk('black cats/NP'), Chunk('white dogs/NP')]
-# s.constituents() =&gt; [Chunk('black cats/NP'), Word('and/CC'), Chunk('white dogs/NP')]
-# s.chunked(s)     =&gt; [Chunk('black cats/NP'), Chink('and/O'), Chunk('white dogs/NP')]
-
-
 </t>
 <t tx="karstenw.20230303131812.128">def __init__(self, *args, **kwargs):
     """ A portion of the sentence returned by Sentence.slice().
@@ -15636,11 +15663,11 @@ def stop(self):
             chunks.append(ch)
     return chunks
 
-#--- TEXT ------------------------------------------------------------------------------------------
-
-
 </t>
-<t tx="karstenw.20230303131812.132">class Text(list):
+<t tx="karstenw.20230303131812.132">#--- TEXT ------------------------------------------------------------------------------------------
+
+
+class Text(list):
 
     @others
 Tree = Text
@@ -15695,7 +15722,10 @@ def sentences(self):
     return list(self)
 
 </t>
-<t tx="karstenw.20230303131812.14">class Word(object):
+<t tx="karstenw.20230303131812.14">#--- WORD ------------------------------------------------------------------------------------------
+
+
+class Word(object):
 
     @others
 </t>
@@ -15818,13 +15848,6 @@ XML_ENCODING = {
     string = string.replace("/", SLASH)
     return string
 
-#--- SENTENCE TO XML -------------------------------------------------------------------------------
-
-# Relation id's in the XML output are relative to the sentence id,
-# so relation 1 in sentence 2 = "2.1".
-_UID_SEPARATOR = "."
-
-
 </t>
 <t tx="karstenw.20230303131812.15">def __init__(self, sentence, string, lemma=None, type=None, index=0):
     """ A word in the sentence.
@@ -15838,6 +15861,7 @@ _UID_SEPARATOR = "."
             string = string.decode("utf-8") # ensure Unicode
         except:
             pass
+    self.tags = None
     self.sentence = sentence
     self.index    = index
     self.string   = string   # "was"
@@ -15849,7 +15873,14 @@ _UID_SEPARATOR = "."
     self._custom_tags = None # Tags object, created on request.
 
 </t>
-<t tx="karstenw.20230303131812.150">def parse_xml(sentence, tab="\t", id=""):
+<t tx="karstenw.20230303131812.150">#--- SENTENCE TO XML -------------------------------------------------------------------------------
+
+# Relation id's in the XML output are relative to the sentence id,
+# so relation 1 in sentence 2 = "2.1".
+_UID_SEPARATOR = "."
+
+
+def parse_xml(sentence, tab="\t", id=""):
     """ Returns the given Sentence object as an XML-string (plain bytestring, UTF-8 encoded).
         The tab delimiter is used as indendation for nested elements.
         The id can be used as a unique identifier per sentence for chunk id's and anchors.
@@ -15959,9 +15990,10 @@ _UID_SEPARATOR = "."
     # Return as a plain str.
     return "\n".join(xml)
 
-#--- XML TO SENTENCE(S) ----------------------------------------------------------------------------
+</t>
+<t tx="karstenw.20230303131812.151">#--- XML TO SENTENCE(S) ----------------------------------------------------------------------------
 
-# Classes XML and XMLNode provide an abstract interface to cElementTree.
+# Classes XML and XMLNode provide an abstract interface to xml.etree.ElementTree.
 # The advantage is that we can switch to a faster parser in the future
 # (as we did when switching from xml.dom.minidom to xml.etree).
 # cElemenTree is fast; but the fastest way is to simply store and reload the parsed Unicode string.
@@ -15973,13 +16005,11 @@ _UID_SEPARATOR = "."
 # s = Text(s, token=[WORD, POS, CHUNK, PNP, LEMMA]) # (1)
 
 
-</t>
-<t tx="karstenw.20230303131812.151">class XML(object):
+class XML(object):
     @others
 </t>
 <t tx="karstenw.20230303131812.152">def __init__(self, string):
-    from xml.etree import cElementTree
-    self.root = cElementTree.fromstring(string)
+    self.root = xml.etree.ElementTree.fromstring(string)
 
 </t>
 <t tx="karstenw.20230303131812.153">def __call__(self, tag):
@@ -16414,7 +16444,8 @@ def tags(self):
     # See also. Sentence.__repr__().
     ch, I, O, B = self.chunk, INSIDE + "-", OUTSIDE, BEGIN + "-"
     tags = [OUTSIDE for i in range(len(self.sentence.token))]
-    for i, tag in enumerate(self.sentence.token): # Default: [WORD, POS, CHUNK, PNP, RELATION, ANCHOR, LEMMA]
+    for i, tag in enumerate(self.sentence.token):
+        # Default: [WORD, POS, CHUNK, PNP, RELATION, ANCHOR, LEMMA]
         if tag == WORD:
             tags[i] = encode_entities(self.string)
         elif tag == POS or tag == "pos" and self.type:
@@ -16424,7 +16455,8 @@ def tags(self):
         elif tag == PNP and self.pnp:
             tags[i] = (self == self.pnp[0] and B or I) + "PNP"
         elif tag == REL and ch and len(ch.relations) &gt; 0:
-            tags[i] = ["-".join([str(x) for x in [ch.type] + list(reversed(r)) if x]) for r in ch.relations]
+            tags[i] = [ "-".join( [str(x) for x in [ch.type] + list(reversed(r)) if x])
+                                          for r in ch.relations]
             tags[i] = "*".join(tags[i])
         elif tag == ANCHOR and ch:
             tags[i] = ch.anchor_id or OUTSIDE
@@ -16508,9 +16540,6 @@ __hash__ = object.__hash__
 <t tx="karstenw.20230303131812.30">class Tags(dict):
 
     @others
-#--- CHUNK -----------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303131812.31">def __init__(self, word, items=[]):
     """ A dictionary of custom word tags.
@@ -16538,13 +16567,12 @@ __hash__ = object.__hash__
         return self[k]
 
 </t>
-<t tx="karstenw.20230303131812.34">class Chunk(object):
+<t tx="karstenw.20230303131812.34">#--- CHUNK -----------------------------------------------------------------------------------------
+
+
+class Chunk(object):
 
     @others
-# Chinks are non-chunks,
-# see also the chunked() function:
-
-
 </t>
 <t tx="karstenw.20230303131812.35">def __init__(self, sentence, words=[], type=None, role=None, relation=None):
     """ A list of words that make up a phrase in the sentence.
@@ -16600,9 +16628,6 @@ __hash__ = object.__hash__
     """
     seen = set()
     return [x for x in iterable if x not in seen and not seen.add(x)]
-
-_zip = zip
-
 
 </t>
 <t tx="karstenw.20230303131812.40">def __iter__(self):
@@ -16670,7 +16695,10 @@ def head(self):
     return w
 
 </t>
-<t tx="karstenw.20230303131812.5">def zip(*args, **kwargs):
+<t tx="karstenw.20230303131812.5">_zip = zip
+
+
+def zip(*args, **kwargs):
     """ Returns a list of tuples, where the i-th tuple contains the i-th element 
         from each of the argument sequences or iterables (or default if too short).
     """
@@ -16852,11 +16880,12 @@ def string(self):
 __hash__ = object.__hash__
 
 </t>
-<t tx="karstenw.20230303131812.68">class Chink(Chunk):
+<t tx="karstenw.20230303131812.68"># Chinks are non-chunks,
+# see also the chunked() function:
+
+
+class Chink(Chunk):
     @others
-#--- PNP CHUNK -------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303131812.69">def __repr__(self):
     return Chunk.__repr__(self).replace("Chunk(", "Chink(", 1)
@@ -16868,27 +16897,13 @@ __hash__ = object.__hash__
     """
 
     @others
-### SENTENCE #######################################################################################
-
-# The output of parse() is a slash-formatted string (e.g., "the/DT cat/NN"),
-# so slashes in words themselves are encoded as &amp;slash;
-
-encode_entities = lambda string: string.replace("/", SLASH)
-decode_entities = lambda string: string.replace(SLASH, "/")
-
-#--- WORD ------------------------------------------------------------------------------------------
-
-
 </t>
-<t tx="karstenw.20230303131812.70">class PNPChunk(Chunk):
+<t tx="karstenw.20230303131812.70">#--- PNP CHUNK -------------------------------------------------------------------------------------
+
+
+class PNPChunk(Chunk):
 
     @others
-#--- CONJUNCTION -----------------------------------------------------------------------------------
-
-CONJUNCT = AND = "AND"
-DISJUNCT = OR = "OR"
-
-
 </t>
 <t tx="karstenw.20230303131812.71">def __init__(self, *args, **kwargs):
     """ A chunk of chunks that make up a prepositional noun phrase (i.e., PP + NP).
@@ -16934,14 +16949,15 @@ def phrases(self):
     return self.nearest("VP")
 
 </t>
-<t tx="karstenw.20230303131812.76">class Conjunctions(list):
+<t tx="karstenw.20230303131812.76">#--- CONJUNCTION -----------------------------------------------------------------------------------
+
+CONJUNCT = AND = "AND"
+DISJUNCT = OR = "OR"
+
+
+class Conjunctions(list):
 
     @others
-#--- SENTENCE --------------------------------------------------------------------------------------
-
-_UID = 0
-
-
 </t>
 <t tx="karstenw.20230303131812.77">def __init__(self, chunk):
     """ Chunk.conjunctions is a list of other chunks participating in a conjunction.
@@ -17010,7 +17026,9 @@ _UID = 0
     # Append Word and Chunk objects according to the token's tags.
     for chars in string.split(" "):
         if chars:
-            self.append(*self.parse_token(chars, token))
+            l = self.parse_token(chars, token)
+            # self.append(*self.parse_token(chars, token))
+            self.append( l )
 
 </t>
 <t tx="karstenw.20230303131812.83">@property
@@ -17128,19 +17146,6 @@ import itertools
 
 from functools import cmp_to_key
 
-#--- TEXT, SENTENCE AND WORD -----------------------------------------------------------------------
-# The search() and match() functions work on Text, Sentence and Word objects (see pattern.text.tree),
-# i.e., the parse tree including part-of-speech tags and phrase chunk tags.
-
-# The pattern.text.search Match object will contain matched Word objects,
-# emulated with the following classes if the original input was a plain string:
-
-PUNCTUATION = ".,;:!?()[]{}`'\"@#$^&amp;*+-|=~_"
-
-RE_PUNCTUATION = "|".join(map(re.escape, PUNCTUATION))
-RE_PUNCTUATION = re.compile("(%s)" % RE_PUNCTUATION)
-
-
 </t>
 <t tx="karstenw.20230303131819.10">@property
 def chunks(self):
@@ -17224,11 +17229,6 @@ def lemma(self):
             return p.search(string) is not None
     return False
 
-#--- LIST FUNCTIONS --------------------------------------------------------------------------------
-# Search patterns can contain optional constraints,
-# so we need to find all possible variations of a pattern.
-
-
 </t>
 <t tx="karstenw.20230303131819.19">def unique(iterable):
     """ Returns a list copy in which each item occurs only once (in-order).
@@ -17238,7 +17238,20 @@ def lemma(self):
 
 
 </t>
-<t tx="karstenw.20230303131819.2">class Text(list):
+<t tx="karstenw.20230303131819.2">#--- TEXT, SENTENCE AND WORD -----------------------------------------------------------------------
+# The search() and match() functions work on Text, Sentence and Word objects (see pattern.text.tree),
+# i.e., the parse tree including part-of-speech tags and phrase chunk tags.
+
+# The pattern.text.search Match object will contain matched Word objects,
+# emulated with the following classes if the original input was a plain string:
+
+PUNCTUATION = ".,;:!?()[]{}`'\"@#$^&amp;*+-|=~_"
+
+RE_PUNCTUATION = "|".join(map(re.escape, PUNCTUATION))
+RE_PUNCTUATION = re.compile( r"(%s)" % RE_PUNCTUATION)
+
+
+class Text(list):
 
     @others
 </t>
@@ -17305,13 +17318,6 @@ except:
     # Longest-first.
     f = lambda x, y: len(y) - len(x)
     return sorted(a, key=cmp_to_key(f))
-
-#### TAXONOMY ######################################################################################
-
-#--- ORDERED DICTIONARY ----------------------------------------------------------------------------
-# A taxonomy is based on an ordered dictionary
-# (i.e., if a taxonomy term has multiple parents, the most recent parent is the default).
-
 
 </t>
 <t tx="karstenw.20230303131819.24">class odict(dict):
@@ -17691,7 +17697,7 @@ GREEDY = "greedy"
 </t>
 <t tx="karstenw.20230303131819.62">@classmethod
 def fromstring(cls, s, **kwargs):
-    """ Returns a new Constraint from the given string.
+    r""" Returns a new Constraint from the given string.
         Uppercase words indicate either a tag ("NN", "JJ", "VP")
         or a taxonomy term (e.g., "PRODUCT", "PERSON").
         Syntax:
@@ -17715,9 +17721,9 @@ def fromstring(cls, s, **kwargs):
         # (NN+) == (NN)+ == NN?+ == NN+? == [NN+?] == [NN]+?
         if s.startswith("^"):
             s = s[1:]; C.first = True
-        if s.endswith("+") and not s.endswith("\+"):
+        if s.endswith("+") and not s.endswith(r"\+"):
             s = s[0:-1]; C.multiple = True
-        if s.endswith("?") and not s.endswith("\?"):
+        if s.endswith("?") and not s.endswith(r"\?"):
             s = s[0:-1]; C.optional = True
         if s.startswith("(") and s.endswith(")"):
             s = s[1:-1]; C.optional = True
@@ -17725,7 +17731,7 @@ def fromstring(cls, s, **kwargs):
             s = s[1:-1]
     s = re.sub(r"^\\\^", "^", s)
     s = re.sub(r"\\\+$", "+", s)
-    s = s.replace("\_", "&amp;uscore;")
+    s = s.replace(r"\_", "&amp;uscore;")
     s = s.replace("_", " ")
     s = s.replace("&amp;uscore;", "_")
     s = s.replace("&amp;lparen;", "(")
@@ -17734,17 +17740,17 @@ def fromstring(cls, s, **kwargs):
     s = s.replace("&amp;rbrack;", "]")
     s = s.replace("&amp;lcurly;", "{")
     s = s.replace("&amp;rcurly;", "}")
-    s = s.replace("\(", "(")
-    s = s.replace("\)", ")")
-    s = s.replace("\[", "[")
-    s = s.replace("\]", "]")
-    s = s.replace("\{", "{")
-    s = s.replace("\}", "}")
-    s = s.replace("\*", "*")
-    s = s.replace("\?", "?")
-    s = s.replace("\+", "+")
-    s = s.replace("\^", "^")
-    s = s.replace("\|", "&amp;vdash;")
+    s = s.replace(r"\(", "(")
+    s = s.replace(r"\)", ")")
+    s = s.replace(r"\[", "[")
+    s = s.replace(r"\]", "]")
+    s = s.replace(r"\{", "{")
+    s = s.replace(r"\}", "}")
+    s = s.replace(r"\*", "*")
+    s = s.replace(r"\?", "?")
+    s = s.replace(r"\+", "+")
+    s = s.replace(r"\^", "^")
+    s = s.replace(r"\|", "&amp;vdash;")
     s = s.split("|")
     s = [v.replace("&amp;vdash;", "|").strip() for v in s]
     for v in s:
@@ -17758,7 +17764,7 @@ def fromstring(cls, s, **kwargs):
     if v.startswith("!"):
         self.exclude._append(v[1:]); return
     if "!" in v:
-        v = v.replace("\!", "!")
+        v = v.replace(r"\!", "!")
     if v != v.upper():
         self.words.append(v.lower())
     elif v in TAGS:
@@ -17954,12 +17960,12 @@ def fromstring(cls, s, *args, **kwargs):
         Constraints are separated by a space.
         If a constraint contains a space, it must be wrapped in [].
     """
-    s = s.replace("\(", "&amp;lparen;")
-    s = s.replace("\)", "&amp;rparen;")
-    s = s.replace("\[", "&amp;lbrack;")
-    s = s.replace("\]", "&amp;rbrack;")
-    s = s.replace("\{", "&amp;lcurly;")
-    s = s.replace("\}", "&amp;rcurly;")
+    s = s.replace(r"\(", "&amp;lparen;")
+    s = s.replace(r"\)", "&amp;rparen;")
+    s = s.replace(r"\[", "&amp;lbrack;")
+    s = s.replace(r"\]", "&amp;rbrack;")
+    s = s.replace(r"\{", "&amp;lcurly;")
+    s = s.replace(r"\}", "&amp;rcurly;")
     p = []
     i = 0
     for m in re.finditer(r"\[.*?\]|\(.*?\)", s):
@@ -17971,7 +17977,7 @@ def fromstring(cls, s, *args, **kwargs):
     s = "".join(p)
     s = s.replace("][", "] [")
     s = s.replace(")(", ") (")
-    s = s.replace("\|", "&amp;vdash;")
+    s = s.replace(r"\|", "&amp;vdash;")
     s = re.sub(r"\s+\|\s+", "|", s)
     s = re.sub(r"\s+", " ", s)
     s = re.sub(r"\{\s+", "{", s)
@@ -18219,7 +18225,7 @@ def string(self):
 
 </t>
 <t tx="karstenw.20230303131819.83">def escape(string):
-    """ Returns the string with control characters for Pattern syntax escaped.
+    r""" Returns the string with control characters for Pattern syntax escaped.
         For example: "hello!" =&gt; "hello\!".
     """
     for ch in ("{", "}", "[", "]", "(", ")", "_", "|", "!", "*", "+", "^"):
@@ -20826,13 +20832,13 @@ quantify = count
 #--- REFLECT ---------------------------------------------------------------------------------------
 
 readable_types = (
-    ("^&lt;type '"        , ""),
-    ("^&lt;class '(.*)'\&gt;", "\\1 class"),
-    ("'&gt;"              , ""),
-    ("pyobjc"          , "PyObjC"),
+    ( r"^&lt;type '"        , ""),
+    ( r"^&lt;class '(.*)'\&gt;", "\\1 class"),
+    ( r"'&gt;"              , ""),
+    ( r"pyobjc"          , "PyObjC"),
     ("objc_class"      , "Objective-C class"),
     ("objc"            , "Objective-C"),
-    ("&lt;objective-c class  (.*) at [0-9][0-9|a-z]*&gt;" , "Objective-C \\1 class"),
+    ( r"&lt;objective-c class  (.*) at [0-9][0-9|a-z]*&gt;" ,  r"Objective-C \\1 class"),
     ("bool"            , "boolean"),
     ("int"             , "integer"),
     ("long"            , "long integer"),
@@ -20844,7 +20850,7 @@ readable_types = (
     ("instancemethod"  , "instance method"),
     ("builtin_function_or_method" , "built-in function"),
     ("classobj"        , "class object"),
-    ("\."              , " "),
+    ( r"\."              , " "),
     ("_"               , " ")
 )
 
@@ -35211,7 +35217,7 @@ def test(cls, corpus=[], d=0.65, folds=1, **kwargs):
     if final:
         self.finalize()
     self.test = None # Can't pickle instancemethods.
-    pdb.set_trace()
+    # pdb.set_trace()
     f = gzip.GzipFile(path, "wb")
     # f = open( path, "wb" )
     # 1 = binary
@@ -37673,7 +37679,7 @@ P(A'), or the probability that the student is a boy regardless of any other info
 P(B|A), or the probability of the student wearing trousers given that the student is a girl. As they are as likely to wear skirts as trousers, this is 0.5","In probability theory, Bayes' theorem (often called Bayes' law after Rev Thomas Bayes) relates the conditional and marginal probabilities of two random events. It is often used to compute posterior probabilities given observations. For example, a patient may be observed to have certain symptoms. Bayes' theorem can be used to compute the probability that a proposed diagnosis is correct, given that observation. (See example 2)
 As a formal theorem, Bayes' theorem is valid in all common interpretations of probability. However, it plays a central role in the debate around the foundations of statistics: frequentist and Bayesian interpretations disagree about the ways in which probabilities should be assigned in applications. Frequentists assign probabilities to random events according to their frequencies of occurrence or to subsets of populations as proportions of the whole, while Bayesians describe probabilities in terms of beliefs and degrees of uncertainty. The articles on Bayesian probability and frequentist probability discuss these debates in greater detail.
 Bayes' theorem relates the conditional and marginal probabilities of events A and B, where B has a non-vanishing probability:
-    P(A|B) = \frac{P(B | A)\, P(A)}{P(B)}.
+    P(A|B) = \frac{P(B | A)\\, P(A)}{P(B)}.
 Each term in Bayes' theorem has a conventional name:
     * P(A) is the prior probability or marginal probability of A. It is ""prior"" in the sense that it does not take into account any information about B.
     * P(A|B) is the conditional probability of A, given B. It is also called the posterior probability because it is derived from or depends upon the specified value of B.
@@ -38462,7 +38468,7 @@ from . import locale
 
 import bs4 as BeautifulSoup
 
-# import pdb
+import pdb
 
 try:
     # Import persistent Cache.
@@ -42633,8 +42639,8 @@ strip_tags = HTMLTagstripper().strip
 <t tx="karstenw.20230303141230.54">def strip_forms(html):
     return strip_between("&lt;form.*?&gt;", "&lt;/form&gt;", html)
 
-RE_AMPERSAND = re.compile("\&amp;(?!\#)")           # &amp; not followed by #
-RE_UNICODE = re.compile(r'&amp;(#?)(x|X?)(\w+);') # &amp;#201;
+RE_AMPERSAND = re.compile( r"\&amp;(?!\#)")           # &amp; not followed by #
+RE_UNICODE = re.compile( r'&amp;(#?)(x|X?)(\w+);') # &amp;#201;
 
 
 </t>
@@ -42974,8 +42980,12 @@ YAHOO_LICENSE = api.license["Yahoo"]
     """
     if type != SEARCH:
         raise SearchEngineTypeError
-    if not query or count &lt; 1 or start &lt; 1 or start &gt; (100 / count):
+    if (  not query
+           or count &lt; 1
+           or start &lt; 1
+           or start &gt; (100 / count) ):
         return Results(GOOGLE, query, type)
+    
     # 1) Create request URL.
     url = URL(GOOGLE, query={
           "key": self.license or GOOGLE_LICENSE,
@@ -42994,16 +43004,32 @@ YAHOO_LICENSE = api.license["Yahoo"]
     kwargs.setdefault("unicode", True)
     kwargs.setdefault("throttle", self.throttle)
     data = url.download(cached=cached, **kwargs)
-    data = json.loads(data)
+    if data[0] in ('\ufeff', '\ufffe'):
+        data = data[1:]
+    
+    # pdb.set_trace()
+    
+    try:
+        data = json.loads(data)
+    except Exception as err:
+        print(err)
+        print(data)
+        print()
+    
     if data.get("error", {}).get("code") == 403:
         raise SearchEngineLimitError
+    
     results = Results(GOOGLE, query, type)
+    
     results.total = int(data.get("queries", {}).get("request", [{}])[0].get("totalResults") or 0)
     for x in data.get("items", []):
         r = Result(url=None)
         r.url      = self.format(x.get("link"))
         r.title    = self.format(x.get("title"))
-        r.text     = self.format(x.get("htmlSnippet").replace("&lt;br&gt;  ", "").replace("&lt;b&gt;...&lt;/b&gt;", "..."))
+        if 'snippet' in x:
+            r.text     = self.format(x.get("snippet"))
+        else:
+            r.text     = self.format(x.get("htmlSnippet").replace("&lt;br&gt;  ", "").replace("&lt;b&gt;...&lt;/b&gt;", "..."))
         r.language = self.language or ""
         r.date     = ""
         if not r.date:
@@ -43816,7 +43842,7 @@ __all__ = ['liblinear', 'feature_node', 'gen_feature_nodearray', 'problem',
 try:
     dirname = path.dirname(path.abspath(__file__))
     if sys.platform == 'win32':
-        liblinear = CDLL(path.join(dirname, 'windows\liblinear-2.20\liblinear.dll'))
+        liblinear = CDLL(path.join(dirname, 'windows\\liblinear-2.20\\liblinear.dll'))
     else:
         liblinear = CDLL(path.join(dirname, 'macos/liblinear-2.20/liblinear.so.3'))
 except:
@@ -44647,7 +44673,7 @@ __all__ = ['libsvm', 'svm_problem', 'svm_parameter',
 try:
     dirname = path.dirname(path.abspath(__file__))
     if sys.platform == 'win32':
-        libsvm = CDLL(path.join(dirname, 'windows\libsvm-3.22\libsvm.dll'))
+        libsvm = CDLL(path.join(dirname, 'windows\\libsvm-3.22\\libsvm.dll'))
     else:
         libsvm = CDLL(path.join(dirname, 'macos/libsvm-3.22/libsvm.so.2'))
 
@@ -46507,9 +46533,9 @@ TMP = os.path.join(tempfile.gettempdir(), "pattern_web")
 
 </t>
 <t tx="karstenw.20230508125701.12">def __setitem__(self, k, v):
-    f = open(self._hash(k), "w", encoding = "utf-8")
-    f.write(BOM_UTF8)
-    v = decode_utf8(v)
+    f = open(self._hash(k), "wb") #, encoding = "utf-8")
+    # f.write(BOM_UTF8)
+    v = encode_utf8(v) # decode_utf8(v)
     f.write(v)
     f.close()
 
@@ -46527,7 +46553,7 @@ TMP = os.path.join(tempfile.gettempdir(), "pattern_web")
     """
     if k in self:
         f = open(self._hash(k), "rb")
-        v = f.read().lstrip(BOM_UTF8.encode("utf-8"))
+        v = f.read() #.lstrip(BOM_UTF8.encode("utf-8"))
         f.close()
         if unicode is True:
             return decode_utf8(v)
@@ -46598,6 +46624,60 @@ path = property(_get_path, _set_path)
 </t>
 <t tx="karstenw.20230508125701.9">def __len__(self):
     return len(glob.glob(os.path.join(self.path, "*")))
+
+</t>
+<t tx="karstenw.20260429160241.1"># B- marks the start of a chunk: the/DT/B-NP cat/NN/I-NP
+# I- words are inside a chunk.
+# O- words are outside a chunk (punctuation etc.).
+IOB, BEGIN, INSIDE, OUTSIDE = "IOB", "B", "I", "O"
+
+# -SBJ marks subjects: the/DT/B-NP-SBJ cat/NN/I-NP-SBJ
+# -OBJ marks objects.
+ROLE = "role"
+
+SLASH0 = SLASH[0]
+
+</t>
+<t tx="karstenw.20260429160241.2">### LIST FUNCTIONS #################################################################################
+
+
+</t>
+<t tx="karstenw.20260429160616.1">### SENTENCE #######################################################################################
+
+# The output of parse() is a slash-formatted string (e.g., "the/DT cat/NN"),
+# so slashes in words themselves are encoded as &amp;slash;
+
+encode_entities = lambda string: string.replace("/", SLASH)
+decode_entities = lambda string: string.replace(SLASH, "/")
+
+</t>
+<t tx="karstenw.20260429160815.1">#--- SENTENCE --------------------------------------------------------------------------------------
+
+_UID = 0
+
+
+</t>
+<t tx="karstenw.20260429161026.1">#---------------------------------------------------------------------------------------------------
+# s = Sentence(parse("black cats and white dogs"))
+# s.words          =&gt; [Word('black/JJ'), Word('cats/NNS'), Word('and/CC'), Word('white/JJ'), Word('dogs/NNS')]
+# s.chunks         =&gt; [Chunk('black cats/NP'), Chunk('white dogs/NP')]
+# s.constituents() =&gt; [Chunk('black cats/NP'), Word('and/CC'), Chunk('white dogs/NP')]
+# s.chunked(s)     =&gt; [Chunk('black cats/NP'), Chink('and/O'), Chunk('white dogs/NP')]
+
+
+</t>
+<t tx="karstenw.20260429181709.1">#--- LIST FUNCTIONS --------------------------------------------------------------------------------
+# Search patterns can contain optional constraints,
+# so we need to find all possible variations of a pattern.
+
+
+</t>
+<t tx="karstenw.20260429181755.1">#### TAXONOMY ######################################################################################
+
+#--- ORDERED DICTIONARY ----------------------------------------------------------------------------
+# A taxonomy is based on an ordered dictionary
+# (i.e., if a taxonomy term has multiple parents, the most recent parent is the default).
+
 
 </t>
 </tnodes>
