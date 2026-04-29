@@ -20,6 +20,8 @@ from builtins import object, range
 import re
 import itertools
 
+# import pdb
+
 from functools import cmp_to_key
 
 #--- TEXT, SENTENCE AND WORD -----------------------------------------------------------------------
@@ -612,6 +614,9 @@ class Constraint(object):
             For example: Constraint(words=["Mac OS X*"]) 
             matches the word "Mac" if the word occurs in a Chunk("Mac OS X 10.5").
         """
+        
+        # pdb.set_trace()
+        
         # If the constraint has a custom function it must return True.
         if self.custom is not None and self.custom(word) is False:
             return False
