@@ -1267,7 +1267,10 @@ class Google(SearchEngine):
         """
         if type != SEARCH:
             raise SearchEngineTypeError
-        if not query or count < 1 or start < 1 or start > (100 / count):
+        if (  not query
+               or count < 1
+               or start < 1
+               or start > (100 / count) ):
             return Results(GOOGLE, query, type)
         
         # 1) Create request URL.
@@ -1290,22 +1293,30 @@ class Google(SearchEngine):
         data = url.download(cached=cached, **kwargs)
         if data[0] in ('\ufeff', '\ufffe'):
             data = data[1:]
+        
         # pdb.set_trace()
+        
         try:
             data = json.loads(data)
         except Exception as err:
             print(err)
             print(data)
             print()
+        
         if data.get("error", {}).get("code") == 403:
             raise SearchEngineLimitError
+        
         results = Results(GOOGLE, query, type)
+        
         results.total = int(data.get("queries", {}).get("request", [{}])[0].get("totalResults") or 0)
         for x in data.get("items", []):
             r = Result(url=None)
             r.url      = self.format(x.get("link"))
             r.title    = self.format(x.get("title"))
-            r.text     = self.format(x.get("htmlSnippet").replace("<br>  ", "").replace("<b>...</b>", "..."))
+            if 'snippet' in x:
+                r.text     = self.format(x.get("snippet"))
+            else:
+                r.text     = self.format(x.get("htmlSnippet").replace("<br>  ", "").replace("<b>...</b>", "..."))
             r.language = self.language or ""
             r.date     = ""
             if not r.date:
