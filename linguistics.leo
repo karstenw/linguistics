@@ -19,15 +19,16 @@
 <v t="karstenw.20230428163032.1"><vh>conceptnet init</vh></v>
 <v t="karstenw.20230317172931.1"><vh>tools</vh></v>
 </v>
-<v t="karstenw.20230524124241.1"><vh>@clean FlowerWord.py</vh>
+<v t="karstenw.20230524124241.1" a="E"><vh>@clean FlowerWord.py</vh>
 <v t="karstenw.20230524124307.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230524124417.1"><vh>FlowerWord</vh>
+<v t="karstenw.20230524124417.1" a="E"><vh>FlowerWord</vh>
 <v t="karstenw.20230524124417.2"><vh>__init__</vh></v>
 <v t="karstenw.20230524124417.3"><vh>hyponyms</vh></v>
 <v t="karstenw.20230524124417.4"><vh>hypernyms</vh></v>
 <v t="karstenw.20230524124417.5"><vh>senses</vh></v>
 <v t="karstenw.20230524124417.6"><vh>holonyms</vh></v>
 <v t="karstenw.20230524124417.7"><vh>meronyms</vh></v>
+<v t="karstenw.20260501093741.1"><vh>print</vh></v>
 </v>
 </v>
 <v t="karstenw.20230518135525.1" a="E"><vh>@clean download_corpora.py</vh>
@@ -70,7 +71,7 @@ import pprint
 pp = pprint.pprint
 
 import pdb
-kwlog = True
+kwlog = False
 kwdbg = True
 
 t1 = time.time()
@@ -218,6 +219,8 @@ if kwlog:
         return wordnet.is_adverb( a )
 
 
+import FlowerWord
+
 </t>
 <t tx="karstenw.20230428163032.1"># conceptnet
 # from . import conceptnetreader
@@ -306,7 +309,7 @@ if 1: # __name__ == '__main__':
 <t tx="karstenw.20230521225929.10">def tabline2items( line ):
     line = line.strip(" \r\n")
     line = makeunicode( line )
-    items = line.split( u"\t" )
+    items = line.split( "\t" )
     return items
 
 
@@ -386,15 +389,15 @@ if 1: # __name__ == '__main__':
     Create SELECT, INSERT and UPDATE statements from tablename and
     fieldname list.
     """
-    u = u"UPDATE %s SET " % (tablename,)
+    u = "UPDATE %s SET " % (tablename,)
     nkeys = len(fieldnames)
 
-    lfieldnames = u",".join(fieldnames)
-    ifieldnames = u'(' + lfieldnames + u')'
+    lfieldnames = ",".join(fieldnames)
+    ifieldnames = '(' + lfieldnames + ')'
     qfieldnames = lfieldnames
 
-    repmarks = [u'?'] * nkeys
-    repmarks = u','.join( repmarks )
+    repmarks = [ '?'] * nkeys
+    repmarks = ','.join( repmarks )
 
     q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
     if nkeys &gt; 1:
@@ -403,10 +406,10 @@ if 1: # __name__ == '__main__':
     i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
     
     ufielditems = []
-    s = u"%s=?"
+    s = "%s=?"
     for f in fieldnames:
         ufielditems.append( s % f )
-    ufieldnames = u",".join( ufielditems )
+    ufieldnames = ",".join( ufielditems )
     u = u + ufieldnames
 
     result = []
@@ -481,20 +484,24 @@ if not os.path.exists( DATA_DIR ):
 
 ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
 sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
-conceptsdump = os.path.join( ZIPFOLDER, "concept.tab.gz" )
+conceptsdump1 = os.path.join( ZIPFOLDER, "concept_aa.tab.gz" )
+conceptsdump2 = os.path.join( ZIPFOLDER, "concept_ab.tab.gz" )
 edgesdump1 = os.path.join( ZIPFOLDER, "edge_aa.tab.gz" )
 edgesdump2 = os.path.join( ZIPFOLDER, "edge_ab.tab.gz" )
 edgesdump3 = os.path.join( ZIPFOLDER, "edge_ac.tab.gz" )
+edgesdump4 = os.path.join( ZIPFOLDER, "edge_ad.tab.gz" )
 
-importfiles = (conceptsdump, edgesdump1, edgesdump2, edgesdump3 )
+importfiles = (conceptsdump1, conceptsdump2,
+               edgesdump1, edgesdump2, edgesdump3, edgesdump4 )
 
 basefolder = os.path.join( DATA_DIR, "conceptnet-data" )
 if not os.path.exists( basefolder ):
     os.makedirs( basefolder )
 
 databasefile =  os.path.join( basefolder, "conceptnet.sqlite3" )
-if 1:
-    print("conceptsdump:", conceptsdump )
+if 0:
+    print("conceptsdump1:", conceptsdump1 )
+    print("conceptsdump2:", conceptsdump2 )
     print("edgesdump1:", edgesdump1 )
     print("edgesdump2:", edgesdump2 )
     print("edgesdump3:", edgesdump3 )
@@ -504,27 +511,8 @@ if 1:
 
 exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
 exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
-
 </t>
-<t tx="karstenw.20230521225929.4">def handleDataArchive_OLD( zipfilepath, extractdir ):
-    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
-
-    with zipfile.ZipFile( zipfilepath ) as archivezip:
-        zipmembers = archivezip.infolist()
-        for zipmember in zipmembers:
-            filename = zipmember.filename
-            if filename.startswith('_'):
-                print("SKIPPED ZIFILEMEMBER:", filename)
-                continue
-            basename, ext = os.path.splitext( filename )
-            if ext not in (".tab", ".sqlite3"):
-                print("SKIPPED:", filename)
-                continue
-            zipmember.filename = zipmember.filename.replace( "data/", "")
-            print("EXTRACT zipfilename:", zipmember.filename )
-            archivezip.extract( zipmember, extractdir )
-    print("EXTRACT DONE!")
-
+<t tx="karstenw.20230521225929.4">
 
 </t>
 <t tx="karstenw.20230521225929.5">def handleDataArchive( zipfilepath, extractdir ):
@@ -577,17 +565,18 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 </t>
 <t tx="karstenw.20230521225929.7">def importConceptnetTables( importfiles ):
     total = time.time()    
-    # side effect - create sqlite database and fill it with the contant tables (language, relation, context)
+    # side effect - create sqlite database and fill it with the
+    # constant tables (language, relation, context)
     conn = getconnection( databasefile )
-
-    bucketsize = 50000
-
+    
+    bucketsize = 100000
+    
     def emptyBucket(conn, bucket, tablename):
         c = conn.cursor()
         insert = 'INSERT INTO "%s" VALUES (?,?,?,?,?);' % (tablename,)
         c.executemany( insert, bucket )
         commit( conn )
-
+    
     bucket = []
     
     # pdb.set_trace()
@@ -631,8 +620,8 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
         "CREATE INDEX idx_language on concept (languagecode);",
         "CREATE INDEX idx_concept on concept (concept);",
         "CREATE INDEX idx_context on concept (context);",
-
-        "CREATE INDEX idx_idedge  on edge (idedge);",
+        
+        # "CREATE INDEX idx_idedge  on edge (idedge);",
         "CREATE INDEX idx_concept1id  on edge (concept1id);",
         "CREATE INDEX idx_concept2id  on edge (concept2id);",
         "CREATE INDEX idx_weight  on edge (weight);"
@@ -700,11 +689,16 @@ import pattern.text.en
 en = pattern.text.en
 wordnet = en.wordnet
 
+# synonym = a word that is similar in meaning,
+# hypernym = a word with a broader meaning,       (tree =&gt; plant)
+# hyponym = a word with a more specific meaning, (tree =&gt; oak)
+# holonym = a word that is the whole of parts,   (tree =&gt; forest)
+# meronym = a word that is a part of the whole,  (tree =&gt; trunk)
+# antonym = a word that is opposite in meaning.
+
 </t>
 <t tx="karstenw.20230524124417.1">class FlowerWord:
     @others
-
-
 </t>
 <t tx="karstenw.20230524124417.2">def __init__(self, word):
     # pdb.set_trace()
@@ -715,10 +709,9 @@ wordnet = en.wordnet
     self.gloss = ""
     self.synset = None
     self.synonyms = []
-    self.antonym = ""
-    self.gloss = ""
     self.lexname = ""
-
+    
+    
     if len(self.synsets) &gt; 0:
         synonyms = self.synsets[0].synonyms
         try:
@@ -728,7 +721,7 @@ wordnet = en.wordnet
         except:
             w = self.synsets[0]
             #print("Use synset:", w)
-
+        
         self.antonym = w.antonym
         self.gloss = w.gloss
         self.lexname = w.lexname
@@ -782,18 +775,20 @@ wordnet = en.wordnet
     result = list(set(result))
     return result
 
+
 </t>
 <t tx="karstenw.20230524124417.7">def meronyms(self):
     result = []
     for synset in self.synsets:
         meronyms = synset.meronyms()
         for meronym in meronyms:
-            synonyms = hyponym.synonyms
+            synonyms = meronym.synonyms
             for synonym in synonyms:
                 synonym = synonym.replace("_", " ")
                 result.append( synonym )
     result = list(set(result))
     return result
+
 
 </t>
 <t tx="karstenw.20260222150150.1"># py3 stuff
@@ -839,6 +834,22 @@ except NameError:
     if nocolons:
         now = now.replace(":", "")
     return now
+
+</t>
+<t tx="karstenw.20260501093741.1">    def print(self):
+        print("FlowerWord( %s )" % (self.word,))
+        print("      synsets:", self.synsets )
+        print("          idx:", self.idx )
+        print("      antonym:", self.antonym )
+        print("        gloss:", self.gloss )
+        print("       synset:", self.synset )
+        print("      lexname:", self.lexname )
+        print("     hyponyms:", self.hyponyms() )
+        print("    hypernyms:", self.hypernyms() )
+        print("       senses:", self.senses() )
+        print("     holonyms:", self.holonyms() )
+        print("     meronyms:", self.meronyms() )
+
 
 </t>
 </tnodes>
