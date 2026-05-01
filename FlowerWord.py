@@ -18,11 +18,31 @@ pp = pprint.pprint
 
 # need to import linguistics first - sets up sys.path and corpus/data folders for the sublibs
 import linguistics
+
 import pattern
+import pattern.en
+
+from pattern.en import article, referenced
+from pattern.en import pluralize, singularize
+from pattern.en import comparative, superlative
+from pattern.en import conjugate, lemma, lexeme, tenses
+from pattern.en import number, numerals, quantify, reflect, suggest, ngrams
+from pattern.en import parse, tokenize, tag, parsetree, tree
+from pattern.en import Sentence, Word, Chunk, PNPChunk, sentiment, mood, modality
+
+
+from pattern.en import NOUN, VERB, ADJECTIVE, DEFINITE, INDEFINITE
+from pattern.en import INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
+from pattern.en import SINGULAR, PLURAL
+
+from pattern.text import IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
+from pattern.text import INFINITIVE, PRESENT, PAST, FUTURE
+
 import pattern.text
 import pattern.text.en
 en = pattern.text.en
 wordnet = en.wordnet
+
 
 # synonym = a word that is similar in meaning,
 # hypernym = a word with a broader meaning,       (tree => plant)
@@ -35,29 +55,25 @@ class FlowerWord:
     def __init__(self, word):
         # pdb.set_trace()
         self.word = word
+        self.synset = None
         self.synsets = wordnet.synsets( word )
         self.idx = 0
+        
         self.antonym = ""
         self.gloss = ""
-        self.synset = None
         self.synonyms = []
         self.lexname = ""
+        self.ic = 0.0
         
         
         if len(self.synsets) > 0:
-            synonyms = self.synsets[0].synonyms
-            try:
-                self.idx = synonyms.index(word)
-                w = self.synset = self.synsets[self.idx]
-                #print("Found synset:", w)
-            except:
-                w = self.synsets[0]
-                #print("Use synset:", w)
-            
-            self.antonym = w.antonym
-            self.gloss = w.gloss
-            self.lexname = w.lexname
-    
+            self.synset = self.synsets[0]
+            self.synonyms = self.synset.synonyms
+            self.antonym = self.synset.antonym
+            self.gloss = self.synset.gloss
+            self.lexname = self.synset.lexname
+            self.ic = self.synset.ic
+
     def hyponyms(self):
         result = []
         for synset in self.synsets:
@@ -103,6 +119,7 @@ class FlowerWord:
         result = list(set(result))
         return result
 
+
     def meronyms(self):
         result = []
         for synset in self.synsets:
@@ -115,5 +132,18 @@ class FlowerWord:
         result = list(set(result))
         return result
 
+
+    def print(self):
+        print("FlowerWord( %s )" % (self.word,))
+        print("      synsets:", self.synsets )
+        print("      antonym:", self.antonym )
+        print("        gloss:", self.gloss )
+        print("       synset:", self.synset )
+        print("      lexname:", self.lexname )
+        print("     hyponyms:", self.hyponyms() )
+        print("    hypernyms:", self.hypernyms() )
+        print("       senses:", self.senses() )
+        print("     holonyms:", self.holonyms() )
+        print("     meronyms:", self.meronyms() )
 
 
