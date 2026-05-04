@@ -6,8 +6,8 @@ import pprint
 pp = pprint.pprint
 
 import pdb
-kwlog = True
-kwdbg = True
+kwlog = False
+kwdbg = False
 
 t1 = time.time()
 

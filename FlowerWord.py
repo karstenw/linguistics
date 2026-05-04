@@ -51,12 +51,16 @@ wordnet = en.wordnet
 # meronym = a word that is a part of the whole,  (tree => trunk)
 # antonym = a word that is opposite in meaning.
 
+def handleResult( items ):
+    pass
+
 class FlowerWord:
     def __init__(self, word):
         # pdb.set_trace()
         self.word = word
         self.synset = None
         self.synsets = wordnet.synsets( word )
+        #word = word.replace("_", " ")
         self.idx = 0
         
         self.antonym = ""
@@ -81,7 +85,7 @@ class FlowerWord:
             for hyponym in hyponyms:
                 synonyms = hyponym.synonyms
                 for synonym in synonyms:
-                    synonym = synonym.replace("_", " ")
+                    #synonym = synonym.replace("_", " ")
                     result.append( synonym )
         result = list(set(result))
         return result
@@ -93,7 +97,7 @@ class FlowerWord:
             for hypernym in hypernyms:
                 synonyms = hypernym.synonyms
                 for synonym in synonyms:
-                    synonym = synonym.replace("_", " ")
+                    #synonym = synonym.replace("_", " ")
                     result.append( synonym )
         result = list(set(result))
         return result
@@ -101,9 +105,16 @@ class FlowerWord:
 
     def senses(self):
         result = []
+        filter = set()
         for synset in self.synsets:
             senses = synset.senses
-            result.append( senses )
+            for sense in senses:
+                #sense = sense.replace("_", " ")
+                if sense not in filter:
+                    # print("FlowerWord.senses()", sense )
+                    filter.add( sense )
+                    result.append( sense )
+        # print("FlowerWord.senses()", result )
         return result
 
 
@@ -114,7 +125,7 @@ class FlowerWord:
             for holonym in holonyms:
                 synonyms = holonym.synonyms
                 for synonym in synonyms:
-                    synonym = synonym.replace("_", " ")
+                    #synonym = synonym.replace("_", " ")
                     result.append( synonym )
         result = list(set(result))
         return result
@@ -127,7 +138,7 @@ class FlowerWord:
             for meronym in meronyms:
                 synonyms = meronym.synonyms
                 for synonym in synonyms:
-                    synonym = synonym.replace("_", " ")
+                    #synonym = synonym.replace("_", " ")
                     result.append( synonym )
         result = list(set(result))
         return result
