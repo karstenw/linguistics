@@ -126,7 +126,8 @@ if kwlog:
 import conceptnetreader
 
 t7 = time.time()
-print("import conceptnetreader: %.3f" % (t7-t6)  )
+if kwlog:
+    print("import conceptnetreader: %.3f" % (t7-t6)  )
 
 # data path init - not yet used
 # dbfile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
