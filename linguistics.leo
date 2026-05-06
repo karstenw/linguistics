@@ -34,7 +34,7 @@
 <v t="karstenw.20230518135525.1" a="E"><vh>@clean download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230521225929.1"><vh>@clean install-conceptnet-database.py</vh>
+<v t="karstenw.20230521225929.1" a="E"><vh>@clean install-conceptnet-database.py</vh>
 <v t="karstenw.20230521225929.2"><vh>Declarations 1</vh></v>
 <v t="karstenw.20230521225929.3"><vh>Globals</vh></v>
 <v t="karstenw.20230521225929.4"><vh>handleDataArchive_OLD</vh></v>
@@ -72,7 +72,7 @@ pp = pprint.pprint
 
 import pdb
 kwlog = False
-kwdbg = True
+kwdbg = False
 
 t1 = time.time()
 
@@ -683,11 +683,31 @@ pp = pprint.pprint
 
 # need to import linguistics first - sets up sys.path and corpus/data folders for the sublibs
 import linguistics
+
 import pattern
+import pattern.en
+
+from pattern.en import article, referenced
+from pattern.en import pluralize, singularize
+from pattern.en import comparative, superlative
+from pattern.en import conjugate, lemma, lexeme, tenses
+from pattern.en import number, numerals, quantify, reflect, suggest, ngrams
+from pattern.en import parse, tokenize, tag, parsetree, tree
+from pattern.en import Sentence, Word, Chunk, PNPChunk, sentiment, mood, modality
+
+
+from pattern.en import NOUN, VERB, ADJECTIVE, DEFINITE, INDEFINITE
+from pattern.en import INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
+from pattern.en import SINGULAR, PLURAL
+
+from pattern.text import IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
+from pattern.text import INFINITIVE, PRESENT, PAST, FUTURE
+
 import pattern.text
 import pattern.text.en
 en = pattern.text.en
 wordnet = en.wordnet
+
 
 # synonym = a word that is similar in meaning,
 # hypernym = a word with a broader meaning,       (tree =&gt; plant)
@@ -696,6 +716,9 @@ wordnet = en.wordnet
 # meronym = a word that is a part of the whole,  (tree =&gt; trunk)
 # antonym = a word that is opposite in meaning.
 
+def handleResult( items ):
+    pass
+
 </t>
 <t tx="karstenw.20230524124417.1">class FlowerWord:
     @others
@@ -703,28 +726,25 @@ wordnet = en.wordnet
 <t tx="karstenw.20230524124417.2">def __init__(self, word):
     # pdb.set_trace()
     self.word = word
+    self.synset = None
     self.synsets = wordnet.synsets( word )
+    #word = word.replace("_", " ")
     self.idx = 0
+    
     self.antonym = ""
     self.gloss = ""
-    self.synset = None
     self.synonyms = []
     self.lexname = ""
+    self.ic = 0.0
     
     
     if len(self.synsets) &gt; 0:
-        synonyms = self.synsets[0].synonyms
-        try:
-            self.idx = synonyms.index(word)
-            w = self.synset = self.synsets[self.idx]
-            #print("Found synset:", w)
-        except:
-            w = self.synsets[0]
-            #print("Use synset:", w)
-        
-        self.antonym = w.antonym
-        self.gloss = w.gloss
-        self.lexname = w.lexname
+        self.synset = self.synsets[0]
+        self.synonyms = self.synset.synonyms
+        self.antonym = self.synset.antonym
+        self.gloss = self.synset.gloss
+        self.lexname = self.synset.lexname
+        self.ic = self.synset.ic
 
 </t>
 <t tx="karstenw.20230524124417.3">def hyponyms(self):
@@ -734,7 +754,7 @@ wordnet = en.wordnet
         for hyponym in hyponyms:
             synonyms = hyponym.synonyms
             for synonym in synonyms:
-                synonym = synonym.replace("_", " ")
+                #synonym = synonym.replace("_", " ")
                 result.append( synonym )
     result = list(set(result))
     return result
@@ -747,7 +767,7 @@ wordnet = en.wordnet
         for hypernym in hypernyms:
             synonyms = hypernym.synonyms
             for synonym in synonyms:
-                synonym = synonym.replace("_", " ")
+                #synonym = synonym.replace("_", " ")
                 result.append( synonym )
     result = list(set(result))
     return result
@@ -756,9 +776,16 @@ wordnet = en.wordnet
 </t>
 <t tx="karstenw.20230524124417.5">def senses(self):
     result = []
+    filter = set()
     for synset in self.synsets:
         senses = synset.senses
-        result.append( senses )
+        for sense in senses:
+            #sense = sense.replace("_", " ")
+            if sense not in filter:
+                # print("FlowerWord.senses()", sense )
+                filter.add( sense )
+                result.append( sense )
+    # print("FlowerWord.senses()", result )
     return result
 
 
@@ -770,7 +797,7 @@ wordnet = en.wordnet
         for holonym in holonyms:
             synonyms = holonym.synonyms
             for synonym in synonyms:
-                synonym = synonym.replace("_", " ")
+                #synonym = synonym.replace("_", " ")
                 result.append( synonym )
     result = list(set(result))
     return result
@@ -784,7 +811,7 @@ wordnet = en.wordnet
         for meronym in meronyms:
             synonyms = meronym.synonyms
             for synonym in synonyms:
-                synonym = synonym.replace("_", " ")
+                #synonym = synonym.replace("_", " ")
                 result.append( synonym )
     result = list(set(result))
     return result
@@ -836,19 +863,18 @@ except NameError:
     return now
 
 </t>
-<t tx="karstenw.20260501093741.1">    def print(self):
-        print("FlowerWord( %s )" % (self.word,))
-        print("      synsets:", self.synsets )
-        print("          idx:", self.idx )
-        print("      antonym:", self.antonym )
-        print("        gloss:", self.gloss )
-        print("       synset:", self.synset )
-        print("      lexname:", self.lexname )
-        print("     hyponyms:", self.hyponyms() )
-        print("    hypernyms:", self.hypernyms() )
-        print("       senses:", self.senses() )
-        print("     holonyms:", self.holonyms() )
-        print("     meronyms:", self.meronyms() )
+<t tx="karstenw.20260501093741.1">def print(self):
+    print("FlowerWord( %s )" % (self.word,))
+    print("      synsets:", self.synsets )
+    print("      antonym:", self.antonym )
+    print("        gloss:", self.gloss )
+    print("       synset:", self.synset )
+    print("      lexname:", self.lexname )
+    print("     hyponyms:", self.hyponyms() )
+    print("    hypernyms:", self.hypernyms() )
+    print("       senses:", self.senses() )
+    print("     holonyms:", self.holonyms() )
+    print("     meronyms:", self.meronyms() )
 
 
 </t>
