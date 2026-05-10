@@ -15,8 +15,10 @@ import pdb
 import pprint
 pp=pprint.pprint
 
+nb = True
 try:
     PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+    nb = False
 except NameError as err:
     print(err)
     PACKAGE_DIR = os.path.abspath( './' )
@@ -156,7 +158,8 @@ def importConceptnetTables( importfiles ):
             if i % bucketsize == 0:
                 emptyBucket( conn, bucket, tablename )
                 bucket = []
-                dotprinter(i, bucketsize)
+                if not nb:
+                    dotprinter(i, bucketsize)
         emptyBucket(conn, bucket, tablename)
         bucket = []
         commit( conn )
