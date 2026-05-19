@@ -10,20 +10,23 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import unittest
 import random
 import subprocess
+
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
+import pattern
+import pattern.db
+import pattern.text
+import pattern.text.en
+import pattern.text.en.inflect_quantify
 
 from pattern import text
 from pattern import en
 
 from io import open
 
-try:
-    PATH = os.path.dirname(os.path.realpath(__file__))
-except:
-    PATH = ""
+PATH = os.path.abspath( './' )
 
 #---------------------------------------------------------------------------------------------------
 

@@ -6,7 +6,7 @@ from __future__ import division
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 
 from pattern import graph

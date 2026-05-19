@@ -8,7 +8,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import time
 import re
@@ -200,14 +200,14 @@ class TestConstraint(unittest.TestCase):
           (      "\\^cat", dict( words = ["^cat"])),
           (     "(cat*)+", dict( words = ["cat*"], optional=True, multiple=True)),
           ( "^black_cat+", dict( words = ["black cat"], multiple=True, first=True)),
-          (  "black\[cat", dict( words = ["black[cat"])),
-          (  "black\(cat", dict( words = ["black(cat"])),
-          (  "black\{cat", dict( words = ["black{cat"])),
-          (  "black\|cat", dict( words = ["black|cat"])),
-          (  "black\!cat", dict( words = ["black!cat"])),
-          (  "black\^cat", dict( words = ["black^cat"])),
-          (  "black\+cat", dict( words = ["black+cat"])),
-          (  "black\?cat", dict( words = ["black?cat"])),
+          ( r"black\[cat", dict( words = ["black[cat"])),
+          ( r"black\(cat", dict( words = ["black(cat"])),
+          ( r"black\{cat", dict( words = ["black{cat"])),
+          ( r"black\|cat", dict( words = ["black|cat"])),
+          ( r"black\!cat", dict( words = ["black!cat"])),
+          ( r"black\^cat", dict( words = ["black^cat"])),
+          ( r"black\+cat", dict( words = ["black+cat"])),
+          ( r"black\?cat", dict( words = ["black?cat"])),
           (    "cats|NN*", dict( words = ["cats"], tags=["NN*"]))):
             self._test_constraint(search.Constraint.fromstring(s), **kwargs)
         # Assert non-alpha taxonomy items.
@@ -269,7 +269,7 @@ class TestConstraint(unittest.TestCase):
         v.exclude = search.Constraint(["bird"])
         v.multiple = True
         v.first = True
-        self.assertEqual(v.string, "^[Steven\\*|NN*|SBJ|\(ASSOCIATE\)_PROFESSOR|!bird]+")
+        self.assertEqual(v.string, r"^[Steven\\*|NN*|SBJ|\(ASSOCIATE\)_PROFESSOR|!bird]+")
         print("pattern.search.Constraint.string")
 
 #---------------------------------------------------------------------------------------------------
