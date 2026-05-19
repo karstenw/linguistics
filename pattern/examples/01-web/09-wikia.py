@@ -19,11 +19,12 @@ from pattern.web import Wikia
 # Wikipedia is based on MediaWiki too.
 # Wikia queries request the article HTML source from the server. This can be slow.
 
-# ATTENTION: 
-#
-# http://www.wikia.com is DEAD and redirects to 
-#
-# https://www.fandom.com/
+
+print("\n\n# ATTENTION: ")
+print("#")
+print("# http://www.wikia.com is DEAD and redirects to ")
+print("#")
+print("# https://www.fandom.com/\n\n\n")
 
 
 domain = "monkeyisland"  # "Look behind you, a three-headed monkey!"
