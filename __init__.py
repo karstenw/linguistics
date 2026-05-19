@@ -6,10 +6,16 @@ import pprint
 pp = pprint.pprint
 
 import pdb
-kwlog = False
-kwdbg = False
+kwlog = 1
+kwdbg = 1
 
-t1 = time.time()
+
+
+# directory init
+#
+# set data path "linguistics-data"
+#
+# insert current directory into sys.path
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
@@ -24,39 +30,31 @@ if PACKAGE_DIR not in sys.path:
 
 
 
-t2 = time.time()
+init_time = time.time()
 
 import pattern
 
 # no data path init - instead
 # change pattern webcache setting in pattern/web/cache/__init__.py
 
-t3 = time.time()
+
+
+nltk_time = time.time()
 if kwlog:
-    print("import pattern: %.3f" % (t3-t2)  )
+    print("SYS import pattern: %.3f" % (nltk_time-init_time)  )
 
 #
 # NLTK
 #
 import nltk
-# wordnet = nltk.wordnet
-    
+
+
 # data path init
 nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
 
-t4 = time.time()
+wn_time = time.time()
 if kwlog:
-    print("import nltk: %.3f" % (t4-t3)  )
-
-
-
-# nltk.download( download_dir=nltk.data.path[0] )
-#
-# nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
-# nltk.download( "wordnet", download_dir=nltk.data.path[0] )
-
-# seems interesting
-# nltk.download( "framenet_v17", download_dir=nltk.data.path[0] )
+    print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
 
 
 
@@ -70,9 +68,9 @@ import wn
 # data path init
 wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
-t5 = time.time()
+textblob_time = time.time()
 if kwlog:
-    print("import wn: %.3f" % (t5-t4)  )
+    print("SYS import wn: %.3f" % (textblob_time-wn_time)  )
 
 
 # not sure what to use yet
@@ -93,44 +91,25 @@ if 0:
         if lang not in lexicons:
             lexicons[lang] = []
         lexicons[lang].append( (lang, lid, label, lexicon) )
-    
+
 
 # perhaps delete ? havent used this
 # TextBlob, Word, Sentence, Blobber, WordList
 
 import textblob
 
-t6 = time.time()
+conceptnetreader_time = time.time()
 if kwlog:
-    print("import textblob: %.3f" % (t6-t5)  )
-
-# from . textblob import *
-# import textblob.Word
+    print("SYS import textblob: %.3f" % (conceptnetreader_time-textblob_time)  )
 
 
-# textblob downloads via nltk
-#
-# minimal
-# brown, punkt, wordnet, averaged_perceptron_tagger
-#
-# all
-# + conll2000, movie_reviews
-# 
-# pattern nltk downloads
-# 
-# wordnet_ic
-
-# conceptnet
-# from . import conceptnetreader
-# package path should be valid by now
 import conceptnetreader
 
-t7 = time.time()
+FlowerWord_time = time.time()
 if kwlog:
-    print("import conceptnetreader: %.3f" % (t7-t6)  )
+    print("SYS import conceptnetreader: %.3f" % (FlowerWord_time-conceptnetreader_time)  )
 
-# data path init - not yet used
-# dbfile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
+
 if 0:
     def _firstwordtags( wl ):
         tb = TextBlob( wl )
@@ -161,4 +140,10 @@ if 0:
 
 
 import FlowerWord
+
+end_time = time.time()
+
+if kwlog:
+    print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
+    print("SYS import linguistics: %.3f" % (end_time - init_time)  )
 
