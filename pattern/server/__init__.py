@@ -1046,7 +1046,7 @@ class Application(object):
             cp.response.stream = True
             return iter(self._cast(v) for v in v)
         if isinstance(v, (list, tuple, set)):
-            return " ".join(self._cast(v) for v in v)
+            return b" ".join(self._cast(v) for v in v)
         if isinstance(v, HTTPError):
             raise cp.HTTPError(v.status, message=v.message)
         if v is None:
