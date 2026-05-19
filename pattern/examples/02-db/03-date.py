@@ -7,10 +7,10 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
-import pattern
+import pattern, pdb
 
 from pattern.db import date, time, NOW
-from pattern.web import Bing, NEWS
+from pattern.web import Bing, NEWS, Google
 
 # It is often useful to keep a date stamp for each row in the table.
 # The pattern.db module's date() function can be used for this.
@@ -26,7 +26,7 @@ print("")
 
 # All possible formatting options:
 # http://docs.python.org/library/time.html#time.strftime
-
+# pdb.set_trace()
 for r in Bing(license=None, language="en").search("today", type=NEWS):
     print(r.title)
     print(repr(r.date))  # Result.date is a string (e.g. we can't > <= += with the date).
