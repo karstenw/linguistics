@@ -9,10 +9,13 @@ from builtins import range
 import sys
 import os
 
+
 import random
 from random import seed
 
 from collections import defaultdict
+
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
 
 import pattern
 from pattern.text import Model
@@ -104,24 +107,26 @@ for w, tags in f.items():
 # If you want it to run faster for experimentation,
 # use less iterations or less data in the code below:
 
-print("training model... (~5-10 minutes)")
-
 seed(0) # Lock random list shuffling so we can compare.
 
-m = Model(known=known, unknown=unknown, classifier=SLP())
-for iteration in range(5):
-    for s in shuffled(data[:20000]):
-        prev = None
-        next = None
-        for i, (w, tag) in enumerate(s):
-            if i < len(s) - 1:
-                next = s[i + 1]
-            m.train(w, tag, prev, next)
-            prev = (w, tag)
-            next = None
-
 f = os.path.join(os.path.abspath('.'), "en-model.slp")
-m.save(f, final=True)
+
+if not os.path.exists( f ):
+    print("training model... (~5-10 minutes)")
+
+    m = Model(known=known, unknown=unknown, classifier=SLP())
+
+    for iteration in range(5):
+        for s in shuffled(data[:20000]):
+            prev = None
+            next = None
+            for i, (w, tag) in enumerate(s):
+                if i < len(s) - 1:
+                    next = s[i + 1]
+                m.train(w, tag, prev, next)
+                prev = (w, tag)
+                next = None
+    m.save(f, final=True)
 
 # Each parser in Pattern (pattern.en, pattern.es, pattern.it, ...)
 # assumes that a lexicon of known words and their most frequent tag is available,
