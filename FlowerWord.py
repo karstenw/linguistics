@@ -9,7 +9,9 @@ The name stuck.
 import time
 import io
 
-kwdbg = 0
+kwdbg = 1
+kwlog = 1
+
 import pdb
 import pprint
 pp = pprint.pprint
@@ -17,31 +19,39 @@ pp = pprint.pprint
 # seed(1)
 
 # need to import linguistics first - sets up sys.path and corpus/data folders for the sublibs
+
+start = time.time()
+
 import linguistics
 
 import pattern
-import pattern.en
-
-from pattern.en import article, referenced
-from pattern.en import pluralize, singularize
-from pattern.en import comparative, superlative
-from pattern.en import conjugate, lemma, lexeme, tenses
-from pattern.en import number, numerals, quantify, reflect, suggest, ngrams
-from pattern.en import parse, tokenize, tag, parsetree, tree
-from pattern.en import Sentence, Word, Chunk, PNPChunk, sentiment, mood, modality
-
-
-from pattern.en import NOUN, VERB, ADJECTIVE, DEFINITE, INDEFINITE
-from pattern.en import INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
-from pattern.en import SINGULAR, PLURAL
-
-from pattern.text import IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
-from pattern.text import INFINITIVE, PRESENT, PAST, FUTURE
-
 import pattern.text
-import pattern.text.en
-en = pattern.text.en
+import pattern.text.en as en
 wordnet = en.wordnet
+
+
+if 0:
+    from pattern.en import article, referenced
+    from pattern.en import pluralize, singularize
+    from pattern.en import comparative, superlative
+    from pattern.en import conjugate, lemma, lexeme, tenses
+    from pattern.en import number, numerals, quantify, reflect, suggest, ngrams
+    from pattern.en import parse, tokenize, tag, parsetree, tree
+    from pattern.en import Sentence, Word, Chunk, PNPChunk, sentiment, mood, modality
+
+
+    from pattern.en import NOUN, VERB, ADJECTIVE, DEFINITE, INDEFINITE
+    from pattern.en import INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
+    from pattern.en import SINGULAR, PLURAL
+
+    from pattern.text import IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
+    from pattern.text import INFINITIVE, PRESENT, PAST, FUTURE
+
+
+stop = time.time()
+if kwlog:
+    print("FlowerWord imports: %.3f" % (stop-start,)  )
+
 
 
 # synonym = a word that is similar in meaning,
