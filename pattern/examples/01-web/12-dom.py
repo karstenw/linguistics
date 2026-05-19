@@ -3,15 +3,15 @@ from __future__ import unicode_literals
 
 from builtins import str, bytes, dict, int
 
-import os
 import sys
+import os
 
 sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
 import pattern
 
 from pattern.web import URL, DOM, plaintext
 from pattern.web import NODE, TEXT, COMMENT, ELEMENT, DOCUMENT
-
+import pdb
 # The pattern.web module has a number of convenient search engines, as demonstrated.
 # But often you will need to handle the HTML in web pages of your interest manually.
 # The DOM object can be used for this, similar to the Javascript DOM.
@@ -99,41 +99,45 @@ for e in dom("div#ContentPlaceHolder1_ctl00_ctl01_Omkadering span div:contents p
 
 
 ######################################## Test Techcrunch - https://techcrunch.com/ ####################################
+# deactivated - page structure changed
+if 0:
+    print("#"*40, "Test Techcrunch", "#"*40)
+    url = URL("https://techcrunch.com/category/startups/")
 
-print("#"*40, "Test Techcrunch", "#"*40)
-url = URL("https://techcrunch.com/category/startups/")
-dom = DOM(url.download(cached=True))
+    page = url.download(cached=True)
 
-for e in dom.by_tag("header.post-block__header")[:5]:
-    for a in e.by_tag("h2.post-block__title")[:1]:
-        print(plaintext(a.content))
-        for h in a.by_tag("a.post-block__title__link")[:1]:
-            print(h.attrs["href"])
+    dom = DOM(page)
+
+    for e in dom.by_tag("header.post-block__header")[:5]:
+        for a in e.by_tag("h2.post-block__title")[:1]:
+            print(plaintext(a.content))
+            for h in a.by_tag("a.post-block__title__link")[:1]:
+                print(h.attrs["href"])
+            print("")
+    print("\n")
+
+    header = dom.by_class("river__title")[0]
+    print(header.content)
+    print("\n")
+
+
+    title_image = dom.by_attr(name="msapplication-TileImage")[0]
+    print(title_image.attrs['content'])
+    print("\n")
+
+
+    url = URL("https://techcrunch.com")
+    dom = DOM(url.download(cached=True))
+    for k in dom.by_class("post-block__title__link"):
+        print(k.content.strip())
         print("")
-print("\n")
 
-header = dom.by_class("river__title")[0]
-print(header.content)
-print("\n")
+    print("\n")
 
-
-title_image = dom.by_attr(name="msapplication-TileImage")[0]
-print(title_image.attrs['content'])
-print("\n")
-
-
-url = URL("https://techcrunch.com")
-dom = DOM(url.download(cached=True))
-for k in dom.by_class("post-block__title__link"):
-    print(k.content.strip())
-    print("")
-
-print("\n")
-
-for e in dom("header:post-block__header h2:post-block__title a:post-block__title__link"):
-    print(e.content.strip())
-    print(e.attrs["href"])
-    print("")
+    for e in dom("header:post-block__header h2:post-block__title a:post-block__title__link"):
+        print(e.content.strip())
+        print(e.attrs["href"])
+        print("")
 
 
 ################################ Test Habr - https://habr.com ####################################
