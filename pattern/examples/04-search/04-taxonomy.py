@@ -22,16 +22,16 @@ from pattern.en import parsetree
 for flower in ("rose", "lily", "daisy", "daffodil", "begonia"):
     taxonomy.append(flower, type="flower")
 
-print(taxonomy.children("flower"))
-print(taxonomy.parents("rose"))
-print(taxonomy.classify("rose"))  # Yields the most recently added parent.
+print('children("flower"):', taxonomy.children("flower"))
+print('parents("rose")', taxonomy.parents("rose"))
+print('classify("rose")', taxonomy.classify("rose"))  # Yields the most recently added parent.
 print("")
 
 # Taxonomy terms can be included in a pattern by using uppercase:
 t = parsetree("A field of white daffodils.", lemmata=True)
 m = search("FLOWER", t)
-print(t)
-print(m)
+print("PARSETREE:", t)
+print("FLOWER IN SENTENCE:", m)
 print("")
 
 # Another example:
@@ -39,8 +39,8 @@ taxonomy.append("chicken", type="food")
 taxonomy.append("chicken", type="bird")
 taxonomy.append("penguin", type="bird")
 taxonomy.append("bird", type="animal")
-print(taxonomy.parents("chicken"))
-print(taxonomy.children("animal", recursive=True))
+print('parents("chicken"):', taxonomy.parents("chicken"))
+print('children("animal", recursive=True):', taxonomy.children("animal", recursive=True))
 print(search("FOOD", "I'm eating chicken."))
 print("")
 
