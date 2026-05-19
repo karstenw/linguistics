@@ -1,0 +1,55 @@
+<!-- $theme: default -->
+
+<h1 id="linguistics">Linguistics</h1>
+
+<p>Several accumulated linguistics modules (<a href="https://github.com/clips/pattern">pattern</a>, <a href="https://github.com/goodmami/wn">wn</a>, <a href="https://pypi.org/project/textblob/">textblob</a> &amp; <a href="https://www.nltk.org/">nltk</a> ) for Nodebox 1 to replace the &#8220;en&#8221; library.</p>
+
+<p>Additionally there is the new conceptnetreader library which gives access to a local conceptnet database.</p>
+
+<p>These are the installed sources of the libraries. I am currently using Python 3.13.13 but this also worked with 3.11.4 and 3.8.12</p>
+
+<h1 id="attention">ATTENTION</h1>
+
+<h2 id="firstrun">First Run</h2>
+
+<p>Rename the downloaded folder &#8220;linguistics&#8221; and place it inside the Nodebox &#8220;Library&#8221; folder.</p>
+
+<p>Before the first run, open and run <code>download_corpora.py</code> inside the linguistics folder. This downloads the needed corpora for <code>nltk</code>, <code>textblob</code> and <code>wn</code> to run. The data folder <code>linguistics-data</code> will be placed in the same folder as the <code>linguistics</code> folder.</p>
+
+<h4 id="nltkcorporafortextblobwnandpattern">nltk corpora for textblob, wn and pattern</h4>
+
+<p>The runtime for <code>download_corpora.py</code> is ca. 5 minutes.</p>
+
+<p>If you run it from NodeBox there will be no feedback except the spinning beachball.</p>
+
+<p>Alternatively you can run it from the terminal with a current python3. Perhaps you must install the requirements first.</p>
+
+<h4 id="conceptnetdatabase">conceptnet database</h4>
+
+<p>For the conceptnet database open and run <code>install-conceptnet-database.py</code>.</p>
+
+<p>The runtime for <code>install-conceptnet-database.py</code> is ca. 4 minutes.</p>
+
+<p>As with the nltk download there is no feedback but it can be run from the terminal to see what&#8217;s going on.</p>
+
+<h2 id="general">General</h2>
+
+<p>This is a work in progress, a moving target.</p>
+
+<p>Goals:</p>
+
+<ol>
+<li><p>Make it available to Nodebox1</p></li>
+<li><p>Keep it usable from a standard python3</p></li>
+<li><p>Adapt Nodebox1 scripts using &#8220;en&#8221;</p></li>
+</ol>
+
+<h3 id="usage">Usage</h3>
+
+<p>In a nodebox script do:</p>
+
+<pre><code class="python">
+import linguistics
+</code></pre>
+
+<p>After the linguistics import the submodules pattern, wn,nltk &amp; textblob can be accessed with <code>linguistics.nltk</code> or <code>import nltk</code>.</p>
