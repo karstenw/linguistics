@@ -38,7 +38,8 @@ from pattern.vector import Document, Model, TF, TFIDF
 # Load a model from a folder of text documents:
 documents = []
 dirpath = os.path.join(os.path.abspath("."), "corpus" )
-txtfiles = filelist(dirpath, extensions=['.txt'] )
+# txtfiles = filelist(dirpath, extensions=['.txt'] )
+txtfiles = glob.glob( dirpath + "/*.txt" )
 for f in txtfiles:
     text = open(f, encoding="utf-8").read()
     name = os.path.basename(f)[:-4]
