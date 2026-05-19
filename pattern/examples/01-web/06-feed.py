@@ -5,6 +5,7 @@ from builtins import str, bytes, dict, int
 
 import os
 import sys
+import random
 
 sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
 import pattern
@@ -14,17 +15,28 @@ from pattern.db import date
 
 # This example reads a given RSS or Atom newsfeed channel.
 # Some example feeds to try out:
-NATURE = "http://feeds.nature.com/nature/rss/current"
-# SCIENCE = "https://www.science.org/content/page/email-alerts-and-rss-feeds"
-SCIENCE = "https://www.science.org/rss/news_current.xml"
-NYT = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
-TIME = "http://feeds.feedburner.com/time/topstories"
-CNN = "http://rss.cnn.com/rss/edition.rss"
-SCRIPTINGNEWS = "http://scripting.com/rss.xml"
+
+FEEDS = dict(
+    # NATURE = "http://feeds.nature.com/nature/rss/current"
+    NATURE="https://www.nature.com/nature.rss",
+    
+    # SCIENCE = "https://www.science.org/content/page/email-alerts-and-rss-feeds"
+    SCIENCE="https://www.science.org/rss/news_current.xml",
+    
+    NYT="https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    
+    # TIME = "http://feeds.feedburner.com/time/topstories"
+    
+    # CNN = "http://rss.cnn.com/rss/edition.rss"
+    SCRIPTINGNEWS = "http://scripting.com/rss.xml"
+)
 
 engine = Newsfeed()
 
-for result in engine.search(NATURE, cached=True):
+FEED = random.choice( list(FEEDS.keys()) )
+print("\n\nFEED:", FEED)
+
+for result in engine.search(FEEDS[FEED], cached=True):
     print(result.title.upper())
     print(plaintext(result.text))  # Remove HTML formatting.
     print(result.url)
