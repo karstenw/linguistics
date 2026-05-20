@@ -17,7 +17,11 @@ import pattern
 # It is a good idea to study the tagset and its abbreviations for a few minutes.
 
 from pattern.en import parse as parse_en
-print(parse_en("the black cats", chunks=False)) # the/DT black/JJ cat/NNS
+
+# the/DT black/JJ cat/NNS
+stc = "the black cats"
+s = parse_en( stc, chunks=False)
+print(s)
 print("")
 
 
@@ -31,12 +35,30 @@ from pattern.it import parse as parse_it
 from pattern.nl import parse as parse_nl
 from pattern.ru import parse as parse_ru
 
-print(parse_de("die schwarzen Katzen", chunks=False)) # die/DT schwarze/JJ Katzen/NNS
-print(parse_es("los gatos negros", chunks=False))     # los/DT gatos/NNS negros/JJ
-print(parse_fr("les chats noirs", chunks=False))      # les/DT chats/NNS noirs/JJ
-print(parse_it("i gatti neri", chunks=False))         # i/DT gatti/NNS neri/JJ
-print(parse_nl("de zwarte katten", chunks=False))     # de/DT zwarte/JJ katten/NNS
-print(parse_ru("какой сегодня хороший день!", chunks=False)) # какой/DT сегодня/RB хороший/JJ день/NN !/.
+# die/DT schwarze/JJ Katzen/NNS
+print( 'parse_de("die schwarzen Katzen", chunks=False):',
+        parse_de("die schwarzen Katzen", chunks=False))
+
+# los/DT gatos/NNS negros/JJ
+print( 'parse_es("los gatos negros", chunks=False):',
+        parse_es("los gatos negros", chunks=False))
+
+# les/DT chats/NNS noirs/JJ
+print( 'parse_fr("les chats noirs", chunks=False):',
+        parse_fr("les chats noirs", chunks=False))
+
+# i/DT gatti/NNS neri/JJ
+print( 'parse_it("i gatti neri", chunks=False):',
+        parse_it("i gatti neri", chunks=False))
+
+# de/DT zwarte/JJ katten/NNS
+print( 'parse_nl("de zwarte katten", chunks=False):',
+        parse_nl("de zwarte katten", chunks=False))
+
+# какой/DT сегодня/RB хороший/JJ день/NN !/.
+print( 'parse_ru("какой сегодня хороший день!", chunks=False):',
+        parse_ru("какой сегодня хороший день!", chunks=False))
+
 print("")
 
 # In some cases, this means the original tagset is mapped to Penn Treebank:
@@ -46,9 +68,12 @@ from pattern.de import STTS
 from pattern.es import PAROLE
 from pattern.nl import WOTAN
 
-print(parse_de("die schwarzen Katzen", chunks=False, tagset=STTS))
-print(parse_es("los gatos negros", chunks=False, tagset=PAROLE))
-print(parse_nl("de zwarte katten", chunks=False, tagset=WOTAN))
+print( 'parse_de("die schwarzen Katzen", chunks=False, tagset=STTS):',
+        parse_de("die schwarzen Katzen", chunks=False, tagset=STTS))
+print( 'parse_es("los gatos negros", chunks=False, tagset=PAROLE):',
+        parse_es("los gatos negros", chunks=False, tagset=PAROLE))
+print( 'parse_nl("de zwarte katten", chunks=False, tagset=WOTAN):',
+        parse_nl("de zwarte katten", chunks=False, tagset=WOTAN))
 print("")
 
 # Not all languages are equally suited to Penn Treebank,

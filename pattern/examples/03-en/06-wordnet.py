@@ -24,7 +24,9 @@ pp=pprint.pprint
 
 # For a given word, WordNet yields a list of synsets that
 # represent different "senses" in which the word can be understood.
+print("train:")
 for synset in wordnet.synsets("train", pos=NOUN):
+    print("Synset:", synset )
     print("Description: %s" % synset.gloss)       # Definition string.
     print("   Synonyms: %s" % synset.senses)      # List of synonyms in this sense.
     print("   Hypernym: %s" % synset.hypernym)    # Synset one step higher in the semantic network.
@@ -36,7 +38,7 @@ for synset in wordnet.synsets("train", pos=NOUN):
 # What is the common ancestor (hypernym) of "cat" and "dog"?
 a = wordnet.synsets("cat")[0]
 b = wordnet.synsets("dog")[0]
-print("Common ancestor: %s" % wordnet.ancestor(a, b))
+print("Common ancestor: (cat,dog): %s" % wordnet.ancestor(a, b))
 print("")
 
 # Synset.hypernyms(recursive=True) returns all parents of the synset,
@@ -44,8 +46,11 @@ print("")
 # optionally up to a given depth.
 # What kind of animal nouns are also verbs?
 synset = wordnet.synsets("animal")[0]
+print("synset:",synset)
 for s in synset.hyponyms(recursive=True, depth=2):
+    print("    hyponym:",s)
     for word in s.senses:
+        print("word in hyponym.senses:", word)
         if word in wordnet.VERBS():
             print("%s => %s" % (word, wordnet.synsets(word, pos=VERB)))
 

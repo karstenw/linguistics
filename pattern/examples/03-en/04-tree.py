@@ -16,8 +16,13 @@ from pattern.en import parse, Text
 # A Text is essentially a list of Sentence objects.
 # Each Sentence is a list of Word objects.
 # Each Word can be part of a Chunk object, accessible with Word.chunk.
-s = "I eat pizza with a silver fork."
-s = parse(s)
+
+stc = "I eat pizza with a silver fork."
+print(stc)
+
+s = parse(stc)
+print(s)
+
 s = Text(s)
 
 # You can also use the parsetree() function,
