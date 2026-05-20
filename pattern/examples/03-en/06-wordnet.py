@@ -50,9 +50,9 @@ print("synset:",synset)
 for s in synset.hyponyms(recursive=True, depth=2):
     print("    hyponym:",s)
     for word in s.senses:
-        print("word in hyponym.senses:", word)
+        # print("        word in hyponym.senses:", word )
         if word in wordnet.VERBS():
-            print("%s => %s" % (word, wordnet.synsets(word, pos=VERB)))
+            print("        %s => %s" % (word, wordnet.synsets(word, pos=VERB)))
 
 # Synset.similarity() returns an estimate of the semantic similarity to another synset,
 # based on Lin's semantic distance measure and Resnik Information Content.

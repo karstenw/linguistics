@@ -21,12 +21,15 @@ from pattern.en import sentiment, polarity, subjectivity, positive
 # The subjectivity() function measures objective vs. subjective, as a number between 0.0 and 1.0.
 # The sentiment() function returns an averaged (polarity, subjectivity)-tuple for a given string.
 for word in ("amazing", "horrible", "public"):
-    print(word, sentiment(word))
+    print( " sentiment:", word, sentiment(word))
 
 print("")
-print(sentiment(
+
+stc = (
     "The movie attempts to be surreal by incorporating time travel and various time paradoxes,"
-    "but it's presented in such a ridiculous way it's seriously boring."))
+    "but it's presented in such a ridiculous way it's seriously boring.")
+print("Sentence:", stc)
+print("sentiment:", sentiment(stc))
 
 # The input string can be:
 # - a string,
@@ -67,7 +70,7 @@ print("")
 # For example, its value is MOOD for emoticons:
 
 s = "amazing... :/"
-print(sentiment(s))
+print(s, sentiment(s))
 for chunk, polarity, subjectivity, label in sentiment(s).assessments:
     print(chunk, polarity, subjectivity, label)
 
