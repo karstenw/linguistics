@@ -17,8 +17,8 @@ from pattern.en import parse, pprint, tag
 # Common part-of-speech tags: NN (noun), VB (verb), JJ (adjective), PP (preposition).
 # A tag can have a suffix, for example NNS (plural noun) or VBG (gerund verb).
 # Overview of tags: http://www.clips.ua.ac.be/pages/mbsp-tags
-s = "I eat pizza with a fork."
-s = parse(s,
+stc = "I eat pizza with a fork."
+s = parse(stc,
      tokenize = True,  # Tokenize the input, i.e. split punctuation from words.
          tags = True,  # Find part-of-speech tags.
        chunks = True,  # Find chunk tags, e.g. "the black cat" = NP = noun phrase.
@@ -35,6 +35,7 @@ s = parse(s,
 # Words in a sentence have been annotated with tags,
 # for example: fork/NN/I-NP/I-PNP
 # NN = noun, NP = part of a noun phrase, PNP = part of a prepositional phrase.
+print(stc)
 print(s)
 print("")
 
@@ -51,8 +52,9 @@ print("")
 # The tag() command returns a list of (word, POS-tag)-tuples.
 # With light=True, this is the fastest and simplest way to get an idea
 # of a sentence's constituents:
-s = "I eat pizza with a fork."
-s = tag(s)
+stc = "I eat pizza with a fork."
+s = tag(stc)
+print(stc)
 print(s)
 for word, tag in s:
     if tag == "NN":  # Find all nouns in the input string.

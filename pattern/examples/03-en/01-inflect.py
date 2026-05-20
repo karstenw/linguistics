@@ -3,17 +3,16 @@ from __future__ import unicode_literals
 
 from builtins import str, bytes, dict, int
 
-import os
 import sys
+import os, time
 
 sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
-import pattern
 
-from pattern.en import article, referenced
-from pattern.en import pluralize, singularize
-from pattern.en import comparative, superlative
-from pattern.en import conjugate, lemma, lexeme, tenses
+import pattern
+from pattern.en import article, referenced, pluralize, singularize
+from pattern.en import comparative, superlative, conjugate, lemma, lexeme, tenses
 from pattern.en import NOUN, VERB, ADJECTIVE
+
 
 # The en module has a range of tools for word inflection:
 # guessing the indefinite article of a word (a/an?),
@@ -29,7 +28,7 @@ print("")
 # The referenced() function returns a string with article() prepended to the given word.
 # The referenced() funtion is non-trivial, as demonstrated with the exception words below:
 for word in ["hour", "one-liner", "European", "university", "owl", "yclept", "year"]:
-    print(referenced(word))
+    print( word, 'referenced:', referenced(word))
 print("")
 
 # PLURALIZATION
@@ -37,11 +36,11 @@ print("")
 # The pluralize() function returns the plural form of a singular noun (or adjective).
 # The algorithm is robust and handles about 98% of exceptions correctly:
 for word in ["part-of-speech", "child", "dog's", "wolf", "bear", "kitchen knife"]:
-    print(pluralize(word))
-print(pluralize("octopus", classical=True))
-print(pluralize("matrix", classical=True))
-print(pluralize("matrix", classical=False))
-print(pluralize("my", pos=ADJECTIVE))
+    print(word, "pluralized:", pluralize(word))
+print( 'pluralize("octopus", classical=True):', pluralize("octopus", classical=True))
+print( 'pluralize("matrix", classical=True):', pluralize("matrix", classical=True))
+print( 'pluralize("matrix", classical=False):', pluralize("matrix", classical=False))
+print( 'pluralize("my", pos=ADJECTIVE):', pluralize("my", pos=ADJECTIVE))
 print("")
 
 # SINGULARIZATION
@@ -50,8 +49,8 @@ print("")
 # It is slightly less robust than the pluralize() function.
 for word in ["parts-of-speech", "children", "dogs'", "wolves", "bears", "kitchen knives",
              "octopodes", "matrices", "matrixes"]:
-    print(singularize(word))
-print(singularize("our", pos=ADJECTIVE))
+    print(word, "singularized:", singularize(word))
+print( 'singularize("our", pos=ADJECTIVE):', singularize("our", pos=ADJECTIVE))
 print("")
 
 # COMPARATIVE & SUPERLATIVE ADJECTIVES
@@ -80,8 +79,10 @@ print("")
 # The tense can also be given as an abbreviated alias, e.g.,
 # inf, 1sg, 2sg, 3sg, pl, part, 1sgp, 2sgp, 3sgp, ppl, ppart.
 from pattern.en import PRESENT, SINGULAR
-print(conjugate("being", tense=PRESENT, person=1, number=SINGULAR, negated=False))
-print(conjugate("being", tense="1sg", negated=False))
+print( 'conjugate("being", tense=PRESENT, person=1, number=SINGULAR, negated=False):',
+        conjugate("being", tense=PRESENT, person=1, number=SINGULAR, negated=False))
+print( 'conjugate("being", tense="1sg", negated=False):',
+        conjugate("being", tense="1sg", negated=False))
 print("")
 
 # Prefer the full constants for code that will be reused/shared.
@@ -92,6 +93,7 @@ print("")
 # You can then check if a tense constant is in the list.
 # This will also work with aliases, even though they are not explicitly in the list.
 from pattern.en import PRESENT, PLURAL
-print(tenses("are"))
-print((PRESENT, 1, PLURAL) in tenses("are"))
+print( 'tenses("are"):', tenses("are"))
+print('(PRESENT, 1, PLURAL) in tenses("are"):',
+       (PRESENT, 1, PLURAL) in tenses("are"))
 print("pl" in tenses("are"))
