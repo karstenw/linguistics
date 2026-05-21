@@ -13,7 +13,7 @@
 <v t="karstenw.20230306115915.1" a="E"><vh>@clean textblob/__init__.py</vh>
 <v t="karstenw.20230306115933.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230306120052.1" a="E"><vh>@clean textblob/_text.py</vh>
+<v t="karstenw.20230306120052.1"><vh>@clean textblob/_text.py</vh>
 <v t="karstenw.20230306120100.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230306120100.2"><vh>decode_string</vh></v>
 <v t="karstenw.20230306120100.3"><vh>encode_string</vh></v>
@@ -417,7 +417,7 @@
 <v t="karstenw.20230306120327.1"><vh>@clean textblob/wordnet.py</vh>
 <v t="karstenw.20230306120545.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230306120339.1"><vh>en</vh>
+<v t="karstenw.20230306120339.1" a="E"><vh>en</vh>
 <v t="karstenw.20230306120343.1"><vh>@clean textblob/en/__init__.py</vh>
 <v t="karstenw.20230306120548.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230306120548.2"><vh>find_lemmata</vh></v>
@@ -850,9 +850,9 @@ ABBREVIATIONS = abbreviations = set((
     "pred.", "pres.", "p.m.", "ref.", "v.", "vs.", "w/"
 ))
 
-RE_ABBR1 = re.compile("^[A-Za-z]\.$")       # single letter, "T. De Smedt"
-RE_ABBR2 = re.compile("^([A-Za-z]\.)+$")    # alternating letters, "U.S."
-RE_ABBR3 = re.compile("^[A-Z][" + "|".join( # capital followed by consonants, "Mr."
+RE_ABBR1 = re.compile( r"^[A-Za-z]\.$")       # single letter, "T. De Smedt"
+RE_ABBR2 = re.compile( r"^([A-Za-z]\.)+$")    # alternating letters, "U.S."
+RE_ABBR3 = re.compile( r"^[A-Z][" + "|".join( # capital followed by consonants, "Mr."
         "bcdfghjklmnpqrstvwxz") + "]+.$")
 
 # Handle emoticons.
@@ -2215,8 +2215,6 @@ import nltk
 
 from textblob.compat import with_metaclass
 
-##### POS TAGGERS #####
-
 </t>
 <t tx="karstenw.20230306120511.10">def __init__(self):
     self._trained = False
@@ -2239,7 +2237,9 @@ def analyze(self, text):
     return None
 
 </t>
-<t tx="karstenw.20230306120511.13">class BaseParser(with_metaclass(ABCMeta)):
+<t tx="karstenw.20230306120511.13">##### PARSERS #####
+
+class BaseParser(with_metaclass(ABCMeta)):
     """Abstract parser class from which all parsers inherit from. All
     descendants must implement a ``parse()`` method.
     """
@@ -2250,14 +2250,14 @@ def parse(self, text):
     """Parses the text."""
     return
 </t>
-<t tx="karstenw.20230306120511.2">class BaseTagger(with_metaclass(ABCMeta)):
+<t tx="karstenw.20230306120511.2">##### POS TAGGERS #####
+
+class BaseTagger(with_metaclass(ABCMeta)):
     """Abstract tagger class from which all taggers
     inherit from. All descendants must implement a
     ``tag()`` method.
     """
     @others
-##### NOUN PHRASE EXTRACTORS #####
-
 </t>
 <t tx="karstenw.20230306120511.3">@abstractmethod
 def tag(self, text, tokenize=True):
@@ -2267,15 +2267,15 @@ def tag(self, text, tokenize=True):
     return
 
 </t>
-<t tx="karstenw.20230306120511.4">class BaseNPExtractor(with_metaclass(ABCMeta)):
+<t tx="karstenw.20230306120511.4">##### NOUN PHRASE EXTRACTORS #####
+
+class BaseNPExtractor(with_metaclass(ABCMeta)):
     """Abstract base class from which all NPExtractor classes inherit.
     Descendant classes must implement an ``extract(text)`` method
     that returns a list of noun phrases as strings.
     """
 
     @others
-##### TOKENIZERS #####
-
 </t>
 <t tx="karstenw.20230306120511.5">@abstractmethod
 def extract(self, text):
@@ -2283,19 +2283,14 @@ def extract(self, text):
     return
 
 </t>
-<t tx="karstenw.20230306120511.6">class BaseTokenizer(with_metaclass(ABCMeta), nltk.tokenize.api.TokenizerI):
+<t tx="karstenw.20230306120511.6">##### TOKENIZERS #####
+
+class BaseTokenizer(with_metaclass(ABCMeta), nltk.tokenize.api.TokenizerI):
     """Abstract base class from which all Tokenizer classes inherit.
     Descendant classes must implement a ``tokenize(text)`` method
     that returns a list of noun phrases as strings.
     """
     @others
-##### SENTIMENT ANALYZERS ####
-
-
-DISCRETE = 'ds'
-CONTINUOUS = 'co'
-
-
 </t>
 <t tx="karstenw.20230306120511.7">@abstractmethod
 def tokenize(self, text):
@@ -2316,7 +2311,14 @@ def tokenize(self, text):
     return (t for t in self.tokenize(text, *args, **kwargs))
 
 </t>
-<t tx="karstenw.20230306120511.9">class BaseSentimentAnalyzer(with_metaclass(ABCMeta)):
+<t tx="karstenw.20230306120511.9">##### SENTIMENT ANALYZERS ####
+
+
+DISCRETE = 'ds'
+CONTINUOUS = 'co'
+
+
+class BaseSentimentAnalyzer(with_metaclass(ABCMeta)):
     """Abstract base class from which all sentiment analyzers inherit.
     Should implement an ``analyze(text)`` method which returns either the
     results of analysis.
@@ -2324,8 +2326,6 @@ def tokenize(self, text):
     kind = DISCRETE
 
     @others
-##### PARSERS #####
-
 </t>
 <t tx="karstenw.20230306120514.1">"""Wrappers for various units of text, including the main
 :class:`TextBlob &lt;textblob.blob.TextBlob&gt;`, :class:`Word &lt;textblob.blob.Word&gt;`,
@@ -3277,9 +3277,6 @@ from textblob.tokenizers import word_tokenize
 from textblob.utils import strip_punc, is_filelike
 import textblob.formats as formats
 
-### Basic feature extractors ###
-
-
 </t>
 <t tx="karstenw.20230306120516.10">def classify(self, text):
     """Classifies a string of text."""
@@ -3373,7 +3370,10 @@ def classifier(self):
     return self.classifier.labels()
 
 </t>
-<t tx="karstenw.20230306120516.2">def _get_words_from_dataset(dataset):
+<t tx="karstenw.20230306120516.2">### Basic feature extractors ###
+
+
+def _get_words_from_dataset(dataset):
     """Return a set of all words in a dataset.
 
     :param dataset: A list of tuples of the form ``(words, label)`` where
@@ -3716,10 +3716,10 @@ pprint = pretty_format
     features = dict((u'contains({0})'.format(w), True) for w in tokens)
     return features
 
-##### CLASSIFIERS #####
-
 </t>
-<t tx="karstenw.20230306120516.6">class BaseClassifier(object):
+<t tx="karstenw.20230306120516.6">##### CLASSIFIERS #####
+
+class BaseClassifier(object):
     """Abstract classifier class from which all classifers inherit. At a
     minimum, descendant classes must implement a ``classify`` method and have
     a ``classifier`` property.
@@ -3818,9 +3818,9 @@ else:  # PY3
     implements_to_string = lambda x: x
 
 
-# From six
 </t>
-<t tx="karstenw.20230306120518.2">def with_metaclass(meta, *bases):
+<t tx="karstenw.20230306120518.2"># From six
+def with_metaclass(meta, *bases):
     """Create a base class with a metaclass."""
     # This requires a bit of explanation: the basic idea is to make a dummy
     # metaclass for one level of class instantiation that replaces itself with
