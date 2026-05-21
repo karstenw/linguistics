@@ -145,39 +145,51 @@ def initlib():
     if inited:
         return languages, relations, contexts
     
-    result = {}
-    resultnames = {}
+    languages = {}
+    languagenames = {}
     records = fetchAllRecords(conn, "language")
     for record in records:
         languagecode = record['languagecode']
         languagename = record['languagename']
-        result[languagecode] = record
-        resultnames[languagename] = languagecode
-    languages = result.copy()
-    languagenames = resultnames.copy()
+        languages[languagecode] = record
+        languagenames[languagename] = languagecode
 
-    result = {}
-    resultnames = {}
+    relations = {}
+    relationnames = {}
     records = fetchAllRecords(conn, "relation")
     for record in records:
         idrelation = record['idrelation']
         patternrelation = record['patternrelation']
         if patternrelation != "":
-            result[idrelation] = record
-            resultnames[patternrelation] = idrelation
-    relations = result.copy()
-    relationnames = resultnames.copy()
+            relations[idrelation] = record
+            relationnames[patternrelation] = idrelation
     
-    result = {}
+    contexts = {}
     records = fetchAllRecords(conn, "context")
     for record in records:
         context = record['context']
         idcontext = record['idcontext']
-        result[context] = idcontext
-    contexts = result.copy()
+        contexts[context] = idcontext
 
     inited = True
     return languages, relations, contexts
+
+
+def longlanguagename( shortlanguagename, autonym=False ):
+    """Return the long english language name or the autonym if True and exists.
+    el -> Greek | Ελληνικά
+    de -> German | Deutsch
+    xy -> xy | xy
+    """
+    
+    rec = languages.get( shortlanguagename, {} )
+    name = rec.get( 'autonym', "" )
+    if autonym and name:
+        return name
+    name = rec.get( 'languagename', "" )
+    if name:
+        return name
+    return shortlanguagename
 
 
 def getconcept( conn, concept, context, lang=None, slack=False ):
@@ -354,11 +366,13 @@ def query_concept(  concept, relation=None, context=None,
         concept1 = conceptCache[concept1id]
         cn1name = concept1.concept
         cn1lang = concept1.languagecode
+        cn1langname = longlanguagename( cn1lang )
         context1 = concept1.context
         
         concept2 = conceptCache[concept2id]
         cn2name = concept2.concept
         cn2lang = concept2.languagecode
+        cn2langname = longlanguagename( cn2lang )
         context2 = concept2.context
         
         if 1:
@@ -371,9 +385,9 @@ def query_concept(  concept, relation=None, context=None,
                 continue
         
         record = FullConcept( idedge,
-                              concept1id, cn1name, cn1lang, context1,
+                              concept1id, cn1name, cn1lang, cn1langname, context1,
                               relationid, relationname, weight,
-                              concept2id, cn2name, cn2lang, context2)
+                              concept2id, cn2name, cn2lang, cn2langname, context2)
         resultConcepts.append( record )
     
     if maxedges > 0:
@@ -441,11 +455,13 @@ def query_translations( concept, lang, weight=0.6, maxedges=0 ):
         concept1 = conceptCache[concept1id]
         cn1name = concept1.concept
         cn1lang = concept1.languagecode
+        cn1langname = longlanguagename( cn1lang )
         context1 = concept1.context
         
         concept2 = conceptCache[concept2id]
         cn2name = concept2.concept
         cn2lang = concept2.languagecode
+        cn2langname = longlanguagename( cn2lang )
         context2 = concept2.context
         
         # we want the other languages
@@ -453,9 +469,9 @@ def query_translations( concept, lang, weight=0.6, maxedges=0 ):
             continue
         
         record = FullConcept( idedge,
-                              concept1id, cn1name, cn1lang, context1,
+                              concept1id, cn1name, cn1lang, cn1langname, context1,
                               relationid, relationname, weight,
-                              concept2id, cn2name, cn2lang, context2)
+                              concept2id, cn2name, cn2lang, cn2langname, context2)
         resultConcepts.append( record )
     
     if maxedges > 0:
@@ -540,7 +556,6 @@ def intOrIterable( value, argument ):
 
 
 ################################################################################
-
 #
 # Parts of the former sdb (simple database library)
 # which was merged into filepool
@@ -568,19 +583,21 @@ def tableItems( db, tablename):
 RecordNamedTupletypes = {}
 RecordTypeNumber = 1
 
-
+# namedtupletype for the concepts table
 conceptnames, _ = tableItems(database, "concept")
 ConceptRecord = namedtuple( 'ConceptRecord', conceptnames )
 
+# namedtupletype for the edges table
 edgenames, _ = tableItems(database, "edge")
 EdgeRecord = namedtuple( 'EdgeRecord', edgenames )
+
 
 # idedge concept1id cn1name cn1lang  context1 relationid relationname concept2id cn2name cn2lang context2 weight 
 fullconceptnames = (
         "idedge "
-        "concept1id concept1name concept1lang concept1context "
+        "concept1id concept1name concept1lang concept1langname concept1context "
         "relationid relationname weight "
-        "concept2id concept2name concept2lang concept2context")
+        "concept2id concept2name concept2lang concept2langname concept2context")
 fullconceptnames = fullconceptnames.split()
 FullConcept = namedtuple( 'FullConcept', fullconceptnames )
 
