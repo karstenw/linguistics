@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Installation &#8212; TextBlob 0.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=6625fa76" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=6bef19aa" />
+    <script src="_static/documentation_options.js?v=b52c616d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial: Quickstart" href="quickstart.html" />
+    <link rel="prev" title="License" href="license.html" />   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=0.9, maximum-scale=0.9"
+/>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Tutorial: Quickstart"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="License"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">TextBlob 0.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="installation">
+<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
+<section id="installing-upgrading-from-the-pypi">
+<h2>Installing/Upgrading From the PyPI<a class="headerlink" href="#installing-upgrading-from-the-pypi" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U textblob
+$ python -m textblob.download_corpora
+</pre></div>
+</div>
+<p>This will install TextBlob and download the necessary NLTK corpora. If you need to change the default download directory set the <code class="docutils literal notranslate"><span class="pre">NLTK_DATA</span></code> environment variable.</p>
+<div class="admonition-downloading-the-minimum-corpora admonition">
+<p class="admonition-title">Downloading the minimum corpora</p>
+<p>If you only intend to use TextBlob’s default models (no model overrides), you can pass the <code class="docutils literal notranslate"><span class="pre">lite</span></code> argument. This downloads only those corpora needed for basic functionality.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m textblob.download_corpora lite
+</pre></div>
+</div>
+</div>
+</section>
+<section id="with-conda">
+<h2>With conda<a class="headerlink" href="#with-conda" title="Link to this heading">¶</a></h2>
+<p>TextBlob is also available as a <a class="reference external" href="http://conda.pydata.org/">conda</a> package. To install with <code class="docutils literal notranslate"><span class="pre">conda</span></code>, run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge textblob
+$ python -m textblob.download_corpora
+</pre></div>
+</div>
+</section>
+<section id="from-source">
+<h2>From Source<a class="headerlink" href="#from-source" title="Link to this heading">¶</a></h2>
+<p>TextBlob is actively developed on <a class="reference external" href="https://github.com/sloria/TextBlob">Github</a>.</p>
+<p>You can clone the public repo:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/sloria/TextBlob.git
+</pre></div>
+</div>
+<p>Or download one of the following:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/sloria/TextBlob/tarball/master">tarball</a></p></li>
+<li><p><a class="reference external" href="https://github.com/sloria/TextBlob/zipball/master">zipball</a></p></li>
+</ul>
+<p>Once you have the source, you can install it into your site-packages with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python setup.py install
+</pre></div>
+</div>
+</section>
+<section id="get-the-bleeding-edge-version">
+<h2>Get the bleeding edge version<a class="headerlink" href="#get-the-bleeding-edge-version" title="Link to this heading">¶</a></h2>
+<p>To get the latest development version of TextBlob, run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U git+https://github.com/sloria/TextBlob.git@dev
+</pre></div>
+</div>
+</section>
+<section id="migrating-from-older-versions-0-7-1">
+<h2>Migrating from older versions (&lt;=0.7.1)<a class="headerlink" href="#migrating-from-older-versions-0-7-1" title="Link to this heading">¶</a></h2>
+<p>As of TextBlob 0.8.0, TextBlob’s core package was renamed to <code class="docutils literal notranslate"><span class="pre">textblob</span></code>, whereas earlier versions used a package called <code class="docutils literal notranslate"><span class="pre">text</span></code>. Therefore, migrating to newer versions should be as simple as rewriting your imports, like so:</p>
+<p>New:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span><span class="p">,</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Blobber</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.classifiers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveBayesClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.taggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NLTKTagger</span>
+</pre></div>
+</div>
+<p>Old:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">text.blob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span><span class="p">,</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Blobber</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">text.classifiers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveBayesClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">text.taggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NLTKTagger</span>
+</pre></div>
+</div>
+<section id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h3>
+<p>TextBlob depends on NLTK 3. NLTK will be installed automatically when you run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">textblob</span></code>.</p>
+<p>Some features, such as the maximum entropy classifier, require <a class="reference external" href="http://www.numpy.org/">numpy</a>, but it is not required for basic usage.</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="index.html"
+    ><img
+      class="logo"
+      src="_static/textblob-logo.png"
+      height="200"
+      width="230"
+      alt="Logo"
+  /></a>
+</p>
+
+<p>
+  <iframe
+    src="https://ghbtns.com/github-btn.html?user=sloria&repo=TextBlob&type=watch&count=true&size=large"
+    allowtransparency="true"
+    frameborder="0"
+    scrolling="0"
+    width="200px"
+    height="35px"
+  ></iframe>
+</p>
+
+<p>
+  TextBlob is a Python library for processing textual data. It provides a
+  consistent API for diving into common natural language processing (NLP) tasks
+  such as part-of-speech tagging, noun phrase extraction, sentiment analysis,
+  and more.
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://pypi.python.org/pypi/textblob">TextBlob @ PyPI</a></li>
+  <li><a href="https://github.com/sloria/textblob">TextBlob @ GitHub</a></li>
+  <li><a href="https://github.com/sloria/textblob/issues">Issue Tracker</a></li>
+</ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#installing-upgrading-from-the-pypi">Installing/Upgrading From the PyPI</a></li>
+<li><a class="reference internal" href="#with-conda">With conda</a></li>
+<li><a class="reference internal" href="#from-source">From Source</a></li>
+<li><a class="reference internal" href="#get-the-bleeding-edge-version">Get the bleeding edge version</a></li>
+<li><a class="reference internal" href="#migrating-from-older-versions-0-7-1">Migrating from older versions (&lt;=0.7.1)</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="license.html" title="previous chapter">License</a></li>
+      <li>Next: <a href="quickstart.html" title="next chapter">Tutorial: Quickstart</a></li>
+  </ul></li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<div class="footer">&copy; Copyright <a href="http://stevenloria.com/">Steven Loria</a> and contributors.</div>
+<a href="https://github.com/sloria/textblob" class="github">
+  <img
+    style="position: absolute; top: 0; right: 0; border: 0"
+    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+    alt="Fork me on GitHub"
+    class="github"
+  />
+</a>
+  </body>
+</html>

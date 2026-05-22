@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial: Quickstart &#8212; TextBlob 0.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=6625fa76" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=6bef19aa" />
+    <script src="_static/documentation_options.js?v=b52c616d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial: Building a Text Classification System" href="classifiers.html" />
+    <link rel="prev" title="Installation" href="install.html" />   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=0.9, maximum-scale=0.9"
+/>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="classifiers.html" title="Tutorial: Building a Text Classification System"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">TextBlob 0.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Tutorial: Quickstart</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-textblob.blob">
+<span id="tutorial-quickstart"></span><span id="quickstart"></span><h1>Tutorial: Quickstart<a class="headerlink" href="#module-textblob.blob" title="Link to this heading">¶</a></h1>
+<p>TextBlob aims to provide access to common text-processing operations through a familiar interface. You can treat <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob" title="textblob.blob.TextBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextBlob</span></code></a> objects as if they were Python strings that learned how to do Natural Language Processing.</p>
+<section id="create-a-textblob">
+<h2>Create a TextBlob<a class="headerlink" href="#create-a-textblob" title="Link to this heading">¶</a></h2>
+<p>First, the import.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+</pre></div>
+</div>
+<p>Let’s create our first <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob" title="textblob.blob.TextBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextBlob</span></code></a>.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wiki</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Python is a high-level, general-purpose programming language.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="part-of-speech-tagging">
+<h2>Part-of-speech Tagging<a class="headerlink" href="#part-of-speech-tagging" title="Link to this heading">¶</a></h2>
+<p>Part-of-speech tags can be accessed through the <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.tags" title="textblob.blob.TextBlob.tags"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tags</span></code></a> property.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wiki</span><span class="o">.</span><span class="n">tags</span>
+<span class="go">[(&#39;Python&#39;, &#39;NNP&#39;), (&#39;is&#39;, &#39;VBZ&#39;), (&#39;a&#39;, &#39;DT&#39;), (&#39;high-level&#39;, &#39;JJ&#39;), (&#39;general-purpose&#39;, &#39;JJ&#39;), (&#39;programming&#39;, &#39;NN&#39;), (&#39;language&#39;, &#39;NN&#39;)]</span>
+</pre></div>
+</div>
+</section>
+<section id="noun-phrase-extraction">
+<h2>Noun Phrase Extraction<a class="headerlink" href="#noun-phrase-extraction" title="Link to this heading">¶</a></h2>
+<p>Similarly, noun phrases are accessed through the <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.noun_phrases" title="textblob.blob.TextBlob.noun_phrases"><code class="xref py py-meth docutils literal notranslate"><span class="pre">noun_phrases</span></code></a> property.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wiki</span><span class="o">.</span><span class="n">noun_phrases</span>
+<span class="go">WordList([&#39;python&#39;])</span>
+</pre></div>
+</div>
+</section>
+<section id="sentiment-analysis">
+<h2>Sentiment Analysis<a class="headerlink" href="#sentiment-analysis" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.sentiment" title="textblob.blob.TextBlob.sentiment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sentiment</span></code></a> property returns a namedtuple of the form <code class="docutils literal notranslate"><span class="pre">Sentiment(polarity,</span> <span class="pre">subjectivity)</span></code>. The polarity score is a float within the range [-1.0, 1.0]. The subjectivity is a float within the range [0.0, 1.0] where 0.0 is very objective and 1.0 is very subjective.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">testimonial</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Textblob is amazingly simple to use. What great fun!&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">testimonial</span><span class="o">.</span><span class="n">sentiment</span>
+<span class="go">Sentiment(polarity=0.39166666666666666, subjectivity=0.4357142857142857)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">testimonial</span><span class="o">.</span><span class="n">sentiment</span><span class="o">.</span><span class="n">polarity</span>
+<span class="go">0.39166666666666666</span>
+</pre></div>
+</div>
+</section>
+<section id="tokenization">
+<h2>Tokenization<a class="headerlink" href="#tokenization" title="Link to this heading">¶</a></h2>
+<p>You can break TextBlobs into words or sentences.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zen</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;Beautiful is better than ugly. &quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;Explicit is better than implicit. &quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;Simple is better than complex.&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zen</span><span class="o">.</span><span class="n">words</span>
+<span class="go">WordList([&#39;Beautiful&#39;, &#39;is&#39;, &#39;better&#39;, &#39;than&#39;, &#39;ugly&#39;, &#39;Explicit&#39;, &#39;is&#39;, &#39;better&#39;, &#39;than&#39;, &#39;implicit&#39;, &#39;Simple&#39;, &#39;is&#39;, &#39;better&#39;, &#39;than&#39;, &#39;complex&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zen</span><span class="o">.</span><span class="n">sentences</span>
+<span class="go">[Sentence(&quot;Beautiful is better than ugly.&quot;), Sentence(&quot;Explicit is better than implicit.&quot;), Sentence(&quot;Simple is better than complex.&quot;)]</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="api_reference.html#textblob.blob.Sentence" title="textblob.blob.Sentence"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sentence</span></code></a> objects have the same properties and methods as TextBlobs.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">zen</span><span class="o">.</span><span class="n">sentences</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">sentiment</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For more advanced tokenization, see the <a class="reference internal" href="advanced_usage.html#advanced"><span class="std std-ref">Advanced Usage</span></a> guide.</p>
+</section>
+<section id="words-inflection-and-lemmatization">
+<h2>Words Inflection and Lemmatization<a class="headerlink" href="#words-inflection-and-lemmatization" title="Link to this heading">¶</a></h2>
+<p>Each word in <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.words" title="textblob.blob.TextBlob.words"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TextBlob.words</span></code></a> or <a class="reference internal" href="api_reference.html#textblob.blob.Sentence.words" title="textblob.blob.Sentence.words"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Sentence.words</span></code></a> is a <a class="reference internal" href="api_reference.html#textblob.blob.Word" title="textblob.blob.Word"><code class="xref py py-class docutils literal notranslate"><span class="pre">Word</span></code></a>
+object (a subclass of <code class="docutils literal notranslate"><span class="pre">unicode</span></code>) with useful methods, e.g. for word inflection.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sentence</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Use 4 spaces per indentation level.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sentence</span><span class="o">.</span><span class="n">words</span>
+<span class="go">WordList([&#39;Use&#39;, &#39;4&#39;, &#39;spaces&#39;, &#39;per&#39;, &#39;indentation&#39;, &#39;level&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sentence</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">singularize</span><span class="p">()</span>
+<span class="go">&#39;space&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sentence</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pluralize</span><span class="p">()</span>
+<span class="go">&#39;levels&#39;</span>
+</pre></div>
+</div>
+<p>Words can be lemmatized by calling the <a class="reference internal" href="api_reference.html#textblob.blob.Word.lemmatize" title="textblob.blob.Word.lemmatize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lemmatize</span></code></a> method.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">Word</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span> <span class="o">=</span> <span class="n">Word</span><span class="p">(</span><span class="s2">&quot;octopi&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">()</span>
+<span class="go">&#39;octopus&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span> <span class="o">=</span> <span class="n">Word</span><span class="p">(</span><span class="s2">&quot;went&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>  <span class="c1"># Pass in WordNet part of speech (verb)</span>
+<span class="go">&#39;go&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="wordnet-integration">
+<h2>WordNet Integration<a class="headerlink" href="#wordnet-integration" title="Link to this heading">¶</a></h2>
+<p>You can access the synsets for a <a class="reference internal" href="api_reference.html#textblob.blob.Word" title="textblob.blob.Word"><code class="xref py py-class docutils literal notranslate"><span class="pre">Word</span></code></a> via the <a class="reference internal" href="api_reference.html#textblob.blob.Word.synsets" title="textblob.blob.Word.synsets"><code class="xref py py-meth docutils literal notranslate"><span class="pre">synsets</span></code></a> property or the <a class="reference internal" href="api_reference.html#textblob.blob.Word.get_synsets" title="textblob.blob.Word.get_synsets"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_synsets</span></code></a> method, optionally passing in a part of speech.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">Word</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.wordnet</span><span class="w"> </span><span class="kn">import</span> <span class="n">VERB</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">word</span> <span class="o">=</span> <span class="n">Word</span><span class="p">(</span><span class="s2">&quot;octopus&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">word</span><span class="o">.</span><span class="n">synsets</span>
+<span class="go">[Synset(&#39;octopus.n.01&#39;), Synset(&#39;octopus.n.02&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;hack&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_synsets</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">VERB</span><span class="p">)</span>
+<span class="go">[Synset(&#39;chop.v.05&#39;), Synset(&#39;hack.v.02&#39;), Synset(&#39;hack.v.03&#39;), Synset(&#39;hack.v.04&#39;), Synset(&#39;hack.v.05&#39;), Synset(&#39;hack.v.06&#39;), Synset(&#39;hack.v.07&#39;), Synset(&#39;hack.v.08&#39;)]</span>
+</pre></div>
+</div>
+<p>You can access the definitions for each synset via the <a class="reference internal" href="api_reference.html#textblob.blob.Word.definitions" title="textblob.blob.Word.definitions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">definitions</span></code></a> property or the <a class="reference internal" href="api_reference.html#textblob.blob.Word.define" title="textblob.blob.Word.define"><code class="xref py py-meth docutils literal notranslate"><span class="pre">define()</span></code></a> method, which can also take an optional part-of-speech argument.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Word</span><span class="p">(</span><span class="s2">&quot;octopus&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">definitions</span>
+<span class="go">[&#39;tentacles of octopus prepared as food&#39;, &#39;bottom-living cephalopod having a soft oval body with eight long tentacles&#39;]</span>
+</pre></div>
+</div>
+<p>You can also create synsets directly.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.wordnet</span><span class="w"> </span><span class="kn">import</span> <span class="n">Synset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octopus</span> <span class="o">=</span> <span class="n">Synset</span><span class="p">(</span><span class="s2">&quot;octopus.n.02&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shrimp</span> <span class="o">=</span> <span class="n">Synset</span><span class="p">(</span><span class="s2">&quot;shrimp.n.03&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octopus</span><span class="o">.</span><span class="n">path_similarity</span><span class="p">(</span><span class="n">shrimp</span><span class="p">)</span>
+<span class="go">0.1111111111111111</span>
+</pre></div>
+</div>
+<p>For more information on the WordNet API, see the NLTK documentation on the <a class="reference external" href="http://www.nltk.org/howto/wordnet.html">Wordnet Interface</a>.</p>
+</section>
+<section id="wordlists">
+<h2>WordLists<a class="headerlink" href="#wordlists" title="Link to this heading">¶</a></h2>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">WordList</span></code> is just a Python list with additional methods.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">animals</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;cat dog octopus&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">animals</span><span class="o">.</span><span class="n">words</span>
+<span class="go">WordList([&#39;cat&#39;, &#39;dog&#39;, &#39;octopus&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">animals</span><span class="o">.</span><span class="n">words</span><span class="o">.</span><span class="n">pluralize</span><span class="p">()</span>
+<span class="go">WordList([&#39;cats&#39;, &#39;dogs&#39;, &#39;octopodes&#39;])</span>
+</pre></div>
+</div>
+</section>
+<section id="spelling-correction">
+<h2>Spelling Correction<a class="headerlink" href="#spelling-correction" title="Link to this heading">¶</a></h2>
+<p>Use the <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.correct" title="textblob.blob.TextBlob.correct"><code class="xref py py-meth docutils literal notranslate"><span class="pre">correct()</span></code></a> method to attempt spelling correction.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;I havv goood speling!&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">correct</span><span class="p">())</span>
+<span class="go">I have good spelling!</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="api_reference.html#textblob.blob.Word" title="textblob.blob.Word"><code class="xref py py-class docutils literal notranslate"><span class="pre">Word</span></code></a> objects have a <code class="xref py py-meth docutils literal notranslate"><span class="pre">spellcheck()</span> <span class="pre">Word.spellcheck()</span></code> method that returns a list of <code class="docutils literal notranslate"><span class="pre">(word,</span> <span class="pre">confidence)</span></code> tuples with spelling suggestions.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">Word</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span> <span class="o">=</span> <span class="n">Word</span><span class="p">(</span><span class="s2">&quot;falibility&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">()</span>
+<span class="go">[(&#39;fallibility&#39;, 1.0)]</span>
+</pre></div>
+</div>
+<p>Spelling correction is based on Peter Norvig’s “How to Write a Spelling Corrector”<a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> as implemented in the pattern library. It is about 70% accurate <a class="footnote-reference brackets" href="#id5" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="get-word-and-noun-phrase-frequencies">
+<h2>Get Word and Noun Phrase Frequencies<a class="headerlink" href="#get-word-and-noun-phrase-frequencies" title="Link to this heading">¶</a></h2>
+<p>There are two ways to get the frequency of a word or noun phrase in a <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob" title="textblob.blob.TextBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextBlob</span></code></a>.</p>
+<p>The first is through the <code class="docutils literal notranslate"><span class="pre">word_counts</span></code> dictionary.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">monty</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;We are no longer the Knights who say Ni. &quot;</span>
+<span class="gp">... </span>                    <span class="s2">&quot;We are now the Knights who say Ekki ekki ekki PTANG.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monty</span><span class="o">.</span><span class="n">word_counts</span><span class="p">[</span><span class="s1">&#39;ekki&#39;</span><span class="p">]</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p>If you access the frequencies this way, the search will <em>not</em> be case sensitive, and words that are not found will have a frequency of 0.</p>
+<p>The second way is to use the <code class="docutils literal notranslate"><span class="pre">count()</span></code> method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">monty</span><span class="o">.</span><span class="n">words</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;ekki&#39;</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p>You can specify whether or not the search should be case-sensitive (default is <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">monty</span><span class="o">.</span><span class="n">words</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;ekki&#39;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+<p>Each of these methods can also be used with noun phrases.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wiki</span><span class="o">.</span><span class="n">noun_phrases</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</section>
+<section id="parsing">
+<h2>Parsing<a class="headerlink" href="#parsing" title="Link to this heading">¶</a></h2>
+<p>Use the <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.parse" title="textblob.blob.TextBlob.parse"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse()</span></code></a> method to parse the text.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;And now for something completely different.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">parse</span><span class="p">())</span>
+<span class="go">And/CC/O/O now/RB/B-ADVP/O for/IN/B-PP/B-PNP something/NN/B-NP/I-PNP completely/RB/B-ADJP/O different/JJ/I-ADJP/O ././O/O</span>
+</pre></div>
+</div>
+<p>By default, TextBlob uses pattern’s parser <a class="footnote-reference brackets" href="#id6" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="textblobs-are-like-python-strings">
+<h2>TextBlobs Are Like Python Strings!<a class="headerlink" href="#textblobs-are-like-python-strings" title="Link to this heading">¶</a></h2>
+<p>You can use Python’s substring syntax.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zen</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">19</span><span class="p">]</span>
+<span class="go">TextBlob(&quot;Beautiful is better&quot;)</span>
+</pre></div>
+</div>
+<p>You can use common string methods.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zen</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="go">TextBlob(&quot;BEAUTIFUL IS BETTER THAN UGLY. EXPLICIT IS BETTER THAN IMPLICIT. SIMPLE IS BETTER THAN COMPLEX.&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zen</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Simple&quot;</span><span class="p">)</span>
+<span class="go">65</span>
+</pre></div>
+</div>
+<p>You can make comparisons between TextBlobs and strings.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">apple_blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;apples&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">banana_blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;bananas&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apple_blob</span> <span class="o">&lt;</span> <span class="n">banana_blob</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apple_blob</span> <span class="o">==</span> <span class="s2">&quot;apples&quot;</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>You can concatenate and interpolate TextBlobs and strings.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">apple_blob</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span> <span class="o">+</span> <span class="n">banana_blob</span>
+<span class="go">TextBlob(&quot;apples and bananas&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> and </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">apple_blob</span><span class="p">,</span> <span class="n">banana_blob</span><span class="p">)</span>
+<span class="go">&#39;apples and bananas&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="n-grams">
+<h2><code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span></code>-grams<a class="headerlink" href="#n-grams" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob.ngrams" title="textblob.blob.TextBlob.ngrams"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextBlob.ngrams()</span></code></a> method returns a list of tuples of <code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span></code> successive words.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Now is better than never.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">ngrams</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[WordList([&#39;Now&#39;, &#39;is&#39;, &#39;better&#39;]), WordList([&#39;is&#39;, &#39;better&#39;, &#39;than&#39;]), WordList([&#39;better&#39;, &#39;than&#39;, &#39;never&#39;])]</span>
+</pre></div>
+</div>
+</section>
+<section id="get-start-and-end-indices-of-sentences">
+<h2>Get Start and End Indices of Sentences<a class="headerlink" href="#get-start-and-end-indices-of-sentences" title="Link to this heading">¶</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">sentence.start</span></code> and <code class="docutils literal notranslate"><span class="pre">sentence.end</span></code> to get the indices where a sentence starts and ends within a <a class="reference internal" href="api_reference.html#textblob.blob.TextBlob" title="textblob.blob.TextBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextBlob</span></code></a>.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">zen</span><span class="o">.</span><span class="n">sentences</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---- Starts at index </span><span class="si">{}</span><span class="s2">, Ends at index </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">end</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="go">Beautiful is better than ugly.</span>
+<span class="go">---- Starts at index 0, Ends at index 30</span>
+<span class="go">Explicit is better than implicit.</span>
+<span class="go">---- Starts at index 31, Ends at index 64</span>
+<span class="go">Simple is better than complex.</span>
+<span class="go">---- Starts at index 65, Ends at index 95</span>
+</pre></div>
+</div>
+<section id="next-steps">
+<h3>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h3>
+<p>Want to build your own text classification system? Check out the <a class="reference internal" href="classifiers.html#classifiers"><span class="std std-ref">Classifiers Tutorial</span></a>.</p>
+<p>Want to use a different POS tagger or noun phrase chunker implementation? Check out the <a class="reference internal" href="advanced_usage.html#advanced"><span class="std std-ref">Advanced Usage</span></a> guide.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://norvig.com/spell-correct.html">http://norvig.com/spell-correct.html</a></p>
+</aside>
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.clips.ua.ac.be/pages/pattern-en#spelling">http://www.clips.ua.ac.be/pages/pattern-en#spelling</a></p>
+</aside>
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.clips.ua.ac.be/pages/pattern-en#parser">http://www.clips.ua.ac.be/pages/pattern-en#parser</a></p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="index.html"
+    ><img
+      class="logo"
+      src="_static/textblob-logo.png"
+      height="200"
+      width="230"
+      alt="Logo"
+  /></a>
+</p>
+
+<p>
+  <iframe
+    src="https://ghbtns.com/github-btn.html?user=sloria&repo=TextBlob&type=watch&count=true&size=large"
+    allowtransparency="true"
+    frameborder="0"
+    scrolling="0"
+    width="200px"
+    height="35px"
+  ></iframe>
+</p>
+
+<p>
+  TextBlob is a Python library for processing textual data. It provides a
+  consistent API for diving into common natural language processing (NLP) tasks
+  such as part-of-speech tagging, noun phrase extraction, sentiment analysis,
+  and more.
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://pypi.python.org/pypi/textblob">TextBlob @ PyPI</a></li>
+  <li><a href="https://github.com/sloria/textblob">TextBlob @ GitHub</a></li>
+  <li><a href="https://github.com/sloria/textblob/issues">Issue Tracker</a></li>
+</ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Tutorial: Quickstart</a><ul>
+<li><a class="reference internal" href="#create-a-textblob">Create a TextBlob</a></li>
+<li><a class="reference internal" href="#part-of-speech-tagging">Part-of-speech Tagging</a></li>
+<li><a class="reference internal" href="#noun-phrase-extraction">Noun Phrase Extraction</a></li>
+<li><a class="reference internal" href="#sentiment-analysis">Sentiment Analysis</a></li>
+<li><a class="reference internal" href="#tokenization">Tokenization</a></li>
+<li><a class="reference internal" href="#words-inflection-and-lemmatization">Words Inflection and Lemmatization</a></li>
+<li><a class="reference internal" href="#wordnet-integration">WordNet Integration</a></li>
+<li><a class="reference internal" href="#wordlists">WordLists</a></li>
+<li><a class="reference internal" href="#spelling-correction">Spelling Correction</a></li>
+<li><a class="reference internal" href="#get-word-and-noun-phrase-frequencies">Get Word and Noun Phrase Frequencies</a></li>
+<li><a class="reference internal" href="#parsing">Parsing</a></li>
+<li><a class="reference internal" href="#textblobs-are-like-python-strings">TextBlobs Are Like Python Strings!</a></li>
+<li><a class="reference internal" href="#n-grams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span></code>-grams</a></li>
+<li><a class="reference internal" href="#get-start-and-end-indices-of-sentences">Get Start and End Indices of Sentences</a><ul>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="classifiers.html" title="next chapter">Tutorial: Building a Text Classification System</a></li>
+  </ul></li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<div class="footer">&copy; Copyright <a href="http://stevenloria.com/">Steven Loria</a> and contributors.</div>
+<a href="https://github.com/sloria/textblob" class="github">
+  <img
+    style="position: absolute; top: 0; right: 0; border: 0"
+    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+    alt="Fork me on GitHub"
+    class="github"
+  />
+</a>
+  </body>
+</html>

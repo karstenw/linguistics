@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>textblob.en.np_extractors &#8212; TextBlob 0.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=6625fa76" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/flasky.css?v=6bef19aa" />
+    <script src="../../../_static/documentation_options.js?v=b52c616d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=0.9, maximum-scale=0.9"
+/>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">TextBlob 0.20.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">textblob.en.np_extractors</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for textblob.en.np_extractors</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Various noun phrase extractors.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">nltk</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseNPExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">requires_nltk_corpus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.taggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatternTagger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_insignificant</span><span class="p">,</span> <span class="n">tree2str</span>
+
+
+<div class="viewcode-block" id="ChunkParser">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.ChunkParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChunkParser</span><span class="p">(</span><span class="n">nltk</span><span class="o">.</span><span class="n">ChunkParserI</span><span class="p">):</span>
+    <span class="n">_trained</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="ChunkParser.train">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.ChunkParser.train">[docs]</a>
+    <span class="nd">@requires_nltk_corpus</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Train the Chunker on the ConLL-2000 corpus.&quot;&quot;&quot;</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">nltk</span><span class="o">.</span><span class="n">chunk</span><span class="o">.</span><span class="n">tree2conlltags</span><span class="p">(</span><span class="n">sent</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">nltk</span><span class="o">.</span><span class="n">corpus</span><span class="o">.</span><span class="n">conll2000</span><span class="o">.</span><span class="n">chunked_sents</span><span class="p">(</span>
+                <span class="s2">&quot;train.txt&quot;</span><span class="p">,</span> <span class="n">chunk_types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;NP&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">unigram_tagger</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">UnigramTagger</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">BigramTagger</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="n">unigram_tagger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="ChunkParser.parse">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.ChunkParser.parse">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the parse tree for the sentence.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="n">pos_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span> <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">]</span>
+        <span class="n">tagged_pos_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">pos_tags</span><span class="p">)</span>
+        <span class="n">chunktags</span> <span class="o">=</span> <span class="p">[</span><span class="n">chunktag</span> <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">chunktag</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tagged_pos_tags</span><span class="p">]</span>
+        <span class="n">conlltags</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">chunktag</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">((</span><span class="n">word</span><span class="p">,</span> <span class="n">pos</span><span class="p">),</span> <span class="n">chunktag</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">chunktags</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">nltk</span><span class="o">.</span><span class="n">chunk</span><span class="o">.</span><span class="n">conlltags2tree</span><span class="p">(</span><span class="n">conlltags</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ConllExtractor">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.ConllExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConllExtractor</span><span class="p">(</span><span class="n">BaseNPExtractor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A noun phrase extractor that uses chunk parsing trained with the</span>
+<span class="sd">    ConLL-2000 training corpus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">POS_TAGGER</span> <span class="o">=</span> <span class="n">PatternTagger</span><span class="p">()</span>
+
+    <span class="c1"># The context-free grammar with which to filter the noun phrases</span>
+    <span class="n">CFG</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="s2">&quot;NNP&quot;</span><span class="p">,</span> <span class="s2">&quot;NNP&quot;</span><span class="p">):</span> <span class="s2">&quot;NNP&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;NN&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">):</span> <span class="s2">&quot;NNI&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;NNI&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">):</span> <span class="s2">&quot;NNI&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;JJ&quot;</span><span class="p">,</span> <span class="s2">&quot;JJ&quot;</span><span class="p">):</span> <span class="s2">&quot;JJ&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;JJ&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">):</span> <span class="s2">&quot;NNI&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># POS suffixes that will be ignored</span>
+    <span class="n">INSIGNIFICANT_SUFFIXES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DT&quot;</span><span class="p">,</span> <span class="s2">&quot;CC&quot;</span><span class="p">,</span> <span class="s2">&quot;PRP$&quot;</span><span class="p">,</span> <span class="s2">&quot;PRP&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">ChunkParser</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">parser</span> <span class="k">else</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="ConllExtractor.extract">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.ConllExtractor.extract">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of noun phrases (strings) for body of text.&quot;&quot;&quot;</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">tokenize</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">noun_phrases</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_sentence</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+            <span class="c1"># Get the string representation of each subtree that is a</span>
+            <span class="c1"># noun phrase tree</span>
+            <span class="n">phrases</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">_normalize_tags</span><span class="p">(</span><span class="n">filter_insignificant</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">INSIGNIFICANT_SUFFIXES</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">parsed</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="n">nltk</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Tree</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">each</span><span class="o">.</span><span class="n">label</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;NP&quot;</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_insignificant</span><span class="p">(</span><span class="n">each</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="n">_is_match</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CFG</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">nps</span> <span class="o">=</span> <span class="p">[</span><span class="n">tree2str</span><span class="p">(</span><span class="n">phrase</span><span class="p">)</span> <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">phrases</span><span class="p">]</span>
+            <span class="n">noun_phrases</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">nps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">noun_phrases</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tag and parse a sentence (a plain, untagged string).&quot;&quot;&quot;</span>
+        <span class="n">tagged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">POS_TAGGER</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tagged</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FastNPExtractor">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.FastNPExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FastNPExtractor</span><span class="p">(</span><span class="n">BaseNPExtractor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A fast and simple noun phrase extractor.</span>
+
+<span class="sd">    Credit to Shlomi Babluk. Link to original blog post:</span>
+
+<span class="sd">        http://thetokenizer.com/2013/05/09/efficient-way-to-extract-the-main-topics-of-a-sentence/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_trained</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="n">CFG</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="s2">&quot;NNP&quot;</span><span class="p">,</span> <span class="s2">&quot;NNP&quot;</span><span class="p">):</span> <span class="s2">&quot;NNP&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;NN&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">):</span> <span class="s2">&quot;NNI&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;NNI&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">):</span> <span class="s2">&quot;NNI&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;JJ&quot;</span><span class="p">,</span> <span class="s2">&quot;JJ&quot;</span><span class="p">):</span> <span class="s2">&quot;JJ&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">&quot;JJ&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">):</span> <span class="s2">&quot;NNI&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@requires_nltk_corpus</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">corpus</span><span class="o">.</span><span class="n">brown</span><span class="o">.</span><span class="n">tagged_sents</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="s2">&quot;news&quot;</span><span class="p">)</span>
+        <span class="n">regexp_tagger</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">RegexpTagger</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^-?[0-9]+(.[0-9]+)?$&quot;</span><span class="p">,</span> <span class="s2">&quot;CD&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(-|:|;)$&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\&#39;*$&quot;</span><span class="p">,</span> <span class="s2">&quot;MD&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(The|the|A|a|An|an)$&quot;</span><span class="p">,</span> <span class="s2">&quot;AT&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*able$&quot;</span><span class="p">,</span> <span class="s2">&quot;JJ&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[A-Z].*$&quot;</span><span class="p">,</span> <span class="s2">&quot;NNP&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*ness$&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*ly$&quot;</span><span class="p">,</span> <span class="s2">&quot;RB&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*s$&quot;</span><span class="p">,</span> <span class="s2">&quot;NNS&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*ing$&quot;</span><span class="p">,</span> <span class="s2">&quot;VBG&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*ed$&quot;</span><span class="p">,</span> <span class="s2">&quot;VBD&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*&quot;</span><span class="p">,</span> <span class="s2">&quot;NN&quot;</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">unigram_tagger</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">UnigramTagger</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="n">regexp_tagger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">BigramTagger</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="n">unigram_tagger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_tokenize_sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Split the sentence into single words/tokens&quot;&quot;&quot;</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tokens</span>
+
+<div class="viewcode-block" id="FastNPExtractor.extract">
+<a class="viewcode-back" href="../../../api_reference.html#textblob.en.np_extractors.FastNPExtractor.extract">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of noun phrases (strings) for body of text.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_sentence</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">tagged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">_normalize_tags</span><span class="p">(</span><span class="n">tagged</span><span class="p">)</span>
+        <span class="n">merge</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="n">merge</span><span class="p">:</span>
+            <span class="n">merge</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">t1</span> <span class="o">=</span> <span class="n">tags</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="n">t2</span> <span class="o">=</span> <span class="n">tags</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CFG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">merge</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">tags</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">tags</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">t1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">t2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">pos</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="n">tags</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">pos</span><span class="p">))</span>
+                    <span class="k">break</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tags</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;NNP&quot;</span><span class="p">,</span> <span class="s2">&quot;NNI&quot;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">matches</span></div>
+</div>
+
+
+
+<span class="c1">### Utility methods ###</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_tags</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize the corpus tags.</span>
+<span class="sd">    (&quot;NN&quot;, &quot;NN-PL&quot;, &quot;NNS&quot;) -&gt; &quot;NN&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;NP-TL&quot;</span> <span class="ow">or</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;NP&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">word</span><span class="p">,</span> <span class="s2">&quot;NNP&quot;</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-TL&quot;</span><span class="p">):</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">):</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">continue</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_match</span><span class="p">(</span><span class="n">tagged_phrase</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether or not a tagged phrases matches a context-free grammar.&quot;&quot;&quot;</span>
+    <span class="n">copy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tagged_phrase</span><span class="p">)</span>  <span class="c1"># A copy of the list</span>
+    <span class="n">merge</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">merge</span><span class="p">:</span>
+        <span class="n">merge</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">copy</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">copy</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">copy</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">second</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Tuple of tags e.g. (&#39;NN&#39;, &#39;JJ&#39;)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">merge</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">first</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">second</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">copy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">pos</span><span class="p">))</span>
+                <span class="k">break</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;NNP&quot;</span><span class="p">,</span> <span class="s2">&quot;NNI&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">copy</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">match</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="../../../index.html"
+    ><img
+      class="logo"
+      src="../../../_static/textblob-logo.png"
+      height="200"
+      width="230"
+      alt="Logo"
+  /></a>
+</p>
+
+<p>
+  <iframe
+    src="https://ghbtns.com/github-btn.html?user=sloria&repo=TextBlob&type=watch&count=true&size=large"
+    allowtransparency="true"
+    frameborder="0"
+    scrolling="0"
+    width="200px"
+    height="35px"
+  ></iframe>
+</p>
+
+<p>
+  TextBlob is a Python library for processing textual data. It provides a
+  consistent API for diving into common natural language processing (NLP) tasks
+  such as part-of-speech tagging, noun phrase extraction, sentiment analysis,
+  and more.
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://pypi.python.org/pypi/textblob">TextBlob @ PyPI</a></li>
+  <li><a href="https://github.com/sloria/textblob">TextBlob @ GitHub</a></li>
+  <li><a href="https://github.com/sloria/textblob/issues">Issue Tracker</a></li>
+</ul><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<div class="footer">&copy; Copyright <a href="http://stevenloria.com/">Steven Loria</a> and contributors.</div>
+<a href="https://github.com/sloria/textblob" class="github">
+  <img
+    style="position: absolute; top: 0; right: 0; border: 0"
+    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+    alt="Fork me on GitHub"
+    class="github"
+  />
+</a>
+  </body>
+</html>

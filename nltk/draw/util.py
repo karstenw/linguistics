@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Drawing utilities
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
@@ -215,7 +215,7 @@ class CanvasWidget(metaclass=ABCMeta):
         self.__draggable = 0
 
         # Set up attributes.
-        for (attr, value) in list(attribs.items()):
+        for attr, value in list(attribs.items()):
             self[attr] = value
 
         # Manage this canvas widget
@@ -530,7 +530,7 @@ class CanvasWidget(metaclass=ABCMeta):
         """
         try:
             del self.__callbacks[button]
-        except:
+        except Exception:
             pass
 
     def unbind_drag(self):
@@ -539,7 +539,7 @@ class CanvasWidget(metaclass=ABCMeta):
         """
         try:
             del self.__callbacks["drag"]
-        except:
+        except Exception:
             pass
 
     ##//////////////////////////////////////////////////////
@@ -640,7 +640,7 @@ class CanvasWidget(metaclass=ABCMeta):
                 cb = self.__callbacks["drag"]
                 try:
                     cb(self)
-                except:
+                except Exception:
                     print("Error in drag callback for %r" % self)
         elif self.__parent is not None:
             self.__parent.__drag()
@@ -655,7 +655,7 @@ class CanvasWidget(metaclass=ABCMeta):
             cb = self.__callbacks[button]
             # try:
             cb(self)
-            # except:
+            # except Exception:
             #    print('Error in click callback for %r' % self)
             #    raise
         elif self.__parent is not None:
@@ -1080,7 +1080,7 @@ class OvalWidget(AbstractContainerWidget):
         if attr == "margin":
             self._margin = value
         elif attr == "double":
-            if value == True and self._oval2 is None:
+            if value and self._oval2 is None:
                 # Copy attributes & position from self._oval.
                 x1, y1, x2, y2 = c.bbox(self._oval)
                 w = self["width"] * 2
@@ -1093,7 +1093,7 @@ class OvalWidget(AbstractContainerWidget):
                     width=c.itemcget(self._oval, "width"),
                 )
                 c.tag_lower(self._oval2)
-            if value == False and self._oval2 is not None:
+            if not value and self._oval2 is not None:
                 c.delete(self._oval2)
                 self._oval2 = None
         elif attr in ("outline", "fill", "width"):
@@ -2144,7 +2144,7 @@ class EntryDialog:
     def _cancel(self, *e):
         try:
             self._reset()
-        except:
+        except Exception:
             pass
         self._destroy()
 
@@ -2253,7 +2253,7 @@ class ColorizedList:
         self._textwidget["state"] = "normal"
         self._textwidget.delete("1.0", "end")
         for item in items:
-            for (text, colortag) in self._item_repr(item):
+            for text, colortag in self._item_repr(item):
                 assert "\n" not in text, "item repr may not contain newline"
                 self._textwidget.insert("end", text, colortag)
             self._textwidget.insert("end", "\n")
@@ -2353,7 +2353,7 @@ class ColorizedList:
             else:
                 try:
                     del self._callbacks[e][func]
-                except:
+                except KeyError:
                     pass
 
     # ////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 # Natural Language Toolkit: Chat-80 KB Reader
 # See https://www.w3.org/TR/swbp-skos-core-guide/
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Ewan Klein <ewan@inf.ed.ac.uk>,
 # URL: <https://www.nltk.org>
 # For license information, see LICENSE.TXT
@@ -307,7 +307,7 @@ class Concept:
         Convert a set of pairs into an adjacency linked list encoding of a graph.
         """
         g = {}
-        for (x, y) in s:
+        for x, y in s:
             if x in g:
                 g[x].append(y)
             else:
@@ -349,7 +349,7 @@ class Concept:
         assert is_rel(self._extension)
         if "symmetric" in self.closures:
             pairs = []
-            for (x, y) in self._extension:
+            for x, y in self._extension:
                 pairs.append((y, x))
             sym = set(pairs)
             self._extension = self._extension.union(sym)
@@ -390,7 +390,7 @@ def clause2concepts(filename, rel_name, schema, closures=[]):
     # add a unary concept corresponding to the set of entities
     # in the primary key position
     # relations in 'not_unary' are more like ordinary binary relations
-    if not filename in not_unary:
+    if filename not in not_unary:
         concepts.append(unary_concept(pkey, subj, records))
 
     # add a binary concept for each non-key field
@@ -820,7 +820,7 @@ Valuation object for use in the NLTK semantics package.
             # just print out the vocabulary
             if options.vocab:
                 items = sorted((c.arity, c.prefLabel) for c in concepts)
-                for (arity, label) in items:
+                for arity, label in items:
                     print(label, arity)
                 sys.exit(0)
             # show all the concepts

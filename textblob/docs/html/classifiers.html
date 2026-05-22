@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial: Building a Text Classification System &#8212; TextBlob 0.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=6625fa76" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=6bef19aa" />
+    <script src="_static/documentation_options.js?v=b52c616d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Usage: Overriding Models and the Blobber Class" href="advanced_usage.html" />
+    <link rel="prev" title="Tutorial: Quickstart" href="quickstart.html" />   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=0.9, maximum-scale=0.9"
+/>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced_usage.html" title="Advanced Usage: Overriding Models and the Blobber Class"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Tutorial: Quickstart"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">TextBlob 0.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Tutorial: Building a Text Classification System</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="tutorial-building-a-text-classification-system">
+<span id="classifiers"></span><h1>Tutorial: Building a Text Classification System<a class="headerlink" href="#tutorial-building-a-text-classification-system" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">textblob.classifiers</span></code> module makes it simple to create custom classifiers.</p>
+<p>As an example, let’s create a custom sentiment analyzer.</p>
+<section id="loading-data-and-creating-a-classifier">
+<h2>Loading Data and Creating a Classifier<a class="headerlink" href="#loading-data-and-creating-a-classifier" title="Link to this heading">¶</a></h2>
+<p>First we’ll create some training and test data.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">train</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I love this sandwich.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;this is an amazing place!&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I feel very good about these beers.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;this is my best work.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;what an awesome view&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I do not like this restaurant&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I am tired of this stuff.&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I can&#39;t deal with this&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;he is my sworn enemy!&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;my boss is horrible.&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;the beer was good.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I do not enjoy my job&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I ain&#39;t feeling dandy today.&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I feel amazing!&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;Gary is a friend of mine.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I can&#39;t believe I&#39;m doing this.&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now we’ll create a Naive Bayes classifier, passing the training data into the constructor.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.classifiers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveBayesClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span> <span class="o">=</span> <span class="n">NaiveBayesClassifier</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="loading-data-from-files">
+<span id="data-files"></span><h3>Loading Data from Files<a class="headerlink" href="#loading-data-from-files" title="Link to this heading">¶</a></h3>
+<p>You can also load data from common file formats including CSV, JSON, and TSV.</p>
+<p>CSV files should be formatted like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>I love this sandwich.,pos
+This is an amazing place!,pos
+I do not like this restaurant,neg
+</pre></div>
+</div>
+<p>JSON files should be formatted like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;I love this sandwich.&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;pos&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;This is an amazing place!&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;pos&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;I do not like this restaurant&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;neg&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>You can then pass the opened file into the constructor.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;train.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">cl</span> <span class="o">=</span> <span class="n">NaiveBayesClassifier</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="classifying-text">
+<h2>Classifying Text<a class="headerlink" href="#classifying-text" title="Link to this heading">¶</a></h2>
+<p>Call the <code class="docutils literal notranslate"><span class="pre">classify(text)</span></code> method to use the classifier.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;This is an amazing library!&quot;</span><span class="p">)</span>
+<span class="go">&#39;pos&#39;</span>
+</pre></div>
+</div>
+<p>You can get the label probability distribution with the <code class="docutils literal notranslate"><span class="pre">prob_classify(text)</span></code> method.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prob_dist</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">prob_classify</span><span class="p">(</span><span class="s2">&quot;This one&#39;s a doozy.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prob_dist</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="go">&#39;pos&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">prob_dist</span><span class="o">.</span><span class="n">prob</span><span class="p">(</span><span class="s2">&quot;pos&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">0.63</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">prob_dist</span><span class="o">.</span><span class="n">prob</span><span class="p">(</span><span class="s2">&quot;neg&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">0.37</span>
+</pre></div>
+</div>
+</section>
+<section id="classifying-textblobs">
+<h2>Classifying TextBlobs<a class="headerlink" href="#classifying-textblobs" title="Link to this heading">¶</a></h2>
+<p>Another way to classify text is to pass a classifier into the constructor of <code class="docutils literal notranslate"><span class="pre">TextBlob</span></code> and call its <code class="docutils literal notranslate"><span class="pre">classify()</span></code> method.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;The beer is good. But the hangover is horrible.&quot;</span><span class="p">,</span> <span class="n">classifier</span><span class="o">=</span><span class="n">cl</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">classify</span><span class="p">()</span>
+<span class="go">&#39;pos&#39;</span>
+</pre></div>
+</div>
+<p>The advantage of this approach is that you can classify sentences within a <code class="docutils literal notranslate"><span class="pre">TextBlob</span></code>.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">blob</span><span class="o">.</span><span class="n">sentences</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">classify</span><span class="p">())</span>
+<span class="gp">...</span>
+<span class="go">The beer is good.</span>
+<span class="go">pos</span>
+<span class="go">But the hangover is horrible.</span>
+<span class="go">neg</span>
+</pre></div>
+</div>
+</section>
+<section id="evaluating-classifiers">
+<h2>Evaluating Classifiers<a class="headerlink" href="#evaluating-classifiers" title="Link to this heading">¶</a></h2>
+<p>To compute the accuracy on our test set, use the <code class="docutils literal notranslate"><span class="pre">accuracy(test_data)</span></code> method.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+<span class="go">0.8333333333333334</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can also pass in a file object into the <code class="docutils literal notranslate"><span class="pre">accuracy</span></code> method. The file can be in any of the formats listed in the <a class="reference internal" href="#data-files"><span class="std std-ref">Loading Data</span></a> section.</p>
+</div>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">show_informative_features()</span></code> method to display a listing of the most informative features.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span><span class="o">.</span><span class="n">show_informative_features</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">Most Informative Features</span>
+<span class="go">            contains(my) = True              neg : pos    =      1.7 : 1.0</span>
+<span class="go">            contains(an) = False             neg : pos    =      1.6 : 1.0</span>
+<span class="go">             contains(I) = True              neg : pos    =      1.4 : 1.0</span>
+<span class="go">             contains(I) = False             pos : neg    =      1.4 : 1.0</span>
+<span class="go">            contains(my) = False             pos : neg    =      1.3 : 1.0</span>
+</pre></div>
+</div>
+</section>
+<section id="updating-classifiers-with-new-data">
+<h2>Updating Classifiers with New Data<a class="headerlink" href="#updating-classifiers-with-new-data" title="Link to this heading">¶</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">update(new_data)</span></code> method to update a classifier with new training data.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">new_data</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;She is my best friend.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;I&#39;m happy to have a new friend.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;Stay thirsty, my friend.&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s2">&quot;He ain&#39;t from around here.&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</section>
+<section id="feature-extractors">
+<h2>Feature Extractors<a class="headerlink" href="#feature-extractors" title="Link to this heading">¶</a></h2>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">NaiveBayesClassifier</span></code> uses a simple feature extractor that indicates which words in the training set are contained in a document.</p>
+<p>For example, the sentence <em>“I feel happy”</em> might have the features <code class="docutils literal notranslate"><span class="pre">contains(happy):</span> <span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">contains(angry):</span> <span class="pre">False</span></code>.</p>
+<p>You can override this feature extractor by writing your own. A feature extractor is simply a function with <code class="docutils literal notranslate"><span class="pre">document</span></code> (the text to extract features from) as the first argument. The function may include a second argument, <code class="docutils literal notranslate"><span class="pre">train_set</span></code> (the training dataset), if necessary.</p>
+<p>The function should return a dictionary of features for <code class="docutils literal notranslate"><span class="pre">document</span></code>.</p>
+<p>For example, let’s create a feature extractor that just uses the first and last words of a document as its features.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">end_word_extractor</span><span class="p">(</span><span class="n">document</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">tokens</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">first_word</span><span class="p">,</span> <span class="n">last_word</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tokens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">feats</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">feats</span><span class="p">[</span><span class="s2">&quot;first(</span><span class="si">{0}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_word</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="gp">... </span>    <span class="n">feats</span><span class="p">[</span><span class="s2">&quot;last(</span><span class="si">{0}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">last_word</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">feats</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">end_word_extractor</span><span class="p">(</span><span class="s2">&quot;I feel happy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">features</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;last(happy)&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;first(I)&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>We can then use the feature extractor in a classifier by passing it as the second argument of the constructor.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cl2</span> <span class="o">=</span> <span class="n">NaiveBayesClassifier</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="n">end_word_extractor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;I&#39;m excited to try my new classifier.&quot;</span><span class="p">,</span> <span class="n">classifier</span><span class="o">=</span><span class="n">cl2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">classify</span><span class="p">()</span>
+<span class="go">&#39;pos&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<p>Be sure to check out the <a class="reference internal" href="api_reference.html#api-classifiers"><span class="std std-ref">API Reference</span></a> for the <a class="reference internal" href="api_reference.html#api-classifiers"><span class="std std-ref">classifiers module</span></a>.</p>
+<p>Want to try different POS taggers or noun phrase chunkers with TextBlobs? Check out the <a class="reference internal" href="advanced_usage.html#advanced"><span class="std std-ref">Advanced Usage</span></a> guide.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="index.html"
+    ><img
+      class="logo"
+      src="_static/textblob-logo.png"
+      height="200"
+      width="230"
+      alt="Logo"
+  /></a>
+</p>
+
+<p>
+  <iframe
+    src="https://ghbtns.com/github-btn.html?user=sloria&repo=TextBlob&type=watch&count=true&size=large"
+    allowtransparency="true"
+    frameborder="0"
+    scrolling="0"
+    width="200px"
+    height="35px"
+  ></iframe>
+</p>
+
+<p>
+  TextBlob is a Python library for processing textual data. It provides a
+  consistent API for diving into common natural language processing (NLP) tasks
+  such as part-of-speech tagging, noun phrase extraction, sentiment analysis,
+  and more.
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://pypi.python.org/pypi/textblob">TextBlob @ PyPI</a></li>
+  <li><a href="https://github.com/sloria/textblob">TextBlob @ GitHub</a></li>
+  <li><a href="https://github.com/sloria/textblob/issues">Issue Tracker</a></li>
+</ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Tutorial: Building a Text Classification System</a><ul>
+<li><a class="reference internal" href="#loading-data-and-creating-a-classifier">Loading Data and Creating a Classifier</a><ul>
+<li><a class="reference internal" href="#loading-data-from-files">Loading Data from Files</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classifying-text">Classifying Text</a></li>
+<li><a class="reference internal" href="#classifying-textblobs">Classifying TextBlobs</a></li>
+<li><a class="reference internal" href="#evaluating-classifiers">Evaluating Classifiers</a></li>
+<li><a class="reference internal" href="#updating-classifiers-with-new-data">Updating Classifiers with New Data</a></li>
+<li><a class="reference internal" href="#feature-extractors">Feature Extractors</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="previous chapter">Tutorial: Quickstart</a></li>
+      <li>Next: <a href="advanced_usage.html" title="next chapter">Advanced Usage: Overriding Models and the Blobber Class</a></li>
+  </ul></li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<div class="footer">&copy; Copyright <a href="http://stevenloria.com/">Steven Loria</a> and contributors.</div>
+<a href="https://github.com/sloria/textblob" class="github">
+  <img
+    style="position: absolute; top: 0; right: 0; border: 0"
+    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+    alt="Fork me on GitHub"
+    class="github"
+  />
+</a>
+  </body>
+</html>

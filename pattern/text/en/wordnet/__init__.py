@@ -52,8 +52,10 @@ from nltk.corpus import sentiwordnet as swn
 from nltk.corpus import wordnet_ic as wn_ic
 from nltk.corpus.reader.wordnet import Synset as WordNetSynset
 
+# nodebox change: renamed "wordnet" to "wordnet.zip" bc nltk does not expand "wordnet"
+
 # Make sure the necessary corpora are downloaded to the local drive
-for token in ("wordnet", "wordnet_ic", "sentiwordnet"):
+for token in ("wordnet.zip", "wordnet_ic", "sentiwordnet"):
     try:
         nltk.data.find("corpora/" + token)
     except LookupError:
@@ -132,8 +134,6 @@ def synsets(word, pos=NOUN):
         each of which is part of a set of synonyms (= Synset).
     """
     word, pos = normalize(word), pos.lower()
-    # import pdb
-    # pdb.set_trace()
     try:
         if pos.startswith(NOUN.lower()): # "NNS" or "nn" will also pass.
             w = wn.synsets(word, pos = wn.NOUN)

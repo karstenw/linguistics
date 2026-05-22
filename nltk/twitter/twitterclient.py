@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Twitter client
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Ewan Klein <ewan@inf.ed.ac.uk>
 #         Lorenzo Rubio <lrnzcig@gmail.com>
 # URL: <https://www.nltk.org/>
@@ -46,7 +46,6 @@ class Streamer(TwythonStreamer):
     """
 
     def __init__(self, app_key, app_secret, oauth_token, oauth_token_secret):
-
         self.handler = None
         self.do_continue = True
         TwythonStreamer.__init__(
@@ -90,7 +89,6 @@ class Streamer(TwythonStreamer):
         Wrapper for 'statuses / sample' API call
         """
         while self.do_continue:
-
             # Stream in an endless loop until limit is reached. See twython
             # issue 288: https://github.com/ryanmcgrath/twython/issues/288
             # colditzjb commented on 9 Dec 2014
@@ -238,7 +236,7 @@ class Query(Twython):
             for result in results["statuses"]:
                 yield result
                 self.handler.counter += 1
-                if self.handler.do_continue() == False:
+                if not self.handler.do_continue():
                     return
 
         # Pagination loop: keep fetching Tweets until the desired count is
@@ -278,7 +276,7 @@ class Query(Twython):
             for result in results["statuses"]:
                 yield result
                 self.handler.counter += 1
-                if self.handler.do_continue() == False:
+                if not self.handler.do_continue():
                     return
 
     def user_info_from_id(self, userids):
@@ -544,7 +542,7 @@ class TweetWriter(TweetHandlerI):
             self.output.close()
 
     def do_continue(self):
-        if self.repeat == False:
+        if not self.repeat:
             return TweetHandlerI.do_continue(self)
 
         if self.do_stop:

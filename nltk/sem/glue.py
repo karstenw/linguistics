@@ -2,7 +2,7 @@
 #
 # Author: Dan Garrette <dhgarrette@gmail.com>
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
@@ -194,7 +194,7 @@ class GlueDict(dict):
             relationships = None
 
             if len(parts) > 1:
-                for (i, c) in enumerate(parts[1]):
+                for i, c in enumerate(parts[1]):
                     if c == "(":
                         if paren_count == 0:  # if it's the first '(' of a tuple
                             tuple_start = i + 1  # then save the index
@@ -238,7 +238,7 @@ class GlueDict(dict):
                 end_inheritance = parts[0].index(")")
                 sem = parts[0][:start_inheritance].strip()
                 supertype = parts[0][start_inheritance + 1 : end_inheritance]
-            except:
+            except Exception:
                 sem = parts[0].strip()
                 supertype = None
 
@@ -823,7 +823,7 @@ def demo(show_example=-1):
     depparser = MaltParser(tagger=tagger)
     glue = Glue(depparser=depparser, verbose=False)
 
-    for (i, sentence) in enumerate(examples):
+    for i, sentence in enumerate(examples):
         if i == show_example or show_example == -1:
             print(f"[[[Example {i}]]]  {sentence}")
             for reading in glue.parse_to_meaning(sentence.split()):

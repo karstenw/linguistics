@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Corpus Readers
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
@@ -395,19 +395,34 @@ wordnet: WordNetCorpusReader = LazyCorpusLoader(
     WordNetCorpusReader,
     LazyCorpusLoader("omw-1.4", CorpusReader, r".*/wn-data-.*\.tab", encoding="utf8"),
 )
+## Use the following template to add a custom Wordnet package.
+## Just uncomment, and replace the identifier (my_wordnet) in two places:
+##
+# my_wordnet: WordNetCorpusReader = LazyCorpusLoader(
+#    "my_wordnet",
+#    WordNetCorpusReader,
+#    LazyCorpusLoader("omw-1.4", CorpusReader, r".*/wn-data-.*\.tab", encoding="utf8"),
+# )
 wordnet31: WordNetCorpusReader = LazyCorpusLoader(
     "wordnet31",
     WordNetCorpusReader,
     LazyCorpusLoader("omw-1.4", CorpusReader, r".*/wn-data-.*\.tab", encoding="utf8"),
 )
 wordnet2021: WordNetCorpusReader = LazyCorpusLoader(
+    # Obsolete, use english_wordnet instead.
     "wordnet2021",
     WordNetCorpusReader,
     LazyCorpusLoader("omw-1.4", CorpusReader, r".*/wn-data-.*\.tab", encoding="utf8"),
 )
-# Latest Open English Wordnet:
 wordnet2022: WordNetCorpusReader = LazyCorpusLoader(
+    # Obsolete, use english_wordnet instead.
     "wordnet2022",
+    WordNetCorpusReader,
+    LazyCorpusLoader("omw-1.4", CorpusReader, r".*/wn-data-.*\.tab", encoding="utf8"),
+)
+english_wordnet: WordNetCorpusReader = LazyCorpusLoader(
+    # Latest Open English Wordnet
+    "english_wordnet",
     WordNetCorpusReader,
     LazyCorpusLoader("omw-1.4", CorpusReader, r".*/wn-data-.*\.tab", encoding="utf8"),
 )
@@ -498,6 +513,7 @@ perluniprops: UnicharsCorpusReader = LazyCorpusLoader(
 # corpus not available with NLTK; these lines caused help(nltk.corpus) to break
 # hebrew_treebank = LazyCorpusLoader(
 #    'hebrew_treebank', BracketParseCorpusReader, r'.*\.txt')
+
 
 # FIXME:  override any imported demo from various corpora, see https://github.com/nltk/nltk/issues/2116
 def demo():

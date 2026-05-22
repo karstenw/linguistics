@@ -3,7 +3,7 @@
 #
 # Author: Dan Garrette <dhgarrette@gmail.com>
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
@@ -265,12 +265,16 @@ class Boxer:
         if input_str is None:
             cmd = [binary] + args
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
         else:
-            cmd = 'echo "{}" | {} {}'.format(input_str, binary, " ".join(args))
+            cmd = [binary] + args
             p = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-        stdout, stderr = p.communicate()
+            stdout, stderr = p.communicate(input=input_str.encode("utf-8"))
 
         if verbose:
             print("Return code:", p.returncode)
@@ -530,11 +534,15 @@ class BoxerOutputDrsParser(DrtParser):
         else:
             return None
         self.assertToken(self.token(), ")")
+
+        def func_gen(x):
+            return lambda sent_index, word_indices: x
+
         return [
             lambda sent_index, word_indices: BoxerPred(
                 self.discourse_id, sent_index, word_indices, arg, tok, "n", 0
             )
-        ] + [lambda sent_index, word_indices: cond for cond in conds]
+        ] + [func_gen(cond) for cond in conds]
 
     def _handle_date(self, arg):
         # []: (+), []:'XXXX', [1004]:'04', []:'XX'

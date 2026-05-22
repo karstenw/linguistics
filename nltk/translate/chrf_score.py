@@ -1,12 +1,12 @@
 # Natural Language Toolkit: ChrF score
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Authors: Maja Popovic
 # Contributors: Liling Tan, Aleš Tamchyna (Memsource)
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
-""" ChrF score implementation """
+"""ChrF score implementation"""
 import re
 from collections import Counter, defaultdict
 
@@ -194,11 +194,10 @@ def corpus_chrf(
     num_sents = len(hypotheses)
 
     # Keep f-scores for each n-gram order separate
-    ngram_fscores = defaultdict(lambda: list())
+    ngram_fscores = defaultdict(list)
 
     # Iterate through each hypothesis and their corresponding references.
     for reference, hypothesis in zip(references, hypotheses):
-
         # preprocess both reference and hypothesis
         reference = _preprocess(reference, ignore_whitespace)
         hypothesis = _preprocess(hypothesis, ignore_whitespace)

@@ -1,13 +1,13 @@
 # Natural Language Toolkit: Interface to the CoreNLP REST API.
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Dmitrijs Milajevs <dimazest@gmail.com>
 #
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 import json
-import os  # required for doctests
+import os
 import re
 import socket
 import time
@@ -29,7 +29,7 @@ class CoreNLPServerError(EnvironmentError):
 
 def try_port(port=0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(("", port))
+    sock.bind(("localhost", port))
 
     p = sock.getsockname()[1]
     sock.close()
@@ -38,7 +38,6 @@ def try_port(port=0):
 
 
 class CoreNLPServer:
-
     _MODEL_JAR_PATTERN = r"stanford-corenlp-(\d+)\.(\d+)\.(\d+)-models\.jar"
     _JAR = r"stanford-corenlp-(\d+)\.(\d+)\.(\d+)\.jar"
 
@@ -51,7 +50,6 @@ class CoreNLPServer:
         corenlp_options=None,
         port=None,
     ):
-
         if corenlp_options is None:
             corenlp_options = ["-preload", "tokenize,ssplit,pos,lemma,parse,depparse"]
 
@@ -103,9 +101,17 @@ class CoreNLPServer:
         self.java_options = java_options or ["-mx2g"]
 
     def start(self, stdout="devnull", stderr="devnull"):
-        """Starts the CoreNLP server
+        """Start the CoreNLP server
+
+        This method checks the status of the started server, but does **not** stop
+        the server process if those checks fail. If you want the server process
+        to be stopped in that case, either use this class as a context manager
+        (see :meth:`.__enter__()`) or catch :exc:`~corenlp.CoreNLPServerError`
+        exception and stop the server manually.
 
         :param stdout, stderr: Specifies where CoreNLP output is redirected. Valid values are 'devnull', 'stdout', 'pipe'
+        :raises CoreNLPServerError: If the server fails to start or a status check fails
+            (in which case the server process remains running).
         """
         import requests
 
@@ -167,8 +173,19 @@ class CoreNLPServer:
         self.popen.wait()
 
     def __enter__(self):
-        self.start()
+        """Start the CoreNLP server
 
+        This method checks the status of the started server and stops the server process
+        if those checks fail. If you want the server process to **not** be stopped in that case,
+        use the :meth:`.start`/ :meth:`.stop` methods.
+
+        :raises CoreNLPServerError: If the server fails to start.
+        """
+        try:
+            self.start()
+        except CoreNLPServerError:
+            self.stop()
+            raise
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -346,7 +363,7 @@ class GenericCoreNLPParser(ParserI, TokenizerI, TaggerI):
             for token in sentence["tokens"]:
                 yield token["originalText"] or token["word"]
 
-    def tag_sents(self, sentences):
+    def tag_sents(self, sentences, properties=None):
         """
         Tag multiple sentences.
 
@@ -357,11 +374,16 @@ class GenericCoreNLPParser(ParserI, TokenizerI, TaggerI):
         :type sentences: list(list(str))
         :rtype: list(list(tuple(str, str))
         """
+
         # Converting list(list(str)) -> list(str)
         sentences = (" ".join(words) for words in sentences)
-        return [sentences[0] for sentences in self.raw_tag_sents(sentences)]
 
-    def tag(self, sentence: str) -> List[Tuple[str, str]]:
+        if properties is None:
+            properties = {"tokenize.whitespace": "true", "ner.useSUTime": "false"}
+
+        return [sentences[0] for sentences in self.raw_tag_sents(sentences, properties)]
+
+    def tag(self, sentence: str, properties=None) -> list[tuple[str, str]]:
         """
         Tag a list of tokens.
 
@@ -390,9 +412,9 @@ class GenericCoreNLPParser(ParserI, TokenizerI, TaggerI):
         ('unladen', 'JJ'), ('swallow', 'VB'), ('?', '.')]
         >>> server.stop()
         """
-        return self.tag_sents([sentence])[0]
+        return self.tag_sents([sentence], properties)[0]
 
-    def raw_tag_sents(self, sentences):
+    def raw_tag_sents(self, sentences, properties=None):
         """
         Tag multiple sentences.
 
@@ -406,9 +428,13 @@ class GenericCoreNLPParser(ParserI, TokenizerI, TaggerI):
             "ssplit.isOneSentence": "true",
             "annotators": "tokenize,ssplit,",
         }
+        default_properties.update(properties or {})
 
         # Supports only 'pos' or 'ner' tags.
-        assert self.tagtype in ["pos", "ner"]
+        assert self.tagtype in [
+            "pos",
+            "ner",
+        ], "CoreNLP tagger supports only 'pos' or 'ner' tags."
         default_properties["annotators"] += self.tagtype
         for sentence in sentences:
             tagged_data = self.api_call(sentence, properties=default_properties)
@@ -767,7 +793,6 @@ class CoreNLPDependencyParser(GenericCoreNLPParser):
     parser_annotator = "depparse"
 
     def make_tree(self, result):
-
         return DependencyGraph(
             (
                 " ".join(n_items[1:])  # NLTK expects an iterable of strings...
@@ -779,7 +804,6 @@ class CoreNLPDependencyParser(GenericCoreNLPParser):
 
 def transform(sentence):
     for dependency in sentence["basicDependencies"]:
-
         dependent_index = dependency["dependent"]
         token = sentence["tokens"][dependent_index - 1]
 

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Advanced Usage: Overriding Models and the Blobber Class &#8212; TextBlob 0.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=6625fa76" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=6bef19aa" />
+    <script src="_static/documentation_options.js?v=b52c616d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Extensions" href="extensions.html" />
+    <link rel="prev" title="Tutorial: Building a Text Classification System" href="classifiers.html" />   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=0.9, maximum-scale=0.9"
+/>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extensions.html" title="Extensions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="classifiers.html" title="Tutorial: Building a Text Classification System"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">TextBlob 0.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Advanced Usage: Overriding Models and the Blobber Class</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="advanced-usage-overriding-models-and-the-blobber-class">
+<span id="advanced"></span><h1>Advanced Usage: Overriding Models and the Blobber Class<a class="headerlink" href="#advanced-usage-overriding-models-and-the-blobber-class" title="Link to this heading">¶</a></h1>
+<p>TextBlob allows you to specify which algorithms you want to use under the hood of its simple API.</p>
+<section id="sentiment-analyzers">
+<h2>Sentiment Analyzers<a class="headerlink" href="#sentiment-analyzers" title="Link to this heading">¶</a></h2>
+<p>New in version <code class="xref py py-obj docutils literal notranslate"><span class="pre">0.5.0</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">textblob.sentiments</span></code> module contains two sentiment analysis implementations, <code class="docutils literal notranslate"><span class="pre">PatternAnalyzer</span></code> (based on the <a class="reference external" href="http://www.clips.ua.ac.be/pattern">pattern</a> library) and <code class="docutils literal notranslate"><span class="pre">NaiveBayesAnalyzer</span></code> (an <a class="reference external" href="http://nltk.org/">NLTK</a> classifier trained on a movie reviews corpus).</p>
+<p>The default implementation is <code class="docutils literal notranslate"><span class="pre">PatternAnalyzer</span></code>, but you can override the analyzer by passing another implementation into a TextBlob’s constructor.</p>
+<p>For instance, the <code class="docutils literal notranslate"><span class="pre">NaiveBayesAnalyzer</span></code> returns its result as a namedtuple of the form: <code class="docutils literal notranslate"><span class="pre">Sentiment(classification,</span> <span class="pre">p_pos,</span> <span class="pre">p_neg)</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.sentiments</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveBayesAnalyzer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;I love this library&quot;</span><span class="p">,</span> <span class="n">analyzer</span><span class="o">=</span><span class="n">NaiveBayesAnalyzer</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">sentiment</span>
+<span class="go">Sentiment(classification=&#39;pos&#39;, p_pos=0.7996209910191279, p_neg=0.2003790089808724)</span>
+</pre></div>
+</div>
+</section>
+<section id="tokenizers">
+<h2>Tokenizers<a class="headerlink" href="#tokenizers" title="Link to this heading">¶</a></h2>
+<p>New in version <code class="xref py py-obj docutils literal notranslate"><span class="pre">0.4.0</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">words</span></code> and <code class="docutils literal notranslate"><span class="pre">sentences</span></code> properties are helpers that use the <code class="docutils literal notranslate"><span class="pre">textblob.tokenizers.WordTokenizer</span></code> and <code class="docutils literal notranslate"><span class="pre">textblob.tokenizers.SentenceTokenizer</span></code> classes, respectively.</p>
+<p>You can use other tokenizers, such as those provided by NLTK, by passing them into the <code class="docutils literal notranslate"><span class="pre">TextBlob</span></code> constructor then accessing the <code class="docutils literal notranslate"><span class="pre">tokens</span></code> property.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">nltk.tokenize</span><span class="w"> </span><span class="kn">import</span> <span class="n">TabTokenizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">TabTokenizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;This is</span><span class="se">\t</span><span class="s2">a rather tabby</span><span class="se">\t</span><span class="s2">blob.&quot;</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">tokens</span>
+<span class="go">WordList([&#39;This is&#39;, &#39;a rather tabby&#39;, &#39;blob.&#39;])</span>
+</pre></div>
+</div>
+<p>You can also use the <code class="docutils literal notranslate"><span class="pre">tokenize([tokenizer])</span></code> method.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">nltk.tokenize</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlanklineTokenizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BlanklineTokenizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;A token</span><span class="se">\n\n</span><span class="s2">of appreciation&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">)</span>
+<span class="go">WordList([&#39;A token&#39;, &#39;of appreciation&#39;])</span>
+</pre></div>
+</div>
+</section>
+<section id="noun-phrase-chunkers">
+<h2>Noun Phrase Chunkers<a class="headerlink" href="#noun-phrase-chunkers" title="Link to this heading">¶</a></h2>
+<p>TextBlob currently has two noun phrases chunker implementations,
+<code class="docutils literal notranslate"><span class="pre">textblob.np_extractors.FastNPExtractor</span></code> (default, based on Shlomi Babluki’s implementation from
+<a class="reference external" href="http://thetokenizer.com/2013/05/09/efficient-way-to-extract-the-main-topics-of-a-sentence/">this blog post</a>)
+and <code class="docutils literal notranslate"><span class="pre">textblob.np_extractors.ConllExtractor</span></code>, which uses the CoNLL 2000 corpus to train a tagger.</p>
+<p>You can change the chunker implementation (or even use your own) by explicitly passing an instance of a noun phrase extractor to a TextBlob’s constructor.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.np_extractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConllExtractor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extractor</span> <span class="o">=</span> <span class="n">ConllExtractor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Python is a high-level programming language.&quot;</span><span class="p">,</span> <span class="n">np_extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">noun_phrases</span>
+<span class="go">WordList([&#39;python&#39;, &#39;high-level programming language&#39;])</span>
+</pre></div>
+</div>
+</section>
+<section id="pos-taggers">
+<h2>POS Taggers<a class="headerlink" href="#pos-taggers" title="Link to this heading">¶</a></h2>
+<p>TextBlob currently has two POS tagger implementations, located in <code class="docutils literal notranslate"><span class="pre">textblob.taggers</span></code>. The default is the <code class="docutils literal notranslate"><span class="pre">PatternTagger</span></code> which uses the same implementation as the <a class="reference external" href="http://www.clips.ua.ac.be/pattern">pattern</a> library.</p>
+<p>The second implementation is <code class="docutils literal notranslate"><span class="pre">NLTKTagger</span></code> which uses <a class="reference external" href="http://nltk.org/">NLTK</a>’s TreeBank tagger. <em>Numpy is required to use the NLTKTagger</em>.</p>
+<p>Similar to the tokenizers and noun phrase chunkers, you can explicitly specify which POS tagger to use by passing a tagger instance to the constructor.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.taggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NLTKTagger</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nltk_tagger</span> <span class="o">=</span> <span class="n">NLTKTagger</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Tag! You&#39;re It!&quot;</span><span class="p">,</span> <span class="n">pos_tagger</span><span class="o">=</span><span class="n">nltk_tagger</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">pos_tags</span>
+<span class="go">[(Word(&#39;Tag&#39;), u&#39;NN&#39;), (Word(&#39;You&#39;), u&#39;PRP&#39;), (Word(&#39;&#39;&#39;), u&#39;VBZ&#39;), (Word(&#39;re&#39;), u&#39;NN&#39;), (Word(&#39;It&#39;)</span>
+<span class="go">, u&#39;PRP&#39;)]</span>
+</pre></div>
+</div>
+</section>
+<section id="parsers">
+<h2>Parsers<a class="headerlink" href="#parsers" title="Link to this heading">¶</a></h2>
+<p>New in version <code class="xref py py-obj docutils literal notranslate"><span class="pre">0.6.0</span></code>.</p>
+<p>Parser implementations can also be passed to the TextBlob constructor.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextBlob</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatternParser</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span> <span class="o">=</span> <span class="n">TextBlob</span><span class="p">(</span><span class="s2">&quot;Parsing is fun.&quot;</span><span class="p">,</span> <span class="n">parser</span><span class="o">=</span><span class="n">PatternParser</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+<span class="go">&#39;Parsing/VBG/B-VP/O is/VBZ/I-VP/O fun/VBG/I-VP/O ././O/O&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="blobber-a-textblob-factory">
+<h2>Blobber: A TextBlob Factory<a class="headerlink" href="#blobber-a-textblob-factory" title="Link to this heading">¶</a></h2>
+<p>New in <code class="xref py py-obj docutils literal notranslate"><span class="pre">0.4.0</span></code>.</p>
+<p>It can be tedious to repeatedly pass taggers, NP extractors, sentiment analyzers, classifiers, and tokenizers to  multiple TextBlobs. To keep your code <a class="reference external" href="https://en.wikipedia.org/wiki/DRY_principle">DRY</a>, you can use the <code class="docutils literal notranslate"><span class="pre">Blobber</span></code> class to create TextBlobs that share the same models.</p>
+<p>First, instantiate a <code class="docutils literal notranslate"><span class="pre">Blobber</span></code> with the tagger, NP extractor, sentiment analyzer, classifier, and/or tokenizer of your choice.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob</span><span class="w"> </span><span class="kn">import</span> <span class="n">Blobber</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">textblob.taggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NLTKTagger</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">Blobber</span><span class="p">(</span><span class="n">pos_tagger</span><span class="o">=</span><span class="n">NLTKTagger</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>You can now create new TextBlobs like so:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">blob1</span> <span class="o">=</span> <span class="n">tb</span><span class="p">(</span><span class="s2">&quot;This is a blob.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob2</span> <span class="o">=</span> <span class="n">tb</span><span class="p">(</span><span class="s2">&quot;This is another blob.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blob1</span><span class="o">.</span><span class="n">pos_tagger</span> <span class="ow">is</span> <span class="n">blob2</span><span class="o">.</span><span class="n">pos_tagger</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="index.html"
+    ><img
+      class="logo"
+      src="_static/textblob-logo.png"
+      height="200"
+      width="230"
+      alt="Logo"
+  /></a>
+</p>
+
+<p>
+  <iframe
+    src="https://ghbtns.com/github-btn.html?user=sloria&repo=TextBlob&type=watch&count=true&size=large"
+    allowtransparency="true"
+    frameborder="0"
+    scrolling="0"
+    width="200px"
+    height="35px"
+  ></iframe>
+</p>
+
+<p>
+  TextBlob is a Python library for processing textual data. It provides a
+  consistent API for diving into common natural language processing (NLP) tasks
+  such as part-of-speech tagging, noun phrase extraction, sentiment analysis,
+  and more.
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://pypi.python.org/pypi/textblob">TextBlob @ PyPI</a></li>
+  <li><a href="https://github.com/sloria/textblob">TextBlob @ GitHub</a></li>
+  <li><a href="https://github.com/sloria/textblob/issues">Issue Tracker</a></li>
+</ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Advanced Usage: Overriding Models and the Blobber Class</a><ul>
+<li><a class="reference internal" href="#sentiment-analyzers">Sentiment Analyzers</a></li>
+<li><a class="reference internal" href="#tokenizers">Tokenizers</a></li>
+<li><a class="reference internal" href="#noun-phrase-chunkers">Noun Phrase Chunkers</a></li>
+<li><a class="reference internal" href="#pos-taggers">POS Taggers</a></li>
+<li><a class="reference internal" href="#parsers">Parsers</a></li>
+<li><a class="reference internal" href="#blobber-a-textblob-factory">Blobber: A TextBlob Factory</a></li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="classifiers.html" title="previous chapter">Tutorial: Building a Text Classification System</a></li>
+      <li>Next: <a href="extensions.html" title="next chapter">Extensions</a></li>
+  </ul></li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<div class="footer">&copy; Copyright <a href="http://stevenloria.com/">Steven Loria</a> and contributors.</div>
+<a href="https://github.com/sloria/textblob" class="github">
+  <img
+    style="position: absolute; top: 0; right: 0; border: 0"
+    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+    alt="Fork me on GitHub"
+    class="github"
+  />
+</a>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # Natural Language Toolkit: WordNet
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Steven Bethard <Steven.Bethard@colorado.edu>
 #         Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
@@ -42,6 +42,7 @@ from operator import itemgetter
 from nltk.corpus.reader import CorpusReader
 from nltk.internals import deprecated
 from nltk.probability import FreqDist
+from nltk.tag import map_tag
 from nltk.util import binary_search_file as _binary_search_file
 
 ######################################################################
@@ -69,6 +70,9 @@ ADJ, ADJ_SAT, ADV, NOUN, VERB = "a", "s", "r", "n", "v"
 # }
 
 POS_LIST = [NOUN, VERB, ADJ, ADV]
+
+# Convert from Universal Tags (Petrov et al., 2012) to Wordnet Pos
+UNIVERSAL_TAG_TO_WN_POS = {"NOUN": "n", "VERB": "v", "ADJ": "a", "ADV": "r"}
 
 # A table of strings that are used to express verb frames.
 VERB_FRAME_STRINGS = (
@@ -588,7 +592,7 @@ class Synset(_WordNetObject):
         (from 'animal.n.01' to 'entity.n.01'):
 
         >>> dog = wn.synset('dog.n.01')
-        >>> hyp = lambda s:s.hypernyms()
+        >>> hyp = lambda s:sorted(s.hypernyms())
         >>> print(list(dog.closure(hyp)))
         [Synset('canine.n.02'), Synset('domestic_animal.n.01'), Synset('carnivore.n.01'),\
  Synset('animal.n.01'), Synset('placental.n.01'), Synset('organism.n.01'),\
@@ -619,7 +623,7 @@ class Synset(_WordNetObject):
         >>> from nltk.corpus import wordnet as wn
         >>> from pprint import pprint
         >>> computer = wn.synset('computer.n.01')
-        >>> topic = lambda s:s.topic_domains()
+        >>> topic = lambda s:sorted(s.topic_domains())
         >>> pprint(computer.tree(topic))
         [Synset('computer.n.01'), [Synset('computer_science.n.01')]]
 
@@ -629,7 +633,7 @@ class Synset(_WordNetObject):
         But keep duplicate branches (from 'animal.n.01' to 'entity.n.01'):
 
         >>> dog = wn.synset('dog.n.01')
-        >>> hyp = lambda s:s.hypernyms()
+        >>> hyp = lambda s:sorted(s.hypernyms())
         >>> pprint(dog.tree(hyp))
         [Synset('dog.n.01'),
          [Synset('canine.n.02'),
@@ -1094,14 +1098,12 @@ class Synset(_WordNetObject):
     def __repr__(self):
         return f"{type(self).__name__}('{self._name}')"
 
-    def _related(self, relation_symbol, sort=True):
+    def _related(self, relation_symbol):
         get_synset = self._wordnet_corpus_reader.synset_from_pos_and_offset
         if relation_symbol not in self._pointers:
             return []
         pointer_tuples = self._pointers[relation_symbol]
         r = [get_synset(pos, offset) for pos, offset in pointer_tuples]
-        if sort:
-            r.sort()
         return r
 
 
@@ -1202,6 +1204,9 @@ class WordNetCorpusReader(CorpusReader):
                 assert int(index) == i
                 self._lexnames.append(lexname)
 
+        # Build a set of adjective satellite offsets
+        self._scan_satellites()
+
         # Load the indices for lemmas and synset offsets
         self._load_lemma_pos_offset_map()
 
@@ -1216,7 +1221,7 @@ class WordNetCorpusReader(CorpusReader):
         self.map30 = self.map_wn()
 
         # Language data attributes
-        self.lg_attrs = ["lemma", "none", "def", "exe"]
+        self.lg_attrs = ["lemma", "of", "def", "exe"]
 
     def index_sense(self, version=None):
         """Read sense key to synset id mapping from index.sense file in corpus directory"""
@@ -1251,7 +1256,7 @@ class WordNetCorpusReader(CorpusReader):
         return synset_to_many
 
     def map_to_one(self, version="wordnet"):
-        self.nomap[version] = []
+        self.nomap[version] = set()
         self.splits[version] = {}
         synset_to_many = self.map_to_many(version)
         synset_to_one = {}
@@ -1273,7 +1278,7 @@ class WordNetCorpusReader(CorpusReader):
                     # where only Lithuanian and Slovak use the "s" ss_type.
                     synset_to_one[f"{source[:-1]}a"] = target
             else:
-                self.nomap[version].append(source)
+                self.nomap[version].add(source)
         return synset_to_one
 
     def map_wn(self, version="wordnet"):
@@ -1294,7 +1299,9 @@ class WordNetCorpusReader(CorpusReader):
             for source, targets in self.map_to_many(version).items():
                 for target in targets:
                     merge[target].add(source)
-            self.merges[version] = {s: t for s, t in merge.items() if len(t) > 1}
+            self.merges[version] = {
+                trg: src for trg, src in merge.items() if len(src) > 1
+            }
         return self.merges[version]
 
     # Open Multilingual WordNet functions, contributed by
@@ -1320,7 +1327,7 @@ class WordNetCorpusReader(CorpusReader):
             self.add_omw()
 
         if lang not in self.langs():
-            raise WordNetError("Language is not supported.")
+            raise WordNetError(f"Language {lang} is not supported.")
 
         if self._exomw_reader and lang not in self.omw_langs:
             reader = self._exomw_reader
@@ -1375,9 +1382,32 @@ class WordNetCorpusReader(CorpusReader):
         """return a list of languages supported by Multilingual Wordnet"""
         return list(self.provenances.keys())
 
+    def _scan_satellites(self):
+        """
+        Scans the adjective data file and populates self.satellite_offsets with all adjective satellite synset offsets.
+
+        This method reads the adjective data file associated with the corpus reader,
+        identifies synsets of type 's' (adjective satellites), and adds their offsets
+        to the self.satellite_offsets set. The method does not return a value.
+        """
+        adj_data_file = self._data_file(ADJ)
+        satellite_offsets = set()
+        adj_data_file.seek(0)
+        for line in adj_data_file:
+            if not line.strip() or line.startswith(" "):
+                continue
+            fields = line.strip().split()
+            if len(fields) < 3:
+                continue
+            synset_offset = fields[0]
+            synset_type = fields[2]
+            if synset_type == "s":
+                satellite_offsets.add(int(synset_offset))
+        adj_data_file.seek(0)  # Reset if needed elsewhere
+        self.satellite_offsets = satellite_offsets
+
     def _load_lemma_pos_offset_map(self):
         for suffix in self._FILEMAP.values():
-
             # parse each line of the file (ignoring comment lines)
             with self.open("index.%s" % suffix) as fp:
                 for i, line in enumerate(fp):
@@ -1390,7 +1420,6 @@ class WordNetCorpusReader(CorpusReader):
                         return next(_iter)
 
                     try:
-
                         # get the lemma and part-of-speech
                         lemma = _next_token()
                         pos = _next_token()
@@ -1423,7 +1452,15 @@ class WordNetCorpusReader(CorpusReader):
                     # map lemmas and parts of speech to synsets
                     self._lemma_pos_offset_map[lemma][pos] = synset_offsets
                     if pos == ADJ:
-                        self._lemma_pos_offset_map[lemma][ADJ_SAT] = synset_offsets
+                        # index.adj uses only the ADJ pos, so identify ADJ_SAT using satellites set
+                        satellite_offsets = [
+                            # Keep the ordering from index.adj
+                            offset
+                            for offset in synset_offsets
+                            if offset in self.satellite_offsets
+                        ]
+                        # Duplicate only a (possibly empty) list of real satellites
+                        self._lemma_pos_offset_map[lemma][ADJ_SAT] = satellite_offsets
 
     def _load_exception_map(self):
         # load the exception file data into memory
@@ -1454,7 +1491,7 @@ class WordNetCorpusReader(CorpusReader):
         fh = self._data_file(ADJ)
         fh.seek(0)
         for line in fh:
-            match = re.search(r"Word[nN]et (\d+|\d+\.\d+) Copyright", line)
+            match = re.search(r"Word[nN]et (\d+\+?|\d+\.\d+) Copyright", line)
             if match is not None:
                 version = match.group(1)
                 fh.seek(0)
@@ -1597,7 +1634,6 @@ class WordNetCorpusReader(CorpusReader):
 
         # parse the entry for this synset
         try:
-
             # parse out the definitions and examples from the gloss
             columns_str, gloss = data_file_line.strip().split("|")
             definition = re.sub(r"[\"].*?[\"]", "", gloss).strip()
@@ -1913,7 +1949,7 @@ class WordNetCorpusReader(CorpusReader):
                     line = data_file.readline()
 
             # close the extra file handle we opened
-            except:
+            except Exception:
                 data_file.close()
                 raise
             else:
@@ -1942,7 +1978,7 @@ class WordNetCorpusReader(CorpusReader):
         try:
             with reader.open(file) as fp:
                 return fp.read()
-        except:
+        except Exception:
             if lang in self._lang_data:
                 return f"Cannot determine {file} for {lang}"
             else:
@@ -2019,8 +2055,9 @@ class WordNetCorpusReader(CorpusReader):
         """
         Find a possible base form for the given form, with the given
         part of speech, by checking WordNet's list of exceptional
-        forms, and by recursively stripping affixes for this part of
-        speech until a form in WordNet is found.
+        forms, or by substituting suffixes for this part of speech.
+        If pos=None, try every part of speech until finding lemmas.
+        Return the first form found in WordNet, or eventually None.
 
         >>> from nltk.corpus import wordnet as wn
         >>> print(wn.morphy('dogs'))
@@ -2036,19 +2073,11 @@ class WordNetCorpusReader(CorpusReader):
         book
         >>> wn.morphy('book', wn.ADJ)
         """
-
-        if pos is None:
-            morphy = self._morphy
-            analyses = chain(a for p in POS_LIST for a in morphy(form, p))
-        else:
+        for pos in [pos] if pos else POS_LIST:
             analyses = self._morphy(form, pos, check_exceptions)
-
-        # get the first one we find
-        first = list(islice(analyses, 1))
-        if len(first) == 1:
-            return first[0]
-        else:
-            return None
+            if analyses:
+                # Stop (don't try more parts of speech):
+                return analyses[0]
 
     MORPHOLOGICAL_SUBSTITUTIONS = {
         NOUN: [
@@ -2083,8 +2112,7 @@ class WordNetCorpusReader(CorpusReader):
         # Given an original string x
         # 1. Apply rules once to the input to get y1, y2, y3, etc.
         # 2. Return all that are in the database
-        # 3. If there are no matches, keep applying rules until you either
-        #    find a match or you can't go any further
+        #    (edited by ekaf) If there are no matches return an empty list.
 
         exceptions = self._exception_map[pos]
         substitutions = self.MORPHOLOGICAL_SUBSTITUTIONS[pos]
@@ -2108,28 +2136,47 @@ class WordNetCorpusReader(CorpusReader):
                             seen.add(form)
             return result
 
-        # 0. Check the exception lists
-        if check_exceptions:
-            if form in exceptions:
-                return filter_forms([form] + exceptions[form])
-
-        # 1. Apply rules once to the input to get y1, y2, y3, etc.
-        forms = apply_rules([form])
+        if check_exceptions and form in exceptions:
+            # 0. Check the exception lists
+            forms = exceptions[form]
+        else:
+            # 1. Apply rules once to the input to get y1, y2, y3, etc.
+            forms = apply_rules([form])
 
         # 2. Return all that are in the database (and check the original too)
-        results = filter_forms([form] + forms)
-        if results:
-            return results
+        return filter_forms([form] + forms)
 
-        # 3. If there are no matches, keep applying rules until we find a match
-        while forms:
-            forms = apply_rules(forms)
-            results = filter_forms(forms)
-            if results:
-                return results
+    def tag2pos(self, tag, tagset="en-ptb"):
+        """
+        Convert a tag from one of the tagsets in nltk_data/taggers/universal_tagset to a
+        WordNet Part-of-Speech, using Universal Tags (Petrov et al., 2012) as intermediary.
+        Return None when WordNet does not cover that POS.
 
-        # Return an empty list if we can't find anything
-        return []
+        :param tag: The part-of-speech tag to convert.
+        :type tag: str
+        :param tagset: The tagset of the input tag. Defaults to "en-ptb".
+            Supported tagsets are those recognized by the `map_tag` function
+            from `nltk.tag`. Common examples include:
+                - "en-ptb" (Penn Treebank tagset for English)
+                - "en-brown" (Brown tagset)
+            For a complete list of supported tagsets, refer to the `map_tag`
+            documentation or its source code in the NLTK library.
+        :type tagset: str
+
+        :returns: The corresponding WordNet POS tag ('n', 'v', 'a', 'r') or None
+            if the tag cannot be mapped to a WordNet POS.
+        :rtype: str or None
+
+        Example:
+            >>> import nltk
+            >>> tagged = nltk.tag.pos_tag(nltk.tokenize.word_tokenize("Banks check books."))
+            >>> print([(word, tag, nltk.corpus.wordnet.tag2pos(tag)) for word, tag in tagged])
+            [('Banks', 'NNS', 'n'), ('check', 'VBP', 'v'), ('books', 'NNS', 'n'), ('.', '.', None)]
+        """
+        if tagset != "universal":
+            tag = map_tag(tagset, "universal", tag)
+
+        return UNIVERSAL_TAG_TO_WN_POS.get(tag, None)
 
     #############################################################
     # Create information content from corpus
@@ -2230,8 +2277,9 @@ class WordNetCorpusReader(CorpusReader):
                     else:
                         # Some OMW offsets were never in Wordnet:
                         if (
-                            offset_pos not in self.nomap
-                            and offset_pos.replace("a", "s") not in self.nomap
+                            offset_pos not in self.nomap["wordnet"]
+                            and offset_pos.replace("a", "s")
+                            not in self.nomap["wordnet"]
                         ):
                             warnings.warn(
                                 f"{lang}: invalid offset {offset_pos} in '{line}'"
@@ -2247,11 +2295,15 @@ class WordNetCorpusReader(CorpusReader):
                 if len(pair) == 1 or pair[0] == lg:
                     if attr == "lemma":
                         val = val.strip().replace(" ", "_")
-                        self._lang_data[lang][1][val.lower()].append(offset_pos)
+                        lang_offsets = self._lang_data[lang][1][val.lower()]
+                        if offset_pos not in lang_offsets:
+                            lang_offsets.append(offset_pos)
                     if attr in self.lg_attrs:
-                        self._lang_data[lang][self.lg_attrs.index(attr)][
+                        lang_lemmas = self._lang_data[lang][self.lg_attrs.index(attr)][
                             offset_pos
-                        ].append(val)
+                        ]
+                        if val not in lang_lemmas:
+                            lang_lemmas.append(val)
 
     def disable_custom_lemmas(self, lang):
         """prevent synsets from being mistakenly added"""

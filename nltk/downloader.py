@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Corpus & Model Downloader
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
@@ -66,6 +66,7 @@ or::
 
     python -m nltk.downloader [-d DATADIR] [-q] [-f] [-k] PACKAGE_IDS
 """
+
 # ----------------------------------------------------------------------
 
 """
@@ -161,7 +162,6 @@ default: unzip or not?
 import functools
 import itertools
 import os
-import shutil
 import subprocess
 import sys
 import textwrap
@@ -169,24 +169,12 @@ import threading
 import time
 import warnings
 import zipfile
-from hashlib import md5
+from hashlib import md5, sha256
+from urllib.error import HTTPError, URLError
 from xml.etree import ElementTree
 
-try:
-    TKINTER = True
-    from tkinter import Button, Canvas, Entry, Frame, IntVar, Label, Menu, TclError, Tk
-    from tkinter.messagebox import showerror
-
-    from nltk.draw.table import Table
-    from nltk.draw.util import ShowText
-except ImportError:
-    TKINTER = False
-    TclError = ValueError
-
-from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
-
 import nltk
+from nltk.pathsec import ZipFile, urlopen
 
 # urllib2 = nltk.internals.import_from_stdlib('urllib2')
 
@@ -228,9 +216,21 @@ class Package:
         self.name = name or id
         """A string name for this package."""
 
+        # Validate subdir to prevent path traversal from malicious XML index
+        if os.path.isabs(subdir) or ".." in subdir.replace("\\", "/").split("/"):
+            raise ValueError(
+                f"Invalid package subdir {subdir!r}: must be a relative path "
+                f"without parent directory references"
+            )
         self.subdir = subdir
         """The subdirectory where this package should be installed.
            E.g., ``'corpora'`` or ``'taggers'``."""
+
+        # Validate id to prevent path traversal
+        if os.sep in id or "/" in id or "\\" in id or ".." in id:
+            raise ValueError(
+                f"Invalid package id {id!r}: must not contain path separators"
+            )
 
         self.url = url
         """A URL that can be used to download this package's file."""
@@ -689,16 +689,26 @@ class Downloader:
 
         # Check for (and remove) any old/stale version.
         filepath = os.path.join(download_dir, info.filename)
+
+        # Defense-in-depth: verify filepath stays within download_dir
+        real_download = os.path.realpath(os.path.abspath(download_dir))
+        real_filepath = os.path.realpath(os.path.abspath(filepath))
+        if not real_filepath.startswith(real_download + os.sep):
+            yield ErrorMessage(
+                info,
+                f"Path traversal blocked: package '{info.id}' attempted to "
+                f"write outside download directory (subdir='{info.subdir}')",
+            )
+            return
+
         if os.path.exists(filepath):
             if status == self.STALE:
                 yield StaleMessage(info)
             os.remove(filepath)
 
         # Ensure the download_dir exists
-        if not os.path.exists(download_dir):
-            os.makedirs(download_dir)
-        if not os.path.exists(os.path.join(download_dir, info.subdir)):
-            os.makedirs(os.path.join(download_dir, info.subdir))
+        os.makedirs(download_dir, exist_ok=True)
+        os.makedirs(os.path.join(download_dir, info.subdir), exist_ok=True)
 
         # Download the file.  This will raise an IOError if the url
         # is not found.
@@ -751,7 +761,6 @@ class Downloader:
         raise_on_error=False,
         print_error_to=sys.stderr,
     ):
-
         print_to = functools.partial(print, file=print_error_to)
         # If no info or id is given, then use the interactive shell.
         if info_or_id is None:
@@ -895,9 +904,28 @@ class Downloader:
         if filestat.st_size != int(info.size):
             return self.STALE
 
-        # Check if the file's checksum matches
-        if md5_hexdigest(filepath) != info.checksum:
-            return self.STALE
+        # Check if the file's checksum matches.
+        # Prefer sha256, but fall back to legacy md5 if sha256 is unavailable.
+        sha256_checksum = getattr(info, "sha256_checksum", None)
+        if sha256_checksum:
+            if sha256_hexdigest(filepath) != sha256_checksum:
+                return self.STALE
+        else:
+            if not getattr(self, "_warned_missing_sha256_checksum", False):
+                warnings.warn(
+                    "NLTK downloader package metadata is missing SHA256 checksums; "
+                    "falling back to legacy MD5 verification. Consider updating your "
+                    "NLTK data index (or re-running the downloader) to get SHA256 checksums.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+                self._warned_missing_sha256_checksum = True
+
+            md5_checksum = getattr(info, "checksum", None)
+            if not md5_checksum:
+                return self.STALE
+            if md5_hexdigest(filepath) != md5_checksum:
+                return self.STALE
 
         # If it's a zipfile, and it's been at least partially
         # unzipped, then check if it's been fully unzipped.
@@ -1040,7 +1068,7 @@ class Downloader:
         original_url = self._url
         try:
             self._update_index(url)
-        except:
+        except Exception:
             self._url = original_url
             raise
 
@@ -1106,14 +1134,26 @@ class Downloader:
     # /////////////////////////////////////////////////////////////////
 
     def _interactive_download(self):
+        # Only import tkinter if the user has indicated that they
+        # want to draw a UI. See issue #2949 for more info.
+        if (
+            os.environ.get("NLTK_DOWNLOADER_FORCE_INTERACTIVE_SHELL", "false").lower()
+            == "true"
+        ):
+            DownloaderShell(self).run()
+            return
+
         # Try the GUI first; if that doesn't work, try the simple
         # interactive shell.
-        if TKINTER:
-            try:
-                DownloaderGUI(self).mainloop()
-            except TclError:
-                DownloaderShell(self).run()
-        else:
+        try:
+            import tkinter
+        except ImportError:
+            DownloaderShell(self).run()
+            return
+
+        try:
+            DownloaderGUI(self).mainloop()
+        except tkinter.TclError:
             DownloaderShell(self).run()
 
 
@@ -1273,7 +1313,7 @@ class DownloaderShell:
                     print("  Cancelled!")
                 else:
                     if not new_url.startswith(("http://", "https://")):
-                        new_url = "http://" + new_url
+                        new_url = "https://" + new_url
                     try:
                         self._ds.url = new_url
                     except Exception as e:
@@ -1373,6 +1413,11 @@ class DownloaderGUI:
     # /////////////////////////////////////////////////////////////////
 
     def __init__(self, dataserver, use_threads=True):
+        # Only import tkinter if the user has indicated that they
+        # want to draw a UI. See issue #2949 for more info.
+        import tkinter
+        from tkinter.messagebox import showerror
+
         self._ds = dataserver
         self._use_threads = use_threads
 
@@ -1391,7 +1436,7 @@ class DownloaderGUI:
         self._log("NLTK Downloader Started!")
 
         # Create the main window.
-        top = self.top = Tk()
+        top = self.top = tkinter.Tk()
         top.geometry("+50+50")
         top.title("NLTK Downloader")
         top.configure(background=self._BACKDROP_COLOR[1])
@@ -1431,23 +1476,29 @@ class DownloaderGUI:
     # /////////////////////////////////////////////////////////////////
 
     def _init_widgets(self):
+        # Only import tkinter if the user has indicated that they
+        # want to draw a UI. See issue #2949 for more info.
+        import tkinter
+
+        from nltk.draw.table import Table
+
         # Create the top-level frame structures
-        f1 = Frame(self.top, relief="raised", border=2, padx=8, pady=0)
+        f1 = tkinter.Frame(self.top, relief="raised", border=2, padx=8, pady=0)
         f1.pack(sid="top", expand=True, fill="both")
         f1.grid_rowconfigure(2, weight=1)
         f1.grid_columnconfigure(0, weight=1)
-        Frame(f1, height=8).grid(column=0, row=0)  # spacer
-        tabframe = Frame(f1)
+        tkinter.Frame(f1, height=8).grid(column=0, row=0)  # spacer
+        tabframe = tkinter.Frame(f1)
         tabframe.grid(column=0, row=1, sticky="news")
-        tableframe = Frame(f1)
+        tableframe = tkinter.Frame(f1)
         tableframe.grid(column=0, row=2, sticky="news")
-        buttonframe = Frame(f1)
+        buttonframe = tkinter.Frame(f1)
         buttonframe.grid(column=0, row=3, sticky="news")
-        Frame(f1, height=8).grid(column=0, row=4)  # spacer
-        infoframe = Frame(f1)
+        tkinter.Frame(f1, height=8).grid(column=0, row=4)  # spacer
+        infoframe = tkinter.Frame(f1)
         infoframe.grid(column=0, row=5, sticky="news")
-        Frame(f1, height=8).grid(column=0, row=6)  # spacer
-        progressframe = Frame(
+        tkinter.Frame(f1, height=8).grid(column=0, row=6)  # spacer
+        progressframe = tkinter.Frame(
             self.top, padx=3, pady=3, background=self._BACKDROP_COLOR[1]
         )
         progressframe.pack(side="bottom", fill="x")
@@ -1458,7 +1509,7 @@ class DownloaderGUI:
         self._tab_names = ["Collections", "Corpora", "Models", "All Packages"]
         self._tabs = {}
         for i, tab in enumerate(self._tab_names):
-            label = Label(tabframe, text=tab, font=self._TAB_FONT)
+            label = tkinter.Label(tabframe, text=tab, font=self._TAB_FONT)
             label.pack(side="left", padx=((i + 1) % 2) * 10)
             label.bind("<Button-1>", self._select_tab)
             self._tabs[tab.lower()] = label
@@ -1494,9 +1545,9 @@ class DownloaderGUI:
             ("download_dir", "Download Directory:", self._set_download_dir),
         ]
         self._info = {}
-        for (i, (key, label, callback)) in enumerate(info):
-            Label(infoframe, text=label).grid(column=0, row=i, sticky="e")
-            entry = Entry(
+        for i, (key, label, callback) in enumerate(info):
+            tkinter.Label(infoframe, text=label).grid(column=0, row=i, sticky="e")
+            entry = tkinter.Entry(
                 infoframe,
                 font="courier",
                 relief="groove",
@@ -1513,23 +1564,23 @@ class DownloaderGUI:
         self.top.bind("<Button-1>", self._info_save)
 
         # Create Download & Refresh buttons.
-        self._download_button = Button(
+        self._download_button = tkinter.Button(
             buttonframe, text="Download", command=self._download, width=8
         )
         self._download_button.pack(side="left")
-        self._refresh_button = Button(
+        self._refresh_button = tkinter.Button(
             buttonframe, text="Refresh", command=self._refresh, width=8
         )
         self._refresh_button.pack(side="right")
 
         # Create Progress bar
-        self._progresslabel = Label(
+        self._progresslabel = tkinter.Label(
             progressframe,
             text="",
             foreground=self._BACKDROP_COLOR[0],
             background=self._BACKDROP_COLOR[1],
         )
-        self._progressbar = Canvas(
+        self._progressbar = tkinter.Canvas(
             progressframe,
             width=200,
             height=16,
@@ -1542,9 +1593,11 @@ class DownloaderGUI:
         self._progresslabel.pack(side="left")
 
     def _init_menu(self):
-        menubar = Menu(self.top)
+        import tkinter
 
-        filemenu = Menu(menubar, tearoff=0)
+        menubar = tkinter.Menu(self.top)
+
+        filemenu = tkinter.Menu(menubar, tearoff=0)
         filemenu.add_command(
             label="Download", underline=0, command=self._download, accelerator="Return"
         )
@@ -1570,9 +1623,9 @@ class DownloaderGUI:
         # Create a menu to control which columns of the table are
         # shown.  n.b.: we never hide the first two columns (mark and
         # identifier).
-        viewmenu = Menu(menubar, tearoff=0)
+        viewmenu = tkinter.Menu(menubar, tearoff=0)
         for column in self._table.column_names[2:]:
-            var = IntVar(self.top)
+            var = tkinter.IntVar(self.top)
             assert column not in self._column_vars
             self._column_vars[column] = var
             if column in self.INITIAL_COLUMNS:
@@ -1585,7 +1638,7 @@ class DownloaderGUI:
         # Create a sort menu
         # [xx] this should be selectbuttons; and it should include
         # reversed sorts as options.
-        sortmenu = Menu(menubar, tearoff=0)
+        sortmenu = tkinter.Menu(menubar, tearoff=0)
         for column in self._table.column_names[1:]:
             sortmenu.add_command(
                 label="Sort by %s" % column,
@@ -1600,7 +1653,7 @@ class DownloaderGUI:
             )
         menubar.add_cascade(label="Sort", underline=0, menu=sortmenu)
 
-        helpmenu = Menu(menubar, tearoff=0)
+        helpmenu = tkinter.Menu(menubar, tearoff=0)
         helpmenu.add_command(label="About", underline=0, command=self.about)
         helpmenu.add_command(
             label="Instructions", underline=0, command=self.help, accelerator="F1"
@@ -1611,13 +1664,15 @@ class DownloaderGUI:
         self.top.config(menu=menubar)
 
     def _select_columns(self):
-        for (column, var) in self._column_vars.items():
+        for column, var in self._column_vars.items():
             if var.get():
                 self._table.show_column(column)
             else:
                 self._table.hide_column(column)
 
     def _refresh(self):
+        from tkinter.messagebox import showerror
+
         self._ds.clear_status_cache()
         try:
             self._fill_table()
@@ -1629,7 +1684,7 @@ class DownloaderGUI:
 
     def _info_edit(self, info_key):
         self._info_save()  # just in case.
-        (entry, callback) = self._info[info_key]
+        entry, callback = self._info[info_key]
         entry["state"] = "normal"
         entry["relief"] = "sunken"
         entry.focus()
@@ -1664,6 +1719,8 @@ class DownloaderGUI:
             return "  %s" % val
 
     def _set_url(self, url):
+        from tkinter.messagebox import showerror
+
         if url == self._ds.url:
             return
         try:
@@ -1674,6 +1731,8 @@ class DownloaderGUI:
         self._show_info()
 
     def _set_download_dir(self, download_dir):
+        from tkinter.messagebox import showerror
+
         if self._ds.download_dir == download_dir:
             return
         # check if the dir exists, and if not, ask if we should create it?
@@ -1699,6 +1758,8 @@ class DownloaderGUI:
             entry["state"] = "disabled"
 
     def _prev_tab(self, *e):
+        from tkinter.messagebox import showerror
+
         for i, tab in enumerate(self._tab_names):
             if tab.lower() == self._tab and i > 0:
                 self._tab = self._tab_names[i - 1].lower()
@@ -1710,6 +1771,8 @@ class DownloaderGUI:
                     showerror("Error connecting to server", e.reason)
 
     def _next_tab(self, *e):
+        from tkinter.messagebox import showerror
+
         for i, tab in enumerate(self._tab_names):
             if tab.lower() == self._tab and i < (len(self._tabs) - 1):
                 self._tab = self._tab_names[i + 1].lower()
@@ -1721,6 +1784,8 @@ class DownloaderGUI:
                     showerror("Error connecting to server", e.reason)
 
     def _select_tab(self, event):
+        from tkinter.messagebox import showerror
+
         self._tab = event.widget["text"].lower()
         try:
             self._fill_table()
@@ -1887,6 +1952,8 @@ class DownloaderGUI:
         self._table.select(delta=1)
 
     def _show_log(self):
+        from nltk.draw.util import ShowText
+
         text = "\n".join(self._log_messages)
         ShowText(self.top, "NLTK Downloader Log", text)
 
@@ -1969,6 +2036,8 @@ class DownloaderGUI:
     )
 
     def help(self, *e):
+        from nltk.draw.util import ShowText
+
         # The default font's not very legible; try using 'fixed' instead.
         try:
             ShowText(
@@ -1978,10 +2047,12 @@ class DownloaderGUI:
                 width=75,
                 font="fixed",
             )
-        except:
+        except Exception:
             ShowText(self.top, "Help: NLTK Downloader", self.HELP.strip(), width=75)
 
     def about(self, *e):
+        from nltk.draw.util import ShowText
+
         ABOUT = "NLTK Downloader\n" + "Written by Edward Loper"
         TITLE = "About: NLTK Downloader"
         try:
@@ -2129,7 +2200,6 @@ class DownloaderGUI:
         if not self._download_lock.acquire():
             return
         for msg in self._download_msg_queue:
-
             # Done downloading?
             if msg == "finished" or msg == "aborted":
                 # self._fill_table(sort=False)
@@ -2224,6 +2294,27 @@ def _md5_hexdigest(fp):
     return md5_digest.hexdigest()
 
 
+def sha256_hexdigest(file):
+    """
+    Calculate and return the SHA-256 checksum for a given file.
+    ``file`` may either be a filename or an open stream.
+    """
+    if isinstance(file, str):
+        with open(file, "rb") as infile:
+            return _sha256_hexdigest(infile)
+    return _sha256_hexdigest(file)
+
+
+def _sha256_hexdigest(fp):
+    sha256_digest = sha256()
+    while True:
+        block = fp.read(1024 * 16)  # 16k blocks
+        if not block:
+            break
+        sha256_digest.update(block)
+    return sha256_digest.hexdigest()
+
+
 # change this to periodically yield progress messages?
 # [xx] get rid of topdir parameter -- we should be checking
 # this when we build the index, anyway.
@@ -2237,24 +2328,118 @@ def unzip(filename, root, verbose=True):
             raise Exception(message)
 
 
+def _validate_member(member, root_abs):
+    """
+    Check a single ZIP member name for path-traversal and escape vectors.
+
+    Returns ``None`` if the member is safe, or a human-readable error
+    string if the member must be rejected.  Comparison prefixes are
+    derived from *root_abs* internally via ``os.path.normcase`` so that
+    callers cannot supply inconsistent values.
+
+    Parameters
+    ----------
+    member : str
+        The archive entry name (forward-slash separated, as stored in the ZIP).
+    root_abs : str
+        Absolute path of the extraction root (used to build candidate paths
+        and derive comparison prefixes via ``os.path.normcase``).
+    """
+    if "\x00" in member:
+        return f"Null byte in entry name blocked: {member!r}"
+
+    abs_prefix = os.path.normcase(root_abs).rstrip(os.sep) + os.sep
+    target_abs = os.path.normcase(os.path.abspath(os.path.join(root_abs, member)))
+    if not target_abs.startswith(abs_prefix):
+        return f"Zip Slip blocked: {member}"
+
+    real_prefix = os.path.normcase(os.path.realpath(root_abs)).rstrip(os.sep) + os.sep
+    target_real = os.path.normcase(os.path.realpath(os.path.join(root_abs, member)))
+    if not target_real.startswith(real_prefix):
+        return f"Symlink escape blocked: {member}"
+
+    return None
+
+
 def _unzip_iter(filename, root, verbose=True):
+    """
+    Secure ZIP extraction using validate-then-extract.
+
+    All members are validated before any extraction occurs.  If any member
+    fails validation the entire archive is rejected and nothing is written
+    to disk.
+
+    Checks performed on every member name:
+    - Null-byte rejection (platform path-truncation vector)
+    - Zip-Slip (.., absolute paths, drive letters)
+    - Symlink-escape (writes through pre-existing symlinks)
+
+    All path comparisons use ``os.path.normcase`` so that the checks
+    are case-insensitive on Windows (no-op on POSIX).
+
+    Members are validated again immediately before each extraction as a
+    best-effort check against filesystem changes between Phase 1 and the
+    actual write, but this cannot eliminate TOCTOU races inherent in
+    non-atomic extraction.
+
+    Extraction aborts on the first error (including I/O errors) rather
+    than skipping individual members.  Partial extraction of a potentially
+    malicious archive is worse than no extraction.
+    """
+
     if verbose:
         sys.stdout.write("Unzipping %s" % os.path.split(filename)[1])
         sys.stdout.flush()
 
     try:
-        zf = zipfile.ZipFile(filename)
-    except zipfile.error as e:
-        yield ErrorMessage(filename, "Error with downloaded zip file")
-        return
+        zf = ZipFile(filename)
     except Exception as e:
         yield ErrorMessage(filename, e)
+        # Flush the "Unzipping ..." line here because the try/finally that
+        # normally handles this is never entered (zf was never assigned).
+        if verbose:
+            print()
         return
 
-    zf.extractall(root)
+    try:
+        root_abs = os.path.abspath(root)
+        members = zf.namelist()
 
-    if verbose:
-        print()
+        # Phase 1 -- validate every member before touching the filesystem.
+        has_violations = False
+        for member in members:
+            error = _validate_member(member, root_abs)
+            if error is not None:
+                yield ErrorMessage(filename, error)
+                has_violations = True
+                continue
+
+        if has_violations:
+            return
+
+        # Phase 2 -- all members passed; extract.
+        try:
+            os.makedirs(root_abs, exist_ok=True)
+        except Exception as e:
+            yield ErrorMessage(filename, f"Extraction error: {e}")
+            return
+
+        for member in members:
+            error = _validate_member(member, root_abs)
+            if error is not None:
+                yield ErrorMessage(filename, f"{error} (during extraction)")
+                return
+            try:
+                zf.extract(member, root_abs)
+            except Exception as e:
+                yield ErrorMessage(filename, f"Extraction error for {member}: {e}")
+                return
+    except Exception as e:
+        yield ErrorMessage(filename, f"Validation error: {e}")
+    finally:
+        zf.close()
+        if verbose:
+            print()
 
 
 ######################################################################
@@ -2304,6 +2489,7 @@ def build_index(root, base_url):
         pkg_xml.set("unzipped_size", "%s" % unzipped_size)
         pkg_xml.set("size", "%s" % zipstat.st_size)
         pkg_xml.set("checksum", "%s" % md5_hexdigest(zf.filename))
+        pkg_xml.set("sha256_checksum", "%s" % sha256_hexdigest(zf.filename))
         pkg_xml.set("subdir", subdir)
         # pkg_xml.set('svn_revision', _svn_revision(zf.filename))
         if not pkg_xml.get("url"):
@@ -2380,7 +2566,7 @@ def _svn_revision(filename):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    (stdout, stderr) = p.communicate()
+    stdout, stderr = p.communicate()
     if p.returncode != 0 or stderr or not stdout:
         raise ValueError(
             "Error determining svn_revision for %s: %s"
@@ -2407,7 +2593,7 @@ def _find_packages(root):
     ``(pkg_xml, zf, subdir)``, where:
       - ``pkg_xml`` is an ``ElementTree.Element`` holding the xml for a
         package
-      - ``zf`` is a ``zipfile.ZipFile`` for the package's contents.
+      - ``zf`` is a ``ZipFile`` for the package's contents.
       - ``subdir`` is the subdirectory (relative to ``root``) where
         the package was found (e.g. 'corpora' or 'grammars').
     """
@@ -2422,7 +2608,7 @@ def _find_packages(root):
                 xmlfilename = os.path.join(dirname, filename)
                 zipfilename = xmlfilename[:-4] + ".zip"
                 try:
-                    zf = zipfile.ZipFile(zipfilename)
+                    zf = ZipFile(zipfilename)
                 except Exception as e:
                     raise ValueError(f"Error reading file {zipfilename!r}!\n{e}") from e
                 try:
@@ -2535,7 +2721,7 @@ if __name__ == "__main__":
         help="download server index url",
     )
 
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
 
     downloader = Downloader(server_index_url=options.server_index_url)
 
@@ -2548,7 +2734,7 @@ if __name__ == "__main__":
                 force=options.force,
                 halt_on_error=options.halt_on_error,
             )
-            if rv == False and options.halt_on_error:
+            if not rv and options.halt_on_error:
                 break
     else:
         downloader.download(

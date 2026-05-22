@@ -1,12 +1,20 @@
-# -*- coding: utf-8 -*-
 """Custom decorators."""
 
-from __future__ import absolute_import
+from __future__ import annotations
+
 from functools import wraps
+from typing import TYPE_CHECKING
+
 from textblob.exceptions import MissingCorpusError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import TypeVar
 
-class cached_property(object):
+    ReturnType = TypeVar("ReturnType")
+
+
+class cached_property:
     """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
     property.
@@ -15,7 +23,7 @@ class cached_property(object):
     """
 
     def __init__(self, func):
-        self.__doc__ = getattr(func, '__doc__')
+        self.__doc__ = func.__doc__
         self.func = func
 
     def __get__(self, obj, cls):
@@ -25,15 +33,18 @@ class cached_property(object):
         return value
 
 
-def requires_nltk_corpus(func):
+def requires_nltk_corpus(
+    func: Callable[..., ReturnType],
+) -> Callable[..., ReturnType]:
     """Wraps a function that requires an NLTK corpus. If the corpus isn't found,
     raise a :exc:`MissingCorpusError`.
     """
+
     @wraps(func)
     def decorated(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except LookupError as err:
-            print(err)
-            raise MissingCorpusError()
+        except LookupError as error:
+            raise MissingCorpusError() from error
+
     return decorated

@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Punkt sentence tokenizer
 #
-# Copyright (C) 2001-2023 NLTK Project
+# Copyright (C) 2001-2026 NLTK Project
 # Algorithm: Kiss & Strunk (2006)
 # Author: Willy <willy@csse.unimelb.edu.au> (original Python port)
 #         Steven Bird <stevenbird1@gmail.com> (additions)
@@ -23,14 +23,14 @@ before it can be used.
 The NLTK data package includes a pre-trained Punkt tokenizer for
 English.
 
-    >>> import nltk.data
+    >>> from nltk.tokenize import PunktTokenizer
     >>> text = '''
     ... Punkt knows that the periods in Mr. Smith and Johann S. Bach
     ... do not mark sentence boundaries.  And sometimes sentences
     ... can start with non-capitalized words.  i is a good variable
     ... name.
     ... '''
-    >>> sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    >>> sent_detector = PunktTokenizer()
     >>> print('\n-----\n'.join(sent_detector.tokenize(text.strip())))
     Punkt knows that the periods in Mr. Smith and Johann S. Bach
     do not mark sentence boundaries.
@@ -109,7 +109,9 @@ import math
 import re
 import string
 from collections import defaultdict
-from typing import Any, Dict, Iterator, List, Match, Optional, Tuple, Union
+from collections.abc import Iterator
+from re import Match
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from nltk.probability import FreqDist
 from nltk.tokenize.api import TokenizerI
@@ -196,7 +198,7 @@ class PunktLanguageVars:
 
     def __getstate__(self):
         # All modifications to the class are performed by inheritance.
-        # Non-default parameters to be pickled must be defined in the inherited
+        # Non-default parameters to be saved must be defined in the inherited
         # class.
         return 1
 
@@ -284,7 +286,7 @@ class PunktLanguageVars:
         including possible sentence boundaries."""
         try:
             return self._re_period_context
-        except:
+        except AttributeError:
             self._re_period_context = re.compile(
                 self._period_context_fmt
                 % {
@@ -620,7 +622,6 @@ class PunktBaseClass:
                 tok[:-1].lower() in self._params.abbrev_types
                 or tok[:-1].lower().split("-")[-1] in self._params.abbrev_types
             ):
-
                 aug_tok.abbr = True
             else:
                 aug_tok.sentbreak = True
@@ -639,7 +640,6 @@ class PunktTrainer(PunktBaseClass):
     def __init__(
         self, train_text=None, verbose=False, lang_vars=None, token_cls=PunktToken
     ):
-
         PunktBaseClass.__init__(self, lang_vars=lang_vars, token_cls=token_cls)
 
         self._type_fdist = FreqDist()
@@ -1073,7 +1073,9 @@ class PunktTrainer(PunktBaseClass):
         p1 = count_b / N
         p2 = 0.99
 
-        null_hypo = count_ab * math.log(p1) + (count_a - count_ab) * math.log(1.0 - p1)
+        null_hypo = count_ab * math.log(p1 + 1e-8) + (count_a - count_ab) * math.log(
+            1.0 - p1 + 1e-8
+        )
         alt_hypo = count_ab * math.log(p2) + (count_a - count_ab) * math.log(1.0 - p2)
 
         likelihood = null_hypo - alt_hypo
@@ -1167,7 +1169,6 @@ class PunktTrainer(PunktBaseClass):
                 and typ2_count > 1
                 and self.MIN_COLLOC_FREQ < col_count <= min(typ1_count, typ2_count)
             ):
-
                 log_likelihood = self._col_log_likelihood(
                     typ1_count, typ2_count, col_count, self._type_fdist.N()
                 )
@@ -1186,7 +1187,7 @@ class PunktTrainer(PunktBaseClass):
         Returns True given a token and the token that precedes it if it
         seems clear that the token is beginning a sentence.
         """
-        # If a token (i) is preceded by a sentece break that is
+        # If a token (i) is preceded by a sentence break that is
         # not a potential ordinal number or initial, and (ii) is
         # alphabetic, then it is a a sentence-starter.
         return (
@@ -1274,13 +1275,13 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
     # { Tokenization
     # ////////////////////////////////////////////////////////////
 
-    def tokenize(self, text: str, realign_boundaries: bool = True) -> List[str]:
+    def tokenize(self, text: str, realign_boundaries: bool = True) -> list[str]:
         """
         Given a text, returns a list of the sentences in that text.
         """
         return list(self.sentences_from_text(text, realign_boundaries))
 
-    def debug_decisions(self, text: str) -> Iterator[Dict[str, Any]]:
+    def debug_decisions(self, text: str) -> Iterator[dict[str, Any]]:
         """
         Classifies candidate periods as sentence breaks, yielding a dict for
         each that may be used to understand why the decision was made.
@@ -1318,7 +1319,7 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
 
     def span_tokenize(
         self, text: str, realign_boundaries: bool = True
-    ) -> Iterator[Tuple[int, int]]:
+    ) -> Iterator[tuple[int, int]]:
         """
         Given a text, generates (start, end) spans of sentences
         in the text.
@@ -1331,7 +1332,7 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
 
     def sentences_from_text(
         self, text: str, realign_boundaries: bool = True
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Given a text, generates the sentences in that text by only
         testing candidate sentence breaks. If realign_boundaries is
@@ -1351,7 +1352,7 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
                 return i
         return 0
 
-    def _match_potential_end_contexts(self, text: str) -> Iterator[Tuple[Match, str]]:
+    def _match_potential_end_contexts(self, text: str) -> Iterator[tuple[Match, str]]:
         """
         Given a text, find the matches of potential sentence breaks,
         alongside the contexts surrounding these sentence breaks.
@@ -1393,7 +1394,6 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
         previous_slice = slice(0, 0)
         previous_match = None
         for match in self._lang_vars.period_context_re().finditer(text):
-
             # Get the slice of the previous word
             before_text = text[previous_slice.stop : match.start()]
             index_after_last_space = self._get_last_whitespace_index(before_text)
@@ -1624,8 +1624,8 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
             yield token1
 
     def _second_pass_annotation(
-        self, aug_tok1: PunktToken, aug_tok2: Optional[PunktToken]
-    ) -> Optional[str]:
+        self, aug_tok1: PunktToken, aug_tok2: PunktToken | None
+    ) -> str | None:
         """
         Performs token-based classification over a pair of contiguous tokens
         updating the first.
@@ -1660,7 +1660,7 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
             # orthogrpahic evidence about whether the next word
             # starts a sentence or not.
             is_sent_starter = self._ortho_heuristic(aug_tok2)
-            if is_sent_starter == True:
+            if is_sent_starter == True:  # noqa: E712
                 aug_tok1.sentbreak = True
                 return REASON_ABBR_WITH_ORTHOGRAPHIC_HEURISTIC
 
@@ -1676,13 +1676,12 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
         # Check if any initials or ordinals tokens that are marked
         # as sentbreaks should be reclassified as abbreviations.
         if tok_is_initial or typ == "##number##":
-
             # [4.1.1. Orthographic Heuristic] Check if there's
             # orthogrpahic evidence about whether the next word
             # starts a sentence or not.
             is_sent_starter = self._ortho_heuristic(aug_tok2)
 
-            if is_sent_starter == False:
+            if is_sent_starter == False:  # noqa: E712
                 aug_tok1.sentbreak = False
                 aug_tok1.abbr = True
                 if tok_is_initial:
@@ -1704,7 +1703,7 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
 
         return
 
-    def _ortho_heuristic(self, aug_tok: PunktToken) -> Union[bool, str]:
+    def _ortho_heuristic(self, aug_tok: PunktToken) -> bool | str:
         """
         Decide whether the given token is the first token in a sentence.
         """
@@ -1735,6 +1734,71 @@ class PunktSentenceTokenizer(PunktBaseClass, TokenizerI):
 
         # Otherwise, we're not sure.
         return "unknown"
+
+
+class PunktTokenizer(PunktSentenceTokenizer):
+    """
+    Punkt Sentence Tokenizer that loads/saves its parameters from/to data files
+    """
+
+    def __init__(self, lang="english"):
+        PunktSentenceTokenizer.__init__(self)
+        self.load_lang(lang)
+
+    def load_lang(self, lang="english"):
+        from nltk.data import find
+
+        lang_dir = find(f"tokenizers/punkt_tab/{lang}/")
+        self._params = load_punkt_params(lang_dir)
+        self._lang = lang
+
+    def save_params(self):
+        save_punkt_params(self._params, dir=f"/tmp/{self._lang}")
+
+
+def load_punkt_params(lang_dir):
+    from nltk.data import open_datafile
+    from nltk.tabdata import PunktDecoder
+
+    # Make a new Parameters object:
+    params = PunktParameters()
+
+    pdec = PunktDecoder()
+    # Use .join() to reach the files regardless of zip/real FS.
+    with open_datafile(lang_dir, "collocations.tab") as f:
+        params.collocations = set(pdec.tab2tups(f))
+    with open_datafile(lang_dir, "sent_starters.txt") as f:
+        params.sent_starters = pdec.txt2set(f)
+    with open_datafile(lang_dir, "abbrev_types.txt") as f:
+        params.abbrev_types = pdec.txt2set(f)
+    with open_datafile(lang_dir, "ortho_context.tab") as f:
+        params.ortho_context = pdec.tab2intdict(f)
+    return params
+
+
+def save_punkt_params(params, dir="/tmp/punkt_tab"):
+    from os import mkdir
+    from os.path import isdir
+
+    from nltk.tabdata import TabEncoder
+
+    if not isdir(dir):
+        mkdir(dir)
+    tenc = TabEncoder()
+    with open(f"{dir}/collocations.tab", "w") as f:
+        f.write(f"{tenc.tups2tab(params.collocations)}")
+    with open(f"{dir}/sent_starters.txt", "w") as f:
+        f.write(f"{tenc.set2txt(params.sent_starters)}")
+    with open(f"{dir}/abbrev_types.txt", "w") as f:
+        f.write(f"{tenc.set2txt(params.abbrev_types)}")
+    with open(f"{dir}/ortho_context.tab", "w") as f:
+        f.write(f"{tenc.ivdict2tab(params.ortho_context)}")
+
+
+# def punkt_tokenizer(lang="english"):
+# Make a new Tokenizer
+#    tokenizer = PunktTokenizer(lang)
+#    return tokenizer
 
 
 DEBUG_DECISION_FMT = """Text: {text!r} (at offset {period_index})

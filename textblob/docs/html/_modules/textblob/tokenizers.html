@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>textblob.tokenizers &#8212; TextBlob 0.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=6625fa76" />
+    <link rel="stylesheet" type="text/css" href="../../_static/flasky.css?v=6bef19aa" />
+    <script src="../../_static/documentation_options.js?v=b52c616d"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=0.9, maximum-scale=0.9"
+/>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TextBlob 0.20.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">textblob.tokenizers</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for textblob.tokenizers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Various tokenizer implementations.</span>
+
+<span class="sd">.. versionadded:: 0.4.0</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">nltk</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">requires_nltk_corpus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textblob.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">strip_punc</span>
+
+
+<div class="viewcode-block" id="WordTokenizer">
+<a class="viewcode-back" href="../../api_reference.html#textblob.tokenizers.WordTokenizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WordTokenizer</span><span class="p">(</span><span class="n">BaseTokenizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;NLTK&#39;s recommended word tokenizer (currently the TreeBankTokenizer).</span>
+<span class="sd">    Uses regular expressions to tokenize text. Assumes text has already been</span>
+<span class="sd">    segmented into sentences.</span>
+
+<span class="sd">    Performs the following steps:</span>
+
+<span class="sd">    * split standard contractions, e.g. don&#39;t -&gt; do n&#39;t</span>
+<span class="sd">    * split commas and single quotes</span>
+<span class="sd">    * separate periods that appear at the end of line</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WordTokenizer.tokenize">
+<a class="viewcode-back" href="../../api_reference.html#textblob.tokenizers.WordTokenizer.tokenize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">include_punc</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of word tokens.</span>
+
+<span class="sd">        :param text: string of text.</span>
+<span class="sd">        :param include_punc: (optional) whether to</span>
+<span class="sd">            include punctuation as separate tokens. Default to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">tokenize</span><span class="o">.</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_punc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tokens</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return each word token</span>
+            <span class="c1"># Strips punctuation unless the word comes from a contraction</span>
+            <span class="c1"># e.g. &quot;Let&#39;s&quot; =&gt; [&quot;Let&quot;, &quot;&#39;s&quot;]</span>
+            <span class="c1"># e.g. &quot;Can&#39;t&quot; =&gt; [&quot;Ca&quot;, &quot;n&#39;t&quot;]</span>
+            <span class="c1"># e.g. &quot;home.&quot; =&gt; [&#39;home&#39;]</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">word</span> <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">strip_punc</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">tokens</span>
+                <span class="k">if</span> <span class="n">strip_punc</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SentenceTokenizer">
+<a class="viewcode-back" href="../../api_reference.html#textblob.tokenizers.SentenceTokenizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SentenceTokenizer</span><span class="p">(</span><span class="n">BaseTokenizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;NLTK&#39;s sentence tokenizer (currently PunktSentenceTokenizer).</span>
+<span class="sd">    Uses an unsupervised algorithm to build a model for abbreviation words,</span>
+<span class="sd">    collocations, and words that start sentences,</span>
+<span class="sd">    then uses that to find sentence boundaries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SentenceTokenizer.tokenize">
+<a class="viewcode-back" href="../../api_reference.html#textblob.tokenizers.SentenceTokenizer.tokenize">[docs]</a>
+    <span class="nd">@requires_nltk_corpus</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of sentences.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">nltk</span><span class="o">.</span><span class="n">tokenize</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1">#: Convenience function for tokenizing sentences</span>
+<span class="n">sent_tokenize</span> <span class="o">=</span> <span class="n">SentenceTokenizer</span><span class="p">()</span><span class="o">.</span><span class="n">itokenize</span>
+
+<span class="n">_word_tokenizer</span> <span class="o">=</span> <span class="n">WordTokenizer</span><span class="p">()</span>  <span class="c1"># Singleton word tokenizer</span>
+
+
+<div class="viewcode-block" id="word_tokenize">
+<a class="viewcode-back" href="../../api_reference.html#textblob.tokenizers.word_tokenize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">word_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">include_punc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function for tokenizing text into words.</span>
+
+<span class="sd">    NOTE: NLTK&#39;s word tokenizer expects sentences as input, so the text will be</span>
+<span class="sd">    tokenized to sentences before being tokenized to words.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+        <span class="n">_word_tokenizer</span><span class="o">.</span><span class="n">itokenize</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">include_punc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">words</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="../../index.html"
+    ><img
+      class="logo"
+      src="../../_static/textblob-logo.png"
+      height="200"
+      width="230"
+      alt="Logo"
+  /></a>
+</p>
+
+<p>
+  <iframe
+    src="https://ghbtns.com/github-btn.html?user=sloria&repo=TextBlob&type=watch&count=true&size=large"
+    allowtransparency="true"
+    frameborder="0"
+    scrolling="0"
+    width="200px"
+    height="35px"
+  ></iframe>
+</p>
+
+<p>
+  TextBlob is a Python library for processing textual data. It provides a
+  consistent API for diving into common natural language processing (NLP) tasks
+  such as part-of-speech tagging, noun phrase extraction, sentiment analysis,
+  and more.
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://pypi.python.org/pypi/textblob">TextBlob @ PyPI</a></li>
+  <li><a href="https://github.com/sloria/textblob">TextBlob @ GitHub</a></li>
+  <li><a href="https://github.com/sloria/textblob/issues">Issue Tracker</a></li>
+</ul><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<div class="footer">&copy; Copyright <a href="http://stevenloria.com/">Steven Loria</a> and contributors.</div>
+<a href="https://github.com/sloria/textblob" class="github">
+  <img
+    style="position: absolute; top: 0; right: 0; border: 0"
+    src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+    alt="Fork me on GitHub"
+    class="github"
+  />
+</a>
+  </body>
+</html>
