@@ -13,11 +13,12 @@
 <v t="karstenw.20230303122029.1"><vh>@clean pattern/__init__.py</vh>
 <v t="karstenw.20230303122044.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230303123040.1"><vh>db</vh>
-<v t="karstenw.20230303123043.1"><vh>@clean pattern/db/__init__.py</vh>
+<v t="karstenw.20230303123040.1" a="E"><vh>db</vh>
+<v t="karstenw.20230303123043.1" a="E"><vh>@clean pattern/db/__init__.py</vh>
 <v t="karstenw.20230303123103.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123103.2"><vh>_import_db</vh></v>
 <v t="karstenw.20230303123103.3"><vh>pd</vh></v>
+<v t="karstenw.20260524110723.1"><vh>+ DATE FUNCTIONS +</vh>
 <v t="karstenw.20230303123103.4"><vh>_yyyywwd2yyyymmdd</vh></v>
 <v t="karstenw.20230303123103.5"><vh>_strftime1900</vh></v>
 <v t="karstenw.20230303123103.6"><vh>class DateError</vh></v>
@@ -42,6 +43,7 @@
 <v t="karstenw.20230303123103.24"><vh>__new__</vh></v>
 </v>
 <v t="karstenw.20230303123103.25"><vh>time</vh></v>
+</v>
 <v t="karstenw.20230303123103.26"><vh>string</vh></v>
 <v t="karstenw.20230303123103.27"><vh>class EncryptionError</vh></v>
 <v t="karstenw.20230303123103.28"><vh>class DecryptionError</vh></v>
@@ -55,11 +57,14 @@
 </v>
 <v t="karstenw.20230303123103.36"><vh>_escape</vh></v>
 <v t="karstenw.20230303123103.37"><vh>cast</vh></v>
+<v t="karstenw.20260524110900.1"><vh>+ LIST FUNCTIONS +</vh>
 <v t="karstenw.20230303123103.38"><vh>find</vh></v>
 <v t="karstenw.20230303123103.39"><vh>order</vh></v>
 <v t="karstenw.20230303123103.40"><vh>avg</vh></v>
 <v t="karstenw.20230303123103.41"><vh>variance</vh></v>
 <v t="karstenw.20230303123103.42"><vh>stdev</vh></v>
+</v>
+<v t="karstenw.20260524110929.1"><vh>+ SQLITE FUNCTIONS +</vh>
 <v t="karstenw.20230303123103.43"><vh>class sqlite_first</vh>
 <v t="karstenw.20230303123103.44"><vh>step</vh></v>
 <v t="karstenw.20230303123103.45"><vh>finalize</vh></v>
@@ -78,7 +83,10 @@
 <v t="karstenw.20230303123103.55"><vh>sqlite_hour</vh></v>
 <v t="karstenw.20230303123103.56"><vh>sqlite_minute</vh></v>
 <v t="karstenw.20230303123103.57"><vh>sqlite_second</vh></v>
+</v>
+<v t="karstenw.20260524114525.1"><vh>+ DATABASE +</vh>
 <v t="karstenw.20230303123103.58"><vh>class DatabaseConnectionError</vh></v>
+</v>
 <v t="karstenw.20230303123103.59"><vh>class Database</vh>
 <v t="karstenw.20230303123103.60"><vh>class Tables</vh>
 <v t="karstenw.20230303123103.61"><vh>__init__</vh></v>
@@ -128,6 +136,7 @@
 <v t="karstenw.20230303123103.101"><vh>__init__</vh></v>
 <v t="karstenw.20230303123103.102"><vh>__repr__</vh></v>
 </v>
+<v t="karstenw.20260524114615.1"><vh>+ TABLE +</vh>
 <v t="karstenw.20230303123103.103"><vh>class TableError</vh></v>
 <v t="karstenw.20230303123103.104"><vh>class Table</vh>
 <v t="karstenw.20230303123103.105"><vh>class Fields</vh>
@@ -167,14 +176,20 @@
 <v t="karstenw.20230303123103.137"><vh>datasheet</vh></v>
 <v t="karstenw.20230303123103.138"><vh>__repr__</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524114636.1"><vh>+ QUERY +</vh>
 <v t="karstenw.20230303123103.139"><vh>abs</vh></v>
 <v t="karstenw.20230303123103.140"><vh>cmp</vh></v>
+</v>
+<v t="karstenw.20260524114721.1"><vh>Functions for date fields</vh>
 <v t="karstenw.20230303123103.141"><vh>year</vh></v>
 <v t="karstenw.20230303123103.142"><vh>month</vh></v>
 <v t="karstenw.20230303123103.143"><vh>day</vh></v>
 <v t="karstenw.20230303123103.144"><vh>hour</vh></v>
 <v t="karstenw.20230303123103.145"><vh>minute</vh></v>
 <v t="karstenw.20230303123103.146"><vh>second</vh></v>
+</v>
+<v t="karstenw.20260524114735.1"><vh>Aggregate functions</vh>
 <v t="karstenw.20230303123103.147"><vh>count</vh></v>
 <v t="karstenw.20230303123103.148"><vh>sum</vh></v>
 <v t="karstenw.20230303123103.149"><vh>class Filter</vh>
@@ -196,6 +211,8 @@
 </v>
 <v t="karstenw.20230303123103.164"><vh>all</vh></v>
 <v t="karstenw.20230303123103.165"><vh>any</vh></v>
+</v>
+<v t="karstenw.20260524114815.1"><vh>+ QUERY +</vh>
 <v t="karstenw.20230303123103.166"><vh>class Relation</vh>
 <v t="karstenw.20230303123103.167"><vh>__new__</vh></v>
 </v>
@@ -215,6 +232,8 @@
 <v t="karstenw.20230303123103.181"><vh>__repr__</vh></v>
 </v>
 <v t="karstenw.20230303123103.182"><vh>associative</vh></v>
+</v>
+<v t="karstenw.20260524114913.1"><vh>+ VIEW +</vh>
 <v t="karstenw.20230303123103.183"><vh>class View</vh>
 <v t="karstenw.20230303123103.184"><vh>__init__</vh></v>
 <v t="karstenw.20230303123103.185"><vh>db</vh></v>
@@ -223,10 +242,14 @@
 <v t="karstenw.20230303123103.188"><vh>render</vh></v>
 <v t="karstenw.20230303123103.189"><vh>default</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524114928.1"><vh>+ XML PARSER +</vh>
 <v t="karstenw.20230303123103.190"><vh>_unpack_fields</vh></v>
 <v t="karstenw.20230303123103.191"><vh>xml_format</vh></v>
 <v t="karstenw.20230303123103.192"><vh>xml</vh></v>
 <v t="karstenw.20230303123103.193"><vh>parse_xml</vh></v>
+</v>
+<v t="karstenw.20260524114954.1" a="E"><vh>+ DATASHEET +</vh>
 <v t="karstenw.20230303123103.194"><vh>csv_header_encode</vh></v>
 <v t="karstenw.20230303123103.195"><vh>csv_header_decode</vh></v>
 <v t="karstenw.20230303123103.196"><vh>class CSV</vh>
@@ -266,6 +289,8 @@
 </v>
 <v t="karstenw.20230303123103.229"><vh>flip</vh></v>
 <v t="karstenw.20230303123103.230"><vh>csv</vh></v>
+</v>
+<v t="karstenw.20260524115014.1" a="E"><vh>+ DATASHEET ROWS +</vh>
 <v t="karstenw.20230303123103.231"><vh>class DatasheetRows</vh>
 <v t="karstenw.20230303123103.232"><vh>__init__</vh></v>
 <v t="karstenw.20230303123103.233"><vh>__setitem__</vh></v>
@@ -290,6 +315,8 @@
 <v t="karstenw.20230303123103.252"><vh>reverse</vh></v>
 <v t="karstenw.20230303123103.253"><vh>swap</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524115034.1"><vh>+ DATASHEET COLUMN +</vh>
 <v t="karstenw.20230303123103.254"><vh>class DatasheetColumns</vh>
 <v t="karstenw.20230303123103.255"><vh>__init__</vh></v>
 <v t="karstenw.20230303123103.256"><vh>__setitem__</vh></v>
@@ -313,6 +340,8 @@
 <v t="karstenw.20230303123103.274"><vh>sort</vh></v>
 <v t="karstenw.20230303123103.275"><vh>swap</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524115349.1"><vh>+ DATASHEET COLUMNS +</vh>
 <v t="karstenw.20230303123103.276"><vh>class DatasheetColumn</vh>
 <v t="karstenw.20230303123103.277"><vh>__init__</vh></v>
 <v t="karstenw.20230303123103.278"><vh>__getslice__</vh></v>
@@ -343,7 +372,10 @@
 <v t="karstenw.20230303123103.303"><vh>filter</vh></v>
 <v t="karstenw.20230303123103.304"><vh>swap</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524115058.1"><vh>+ UID +</vh>
 <v t="karstenw.20230303123103.305"><vh>uid</vh></v>
+</v>
 <v t="karstenw.20230303123103.306"><vh>truncate</vh></v>
 <v t="karstenw.20230303123103.307"><vh>pprint</vh></v>
 </v>
@@ -817,7 +849,7 @@
 <v t="karstenw.20230303125114.1"><vh>+ dead code +</vh></v>
 </v>
 </v>
-<v t="karstenw.20230303132600.1" a="E"><vh>text</vh>
+<v t="karstenw.20230303132600.1"><vh>text</vh>
 <v t="karstenw.20230303131659.1"><vh>@clean pattern/text/__init__.py</vh>
 <v t="karstenw.20230303131711.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303131711.2"><vh>ngrams</vh></v>
@@ -1053,7 +1085,7 @@
 <v t="karstenw.20230303131712.194"><vh>predicative</vh></v>
 <v t="karstenw.20230303131712.195"><vh>suggest</vh></v>
 </v>
-<v t="karstenw.20230303131752.1" a="E"><vh>@clean pattern/text/search.py</vh>
+<v t="karstenw.20230303131752.1"><vh>@clean pattern/text/search.py</vh>
 <v t="karstenw.20230303131819.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303131819.2"><vh>class Text</vh>
 <v t="karstenw.20230303131819.3"><vh>__init__</vh></v>
@@ -2462,6 +2494,7 @@
 <v t="karstenw.20230303141230.224"><vh>class WikiaTable</vh>
 <v t="karstenw.20230303141230.225"><vh>__repr__</vh></v>
 </v>
+<v t="karstenw.20260524104544.1"><vh>+ DBPEDIA +</vh>
 <v t="karstenw.20230303141230.226"><vh>class DBPediaQueryError</vh></v>
 <v t="karstenw.20230303141230.227"><vh>class DBPediaResource</vh>
 <v t="karstenw.20230303141230.228"><vh>name</vh></v>
@@ -2470,6 +2503,8 @@
 <v t="karstenw.20230303141230.230"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.231"><vh>search</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524104609.1"><vh>+ FLICKR +</vh>
 <v t="karstenw.20230303141230.232"><vh>class Flickr</vh>
 <v t="karstenw.20230303141230.233"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.234"><vh>search</vh></v>
@@ -2477,6 +2512,8 @@
 <v t="karstenw.20230303141230.235"><vh>class FlickrResult</vh>
 <v t="karstenw.20230303141230.236"><vh>url</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524104621.1"><vh>+ FACEBOOK +</vh>
 <v t="karstenw.20230303141230.237"><vh>class FacebookResult</vh>
 <v t="karstenw.20230303141230.238"><vh>__repr__</vh></v>
 </v>
@@ -2485,6 +2522,7 @@
 <v t="karstenw.20230303141230.241"><vh>_token</vh></v>
 <v t="karstenw.20230303141230.242"><vh>search</vh></v>
 <v t="karstenw.20230303141230.243"><vh>profile</vh></v>
+</v>
 </v>
 <v t="karstenw.20230303141230.244"><vh>class ProductWiki</vh>
 <v t="karstenw.20230303141230.245"><vh>__init__</vh></v>
@@ -2596,6 +2634,7 @@
 <v t="karstenw.20230303141230.340"><vh>fail</vh></v>
 </v>
 <v t="karstenw.20230303141230.341"><vh>crawl</vh></v>
+<v t="karstenw.20260524104940.1"><vh>+ DOCUMENT PARSER +</vh>
 <v t="karstenw.20230303141230.342"><vh>class DocumentParserError</vh></v>
 <v t="karstenw.20230303141230.343"><vh>class DocumentParser</vh>
 <v t="karstenw.20230303141230.344"><vh>__init__</vh></v>
@@ -2604,14 +2643,19 @@
 <v t="karstenw.20230303141230.347"><vh>string</vh></v>
 <v t="karstenw.20230303141230.348"><vh>__str__</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524105006.1"><vh>+ PDF PARSER +</vh>
 <v t="karstenw.20230303141230.349"><vh>class PDFError</vh></v>
 <v t="karstenw.20230303141230.350"><vh>class PDF</vh>
 <v t="karstenw.20230303141230.351"><vh>__init__</vh></v>
 <v t="karstenw.20230303141230.352"><vh>_parse</vh></v>
 </v>
+</v>
+<v t="karstenw.20260524105030.1"><vh>+ DOCX +</vh>
 <v t="karstenw.20230303141230.353"><vh>class DOCXError</vh></v>
 <v t="karstenw.20230303141230.354"><vh>class DOCX</vh>
 <v t="karstenw.20230303141230.355"><vh>_parse</vh></v>
+</v>
 </v>
 <v t="karstenw.20230303141230.356"><vh>parsepdf</vh></v>
 <v t="karstenw.20230303141230.357"><vh>parsedocx</vh></v>
@@ -3619,7 +3663,11 @@ from . import web
 
 </t>
 <t tx="karstenw.20230303123040.1"></t>
-<t tx="karstenw.20230303123043.1">#### PATTERN | DB ##################################################################################
+<t tx="karstenw.20230303123043.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230303123103.1">#### PATTERN | DB ##################################################################################
 # -*- coding: utf-8 -*-
 # Copyright (c) 2010 University of Antwerp, Belgium
 # Author: Tom De Smedt &lt;tom@organisms.be&gt;
@@ -3628,11 +3676,7 @@ from . import web
 
 ####################################################################################################
 
-@others
-@language python
-@tabwidth -4
-</t>
-<t tx="karstenw.20230303123103.1">from __future__ import print_function
+from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import division
 
@@ -3690,14 +3734,12 @@ def microseconds(self):
     return self.microsecond
 
 </t>
-<t tx="karstenw.20230303123103.100">class Schema(object):
+<t tx="karstenw.20230303123103.100">#--- FIELD SCHEMA ----------------------------------------------------------------------------------
+
+
+class Schema(object):
 
     @others
-#### TABLE #########################################################################################
-
-ALL = "*"
-
-
 </t>
 <t tx="karstenw.20230303123103.101">def __init__(self, name, type, default=None, index=False, optional=True, extra=None):
     """ Field info returned from a "show columns from table"-query.
@@ -3766,20 +3808,6 @@ ALL = "*"
 <t tx="karstenw.20230303123103.104">class Table(object):
 
     @others
-#### QUERY #########################################################################################
-
-#--- QUERY SYNTAX ----------------------------------------------------------------------------------
-
-BETWEEN, LIKE, IN = \
-    "between", "like", "in"
-
-sql_functions = \
-    "first|last|count|min|max|sum|avg|stdev|group_concat|concatenate|" \
-    "year|month|day|hour|minute|second|" \
-    "length|lower|upper|substr|substring|replace|trim|round|random|rand|" \
-    "strftime|date_format"
-
-
 </t>
 <t tx="karstenw.20230303123103.105">class Fields(list):
     # Table.fields.append() alters the table.
@@ -4152,9 +4180,6 @@ def xml(self):
             return "%s not in %s" % (field, escape(value))
     return "%s%s%s" % (field, comparison, escape(value))
 
-# Functions for date fields: cmp(year("date"), 1999, "&gt;").
-
-
 </t>
 <t tx="karstenw.20230303123103.141">def year(date):
     return "year(%s)" % date
@@ -4183,9 +4208,6 @@ def xml(self):
 </t>
 <t tx="karstenw.20230303123103.146">def second(date):
     return "second(%s)" % date
-
-# Aggregate functions.
-
 
 </t>
 <t tx="karstenw.20230303123103.147">def count(value):
@@ -4336,15 +4358,6 @@ sql = SQL
 # all(*dict.items())
 
 # filter() value can also be a Query with comparison=IN.
-
-#--- QUERY -----------------------------------------------------------------------------------------
-
-# Relations:
-INNER = "inner" # The rows for which there is a match in both tables (same as join=None).
-LEFT = "left"  # All rows from this table, with field values from the related table when possible.
-RIGHT = "right" # All rows from the related table, with field values from this table when possible.
-FULL = "full"  # All rows form both tables.
-
 
 </t>
 <t tx="karstenw.20230303123103.166">class Relation(tuple):
@@ -4539,20 +4552,10 @@ def xml(self):
 
 assoc = associative
 
-#### VIEW ##########################################################################################
-# A representation of data based on a table in the database.
-# The render() method can be overridden to output data in a certain format (e.g., HTML for a web app).
-
-
 </t>
 <t tx="karstenw.20230303123103.183">class View(object):
 
     @others
-#### XML PARSER ####################################################################################
-
-XML_HEADER = "&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;"
-
-
 </t>
 <t tx="karstenw.20230303123103.184">def __init__(self, database, table, schema=[]):
     """ A representation of data.
@@ -4770,17 +4773,6 @@ default.exposed = True
 #
 #for id, data in db.persons:
 #    print(id, json.loads(data))
-
-#### DATASHEET #####################################################################################
-
-#--- CSV -------------------------------------------------------------------------------------------
-
-# Raise the default field size limit:
-if sys.platform == 'win32':
-    csvlib.field_size_limit(min(sys.maxsize, 2147483647))
-else:
-    csvlib.field_size_limit(sys.maxsize)
-
 
 </t>
 <t tx="karstenw.20230303123103.194">def csv_header_encode(field, type=STRING):
@@ -5384,17 +5376,10 @@ def html(self):
         return Datasheet(**kwargs)
     return Datasheet.load(*args, **kwargs)
 
-#--- DATASHEET ROWS --------------------------------------------------------------------------------
-# Datasheet.rows mimics the operations on Datasheet:
-
-
 </t>
 <t tx="karstenw.20230303123103.231">class DatasheetRows(list):
 
     @others
-#--- DATASHEET COLUMNS -----------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303123103.232">def __init__(self, datasheet):
     self._datasheet = datasheet
@@ -5515,9 +5500,6 @@ def html(self):
 <t tx="karstenw.20230303123103.254">class DatasheetColumns(list):
 
     @others
-#--- DATASHEET COLUMN ------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303123103.255">def __init__(self, datasheet):
     self._datasheet = datasheet
@@ -5693,11 +5675,6 @@ def html(self):
 <t tx="karstenw.20230303123103.276">class DatasheetColumn(list):
 
     @others
-#---------------------------------------------------------------------------------------------------
-
-_UID = 0
-
-
 </t>
 <t tx="karstenw.20230303123103.277">def __init__(self, datasheet, j):
     """ A dynamic column in a Datasheet.
@@ -5852,29 +5829,6 @@ _UID = 0
     return os.path.join(os.path.dirname(os.path.realpath(f)), *args)
 
 _sum = sum # pattern.db.sum() is also a column aggregate function.
-
-#### DATE FUNCTIONS ################################################################################
-
-NOW, YEAR = "now", datetime.now().year
-
-# Date formats can be found in the Python documentation:
-# http://docs.python.org/library/time.html#time.strftime
-DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-date_formats = [
-    DEFAULT_DATE_FORMAT,           # 2010-09-21 09:27:01  =&gt; SQLite + MySQL
-    "%Y-%m-%dT%H:%M:%SZ",          # 2010-09-20T09:27:01Z =&gt; Bing
-    "%a, %d %b %Y %H:%M:%S +0000", # Fri, 21 Sep 2010 09:27:01 +000 =&gt; Twitter
-    "%a %b %d %H:%M:%S +0000 %Y",  # Fri Sep 21 09:21:01 +0000 2010 =&gt; Twitter
-    "%Y-%m-%dT%H:%M:%S+0000",      # 2010-09-20T09:27:01+0000 =&gt; Facebook
-    "%Y-%m-%d %H:%M",              # 2010-09-21 09:27
-    "%Y-%m-%d",                    # 2010-09-21
-    "%d/%m/%Y",                    # 21/09/2010
-    "%d %B %Y",                    # 21 September 2010
-    "%d %b %Y",                    # 21 Sep 2010
-    "%B %d %Y",                    # September 21 2010
-    "%B %d, %Y",                   # September 21, 2010
-]
-
 
 </t>
 <t tx="karstenw.20230303123103.30">def decrypt_string(s, key=""):
@@ -6099,9 +6053,6 @@ _truncate = truncate
     except:
         return default
 
-#### LIST FUNCTIONS ################################################################################
-
-
 </t>
 <t tx="karstenw.20230303123103.38">def find(match=lambda item: False, list=[]):
     """ Returns the first item in the list for which match(item) is True.
@@ -6163,10 +6114,6 @@ _order = order
         High standard deviation =&gt; values are spread out over a large range.
     """
     return sqrt(variance(list))
-
-#### SQLITE FUNCTIONS ##############################################################################
-# Convenient MySQL functions not in in pysqlite2. These are created at each Database.connect().
-
 
 </t>
 <t tx="karstenw.20230303123103.43">class sqlite_first(list):
@@ -6242,9 +6189,6 @@ _order = order
 <t tx="karstenw.20230303123103.57">def sqlite_second(datestring):
     return int(datestring.split(" ")[1].split(":")[2])
 
-#### DATABASE ######################################################################################
-
-
 </t>
 <t tx="karstenw.20230303123103.58">class DatabaseConnectionError(Exception):
     pass
@@ -6254,9 +6198,6 @@ _order = order
 <t tx="karstenw.20230303123103.59">class Database(object):
 
     @others
-#### FIELD #########################################################################################
-
-
 </t>
 <t tx="karstenw.20230303123103.6">class DateError(Exception):
     pass
@@ -6619,7 +6560,10 @@ remove = drop
         pass
 
 </t>
-<t tx="karstenw.20230303123103.95">class _String(str):
+<t tx="karstenw.20230303123103.95">#### FIELD #########################################################################################
+
+
+class _String(str):
     # The STRING constant can be called with a length when passed to field(),
     # for example field("language", type=STRING(2), default="en", index=True).
     @others
@@ -6639,11 +6583,6 @@ UNIQUE = "unique"
 # DATE default.
 NOW = "now"
 
-#--- FIELD- ----------------------------------------------------------------------------------------
-
-#def field(name, type=STRING, default=None, index=False, optional=True)
-
-
 </t>
 <t tx="karstenw.20230303123103.96">def __new__(self):
     return str.__new__(self, "string")
@@ -6653,7 +6592,12 @@ NOW = "now"
     return "varchar(%s)" % (length &gt; 255 and 255 or (length &lt; 1 and 1 or length))
 
 </t>
-<t tx="karstenw.20230303123103.98">def field(name, type=STRING, **kwargs):
+<t tx="karstenw.20230303123103.98">#--- FIELD- ----------------------------------------------------------------------------------------
+
+#def field(name, type=STRING, default=None, index=False, optional=True)
+
+
+def field(name, type=STRING, **kwargs):
     """ Returns a table field definition that can be passed to Database.create().
         The column can be indexed by setting index to True, PRIMARY or UNIQUE.
         Primary key number columns are always auto-incremented.
@@ -6687,9 +6631,6 @@ _field = field
     return field(name, INTEGER, index=PRIMARY, optional=False)
 
 pk = primary_key
-
-#--- FIELD SCHEMA ----------------------------------------------------------------------------------
-
 
 </t>
 <t tx="karstenw.20230303123122.1"></t>
@@ -10425,7 +10366,7 @@ def elapsed(self):
         cp.response.stream = True
         return iter(self._cast(v) for v in v)
     if isinstance(v, (list, tuple, set)):
-        return " ".join(self._cast(v) for v in v)
+        return b" ".join(self._cast(v) for v in v)
     if isinstance(v, HTTPError):
         raise cp.HTTPError(v.status, message=v.message)
     if v is None:
@@ -15861,7 +15802,7 @@ XML_ENCODING = {
             string = string.decode("utf-8") # ensure Unicode
         except:
             pass
-    self.tags = None
+    
     self.sentence = sentence
     self.index    = index
     self.string   = string   # "was"
@@ -17028,7 +16969,7 @@ class Conjunctions(list):
         if chars:
             l = self.parse_token(chars, token)
             # self.append(*self.parse_token(chars, token))
-            self.append( l )
+            self.append( *l )
 
 </t>
 <t tx="karstenw.20230303131812.83">@property
@@ -17143,6 +17084,8 @@ from builtins import object, range
 
 import re
 import itertools
+
+# import pdb
 
 from functools import cmp_to_key
 
@@ -17794,6 +17737,9 @@ def fromstring(cls, s, **kwargs):
         For example: Constraint(words=["Mac OS X*"]) 
         matches the word "Mac" if the word occurs in a Chunk("Mac OS X 10.5").
     """
+    
+    # pdb.set_trace()
+    
     # If the constraint has a custom function it must return True.
     if self.custom is not None and self.custom(word) is False:
         return False
@@ -21610,8 +21556,10 @@ from nltk.corpus import sentiwordnet as swn
 from nltk.corpus import wordnet_ic as wn_ic
 from nltk.corpus.reader.wordnet import Synset as WordNetSynset
 
+# nodebox change: renamed "wordnet" to "wordnet.zip" bc nltk does not expand "wordnet"
+
 # Make sure the necessary corpora are downloaded to the local drive
-for token in ("wordnet", "wordnet_ic", "sentiwordnet"):
+for token in ("wordnet.zip", "wordnet_ic", "sentiwordnet"):
     try:
         nltk.data.find("corpora/" + token)
     except LookupError:
@@ -21872,8 +21820,6 @@ least_common_subsumer = lcs = ancestor
         each of which is part of a set of synonyms (= Synset).
     """
     word, pos = normalize(word), pos.lower()
-    # import pdb
-    # pdb.set_trace()
     try:
         if pos.startswith(NOUN.lower()): # "NNS" or "nn" will also pass.
             w = wn.synsets(word, pos = wn.NOUN)
@@ -25314,7 +25260,8 @@ from io import open
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
+
 import datetime
 import codecs
 import random
@@ -26587,7 +26534,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import subprocess
 
@@ -26860,20 +26807,23 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import unittest
 import random
 import subprocess
+
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
+import pattern
+import pattern.db
+import pattern.text
+import pattern.text.en
+import pattern.text.en.inflect_quantify
 
 from pattern import text
 from pattern import en
 
 from io import open
 
-try:
-    PATH = os.path.dirname(os.path.realpath(__file__))
-except:
-    PATH = ""
+PATH = os.path.abspath( './' )
 
 #---------------------------------------------------------------------------------------------------
 
@@ -28097,7 +28047,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import subprocess
 
@@ -28389,7 +28339,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import subprocess
 
@@ -28669,7 +28619,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import subprocess
 
@@ -28975,7 +28925,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import subprocess
 
@@ -29287,7 +29237,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import random
 import subprocess
@@ -29342,7 +29292,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import time
 import math
@@ -29860,7 +29810,7 @@ from __future__ import division
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 
 from pattern import graph
@@ -30676,7 +30626,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import time
 import re
@@ -30817,14 +30767,14 @@ from pattern.en import Sentence, parse
       (      "\\^cat", dict( words = ["^cat"])),
       (     "(cat*)+", dict( words = ["cat*"], optional=True, multiple=True)),
       ( "^black_cat+", dict( words = ["black cat"], multiple=True, first=True)),
-      (  "black\[cat", dict( words = ["black[cat"])),
-      (  "black\(cat", dict( words = ["black(cat"])),
-      (  "black\{cat", dict( words = ["black{cat"])),
-      (  "black\|cat", dict( words = ["black|cat"])),
-      (  "black\!cat", dict( words = ["black!cat"])),
-      (  "black\^cat", dict( words = ["black^cat"])),
-      (  "black\+cat", dict( words = ["black+cat"])),
-      (  "black\?cat", dict( words = ["black?cat"])),
+      ( r"black\[cat", dict( words = ["black[cat"])),
+      ( r"black\(cat", dict( words = ["black(cat"])),
+      ( r"black\{cat", dict( words = ["black{cat"])),
+      ( r"black\|cat", dict( words = ["black|cat"])),
+      ( r"black\!cat", dict( words = ["black!cat"])),
+      ( r"black\^cat", dict( words = ["black^cat"])),
+      ( r"black\+cat", dict( words = ["black+cat"])),
+      ( r"black\?cat", dict( words = ["black?cat"])),
       (    "cats|NN*", dict( words = ["cats"], tags=["NN*"]))):
         self._test_constraint(search.Constraint.fromstring(s), **kwargs)
     # Assert non-alpha taxonomy items.
@@ -30895,7 +30845,7 @@ from pattern.en import Sentence, parse
     v.exclude = search.Constraint(["bird"])
     v.multiple = True
     v.first = True
-    self.assertEqual(v.string, "^[Steven\\*|NN*|SBJ|\(ASSOCIATE\)_PROFESSOR|!bird]+")
+    self.assertEqual(v.string, r"^[Steven\\*|NN*|SBJ|\(ASSOCIATE\)_PROFESSOR|!bird]+")
     print("pattern.search.Constraint.string")
 
 </t>
@@ -31261,7 +31211,7 @@ from builtins import object, range
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 try:
     # Python 2
@@ -31610,7 +31560,7 @@ from io import open
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import time
 import random
 import unittest
@@ -32739,7 +32689,7 @@ from builtins import object, range, next
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..")))
 import unittest
 import time
 import warnings
@@ -40326,10 +40276,6 @@ def MediaWikiTable(self):
 #    print(result.text)
 #    print()
 
-#--- MEDIAWIKI: WIKTIONARY -------------------------------------------------------------------------
-# Wiktionary is a collaborative project to produce a free-content multilingual dictionary.
-
-
 </t>
 <t tx="karstenw.20230303141230.2">class HTTP401Authentication(HTTPError):
     pass # URL requires a login and password.
@@ -40375,7 +40321,11 @@ def MediaWikiTable(self):
     return "WikipediaTable(title=%s)" % repr(self.title)
 
 </t>
-<t tx="karstenw.20230303141230.201">class Wiktionary(MediaWiki):
+<t tx="karstenw.20230303141230.201">#--- MEDIAWIKI: WIKTIONARY -------------------------------------------------------------------------
+# Wiktionary is a collaborative project to produce a free-content multilingual dictionary.
+
+
+class Wiktionary(MediaWiki):
 
     @others
 </t>
@@ -40433,19 +40383,19 @@ def MediaWikiTable(self):
 </t>
 <t tx="karstenw.20230303141230.211">class WiktionaryTable(MediaWikiTable):
     @others
-#--- MEDIAWIKI: WIKIA ------------------------------------------------------------------------------
-# Wikia (formerly Wikicities) is a free web hosting service and a wiki farm for wikis.
-# Wikia hosts several hundred thousand wikis using MediaWiki.
-
-# Author: Robert Elwell (2012)
-
 </t>
 <t tx="karstenw.20230303141230.212">def __repr__(self):
     return "WiktionaryTable(title=%s)" % repr(self.title)
 
 
 </t>
-<t tx="karstenw.20230303141230.213">class Wikia(MediaWiki):
+<t tx="karstenw.20230303141230.213">#--- MEDIAWIKI: WIKIA ------------------------------------------------------------------------------
+# Wikia (formerly Wikicities) is a free web hosting service and a wiki farm for wikis.
+# Wikia hosts several hundred thousand wikis using MediaWiki.
+
+# Author: Robert Elwell (2012)
+
+class Wikia(MediaWiki):
 
     @others
 </t>
@@ -40551,39 +40501,6 @@ def exists(self, timeout=10):
 </t>
 <t tx="karstenw.20230303141230.224">class WikiaTable(MediaWikiTable):
     @others
-#--- DBPEDIA --------------------------------------------------------------------------------------------------
-# DBPedia is a database of structured information mined from Wikipedia.
-# DBPedia data is stored as RDF triples: (subject, predicate, object),
-# e.g., X is-a Actor, Y is-a Country, Z has-birthplace Country, ...
-
-# DBPedia can be queried using SPARQL:
-# http://www.w3.org/TR/rdf-sparql-query/
-# A SPARQL query yields rows that match all triples in the WHERE clause.
-# A SPARQL query uses ?wildcards in triple subject/object to select fields.
-
-# For example:
-# &gt; PREFIX dbo: &lt;http://dbpedia.org/ontology/&gt;
-# &gt; SELECT ?actor ?place
-# &gt; WHERE {
-# &gt;     ?actor a dbo:Actor; dbo:birthPlace ?place.
-# &gt;     ?place a dbo:Country.
-# &gt; }
-#
-# - Each row in the results has an "actor" and a "place" field.
-# - The actor is of the class "Actor".
-# - The place is of the class "Country".
-# - Only actors for which a place of birth is known are retrieved.
-#
-# The fields are RDF resources, e.g.:
-# http://dbpedia.org/resource/Australia
-
-# Author: Kenneth Koch (2013) &lt;kkoch986@gmail.com&gt;
-
-DBPEDIA = "http://dbpedia.org/sparql?"
-
-SPARQL = "sparql"
-
-
 </t>
 <t tx="karstenw.20230303141230.225">def __repr__(self):
     return "WikiaTable(title=%s)" % repr(self.title)
@@ -40613,16 +40530,6 @@ def name(self):
 <t tx="karstenw.20230303141230.229">class DBPedia(SearchEngine):
 
     @others
-#--- FLICKR ----------------------------------------------------------------------------------------
-# Flickr is a popular image hosting and video hosting website.
-# http://www.flickr.com/services/api/
-
-FLICKR = "https://api.flickr.com/services/rest/"
-FLICKR_LICENSE = api.license["Flickr"]
-
-INTERESTING = "interesting"
-
-
 </t>
 <t tx="karstenw.20230303141230.23">@property
 def mimetype(self, timeout=10):
@@ -40760,19 +40667,6 @@ def mimetype(self, timeout=10):
 #f = open("kitten"+extension(img.url), "wb")
 #f.write(data)
 #f.close()
-
-#--- FACEBOOK --------------------------------------------------------------------------------------
-# Facebook is a popular online social networking service.
-# https://developers.facebook.com/docs/reference/api/
-
-FACEBOOK = "https://graph.facebook.com/"
-FACEBOOK_LICENSE = api.license["Facebook"]
-
-FEED     = "feed"      # Facebook timeline.
-COMMENTS = "comments"  # Facebook comments (for a given news feed post).
-LIKES    = "likes"     # Facebook likes (for a given post or comment).
-FRIENDS  = "friends"   # Facebook friends (for a given profile id).
-
 
 </t>
 <t tx="karstenw.20230303141230.236">@property
@@ -40988,11 +40882,6 @@ Products = ProductWiki
 #    print(r.reviews)
 #    print()
 
-#--- NEWS FEED -------------------------------------------------------------------------------------
-# Based on the Universal Feed Parser by Mark Pilgrim:
-# http://www.feedparser.org/
-
-
 </t>
 <t tx="karstenw.20230303141230.245">def __init__(self, license=None, throttle=5.0, language=None):
     SearchEngine.__init__(self, license or PRODUCTWIKI_LICENSE, throttle, language)
@@ -41045,7 +40934,12 @@ Products = ProductWiki
     return results
 
 </t>
-<t tx="karstenw.20230303141230.247">class Newsfeed(SearchEngine):
+<t tx="karstenw.20230303141230.247">#--- NEWS FEED -------------------------------------------------------------------------------------
+# Based on the Universal Feed Parser by Mark Pilgrim:
+# http://www.feedparser.org/
+
+
+class Newsfeed(SearchEngine):
 
     @others
 feeds = {
@@ -41062,9 +40956,6 @@ feeds = {
 #    print(r.url)
 #    print(plaintext(r.text))
 #    print()
-
-#--- QUERY -----------------------------------------------------------------------------------------
-
 
 </t>
 <t tx="karstenw.20230303141230.248">def __init__(self, license=None, throttle=1.0, language=None):
@@ -41121,7 +41012,10 @@ def redirect(self, timeout=10):
     return self.__dict__["_redirect"] or None
 
 </t>
-<t tx="karstenw.20230303141230.250">def query(string, service=GOOGLE, **kwargs):
+<t tx="karstenw.20230303141230.250">#--- QUERY -----------------------------------------------------------------------------------------
+
+
+def query(string, service=GOOGLE, **kwargs):
     """ Returns the list of search query results from the given service.
         For service=WIKIPEDIA, this is a single WikipediaArticle or None.
     """
@@ -41219,16 +41113,13 @@ SOUP = (
 NODE, TEXT, COMMENT, ELEMENT, DOCUMENT = \
     "node", "text", "comment", "element", "document"
 
-#--- NODE ------------------------------------------------------------------------------------------
-
-
 </t>
-<t tx="karstenw.20230303141230.252">class Node(object):
+<t tx="karstenw.20230303141230.252">#--- NODE ------------------------------------------------------------------------------------------
+
+
+class Node(object):
 
     @others
-#--- TEXT ------------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303141230.253">def __init__(self, html, type=NODE, **kwargs):
     """ The base class for Text, Comment and Element.
@@ -41368,7 +41259,10 @@ next, prev, previous = \
     pass
 
 </t>
-<t tx="karstenw.20230303141230.272">class Text(Node):
+<t tx="karstenw.20230303141230.272">#--- TEXT ------------------------------------------------------------------------------------------
+
+
+class Text(Node):
     """ Text represents a chunk of text without formatting in a HTML document.
         For example: "the &lt;b&gt;cat&lt;/b&gt;" is parsed to [Text("the"), Element("cat")].
     """
@@ -41390,9 +41284,6 @@ next, prev, previous = \
     """
 
     @others
-#--- ELEMENT ---------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303141230.276">def __init__(self, string):
     Node.__init__(self, string, type=COMMENT)
@@ -41402,12 +41293,12 @@ next, prev, previous = \
     return "Comment(%s)" % repr(self._p)
 
 </t>
-<t tx="karstenw.20230303141230.278">class Element(Node):
+<t tx="karstenw.20230303141230.278">#--- ELEMENT ---------------------------------------------------------------------------------------
+
+
+class Element(Node):
 
     @others
-#--- DOCUMENT --------------------------------------------------------------------------------------
-
-
 </t>
 <t tx="karstenw.20230303141230.279">def __init__(self, html):
     """ Element represents an element or tag in the HTML source code.
@@ -41539,7 +41430,10 @@ by_attribute = by_attr = getElementsByAttribute = get_elements_by_attribute
     return "Element(tag=%s)" % repr(self.tagname)
 
 </t>
-<t tx="karstenw.20230303141230.293">class Document(Element):
+<t tx="karstenw.20230303141230.293">#--- DOCUMENT --------------------------------------------------------------------------------------
+
+
+class Document(Element):
 
     @others
 DOM = Document
@@ -41992,10 +41886,6 @@ Spider = Crawler
 #while not p.done:
 #    p.crawl(method=DEPTH, cached=True, throttle=5)
 
-#--- CRAWL FUNCTION --------------------------------------------------------------------------------
-# Functional approach to crawling.
-
-
 </t>
 <t tx="karstenw.20230303141230.33">def update(self, bytes=1024):
     """ Reads a number of bytes from the stream.
@@ -42190,7 +42080,11 @@ def next(self):
     pass
 
 </t>
-<t tx="karstenw.20230303141230.341">def crawl(links=[], domains=[], delay=20.0, parse=HTMLLinkParser().parse, sort=FIFO, method=DEPTH, **kwargs):
+<t tx="karstenw.20230303141230.341">#--- CRAWL FUNCTION --------------------------------------------------------------------------------
+# Functional approach to crawling.
+
+
+def crawl(links=[], domains=[], delay=20.0, parse=HTMLLinkParser().parse, sort=FIFO, method=DEPTH, **kwargs):
     """ Returns a generator that yields (Link, source)-tuples of visited pages.
         When the crawler is idle, it yields (None, None).
     """
@@ -42228,9 +42122,6 @@ def next(self):
 #    print(link)
 
 
-#### DOCUMENT PARSER ###############################################################################
-# Not to be confused with Document, which is the top-level element in the HTML DOM.
-
 </t>
 <t tx="karstenw.20230303141230.342">class DocumentParserError(Exception):
     pass
@@ -42240,10 +42131,6 @@ def next(self):
 <t tx="karstenw.20230303141230.343">class DocumentParser(object):
 
     @others
-#--- PDF PARSER ------------------------------------------------------------------------------------
-#  Yusuke Shinyama, PDFMiner, http://www.unixuser.org/~euske/python/pdfminer/
-
-
 </t>
 <t tx="karstenw.20230303141230.344">def __init__(self, path, *args, **kwargs):
     """ Parses a text document (e.g., .pdf or .docx),
@@ -42291,10 +42178,6 @@ def string(self):
 <t tx="karstenw.20230303141230.350">class PDF(DocumentParser):
 
     @others
-#--- OOXML PARSER ----------------------------------------------------------------------------------
-# python-docx, https://github.com/python-openxml/python-docx
-
-
 </t>
 <t tx="karstenw.20230303141230.351">def __init__(self, path, output="txt"):
     self.content = self._parse(path, format=output)
@@ -43303,22 +43186,22 @@ FAROO_LICENSE = api.license["Faroo"]
     SearchEngine.__init__(self, license or DUCKDUCKGO_LICENSE, throttle, language)
 
 </t>
-<t tx="karstenw.20230303141240.1">#--- API LICENSE CONFIGURATION -----------------------------------------------------------------------
+<t tx="karstenw.20230303141240.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230303141246.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230303141253.1">#--- API LICENSE CONFIGURATION -----------------------------------------------------------------------
 # Default license keys used by pattern.web.SearchEngine to contact different API's.
 # Google and Yahoo are paid services for which you need a personal license + payment method.
 # The default Google license is for testing purposes (= 100 daily queries).
 # Wikipedia, Twitter and Facebook are free.
 # Bing, Flickr and ProductsWiki use licenses shared among all Pattern users.
 
-@others
-@language python
-@tabwidth -4
-</t>
-<t tx="karstenw.20230303141246.1">@others
-@language python
-@tabwidth -4
-</t>
-<t tx="karstenw.20230303141253.1">from __future__ import unicode_literals
+from __future__ import unicode_literals
 from builtins import dict
 
 license = {}
@@ -45288,7 +45171,11 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 <t tx="karstenw.20230303142559.1"></t>
 <t tx="karstenw.20230303142603.1"></t>
 <t tx="karstenw.20230303142608.1"></t>
-<t tx="karstenw.20230303142620.1">#### PATTERN | WEB | IMAP ##########################################################################
+<t tx="karstenw.20230303142620.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230303142634.1">#### PATTERN | WEB | IMAP ##########################################################################
 # Copyright (c) 2010 University of Antwerp, Belgium
 # Author: Tom De Smedt &lt;tom@organisms.be&gt;
 # License: BSD (see LICENSE.txt for details).
@@ -45296,11 +45183,7 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 
 ####################################################################################################
 
-@others
-@language python
-@tabwidth -4
-</t>
-<t tx="karstenw.20230303142634.1">from __future__ import unicode_literals
+from __future__ import unicode_literals
 from __future__ import division
 
 from builtins import str, bytes, dict, int
@@ -45649,18 +45532,18 @@ def email_address(self):
 
 
 </t>
-<t tx="karstenw.20230303142647.1">#### PATTERN | WEB | LOCALE ########################################################################
+<t tx="karstenw.20230303142647.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230303142655.1">#### PATTERN | WEB | LOCALE ########################################################################
 # -*- coding: utf-8 -*-
 # Copyright (c) 2010 University of Antwerp, Belgium
 # Author: Tom De Smedt &lt;tom@organisms.be&gt;
 # License: BSD (see LICENSE.txt for details).
 # http://www.clips.ua.ac.be/pages/pattern
 
-@others
-@language python
-@tabwidth -4
-</t>
-<t tx="karstenw.20230303142655.1">from __future__ import unicode_literals
+from __future__ import unicode_literals
 
 from builtins import str, bytes, dict, int
 from builtins import map, zip, filter
@@ -46070,7 +45953,11 @@ GEOCODE = {
 
 
 </t>
-<t tx="karstenw.20230303142657.1">#### PATTERN | WEB | OAUTH #########################################################################
+<t tx="karstenw.20230303142657.1">@language python
+@tabwidth -4
+@others
+</t>
+<t tx="karstenw.20230303142704.1">#### PATTERN | WEB | OAUTH #########################################################################
 # -*- coding: utf-8 -*-
 # Copyright (c) 2010 University of Antwerp, Belgium
 # Author: Tom De Smedt &lt;tom@organisms.be&gt;
@@ -46080,11 +45967,7 @@ GEOCODE = {
 ####################################################################################################
 # Naive OAuth implementation for pattern.web.Yahoo and Yahoo! BOSS v2.
 
-@others
-@language python
-@tabwidth -4
-</t>
-<t tx="karstenw.20230303142704.1">from __future__ import unicode_literals
+from __future__ import unicode_literals
 from __future__ import division
 
 from builtins import str, bytes, dict, int
@@ -46125,11 +46008,11 @@ _diacritics = {
     "z": ("ž",)
 }
 
-####################################################################################################
-
-
 </t>
-<t tx="karstenw.20230303142704.2">def HMAC_SHA1(key, text):
+<t tx="karstenw.20230303142704.2">####################################################################################################
+
+
+def HMAC_SHA1(key, text):
     return hmac.new(key.encode("utf-8"), text.encode("utf-8"), sha1).digest()
 
 
@@ -46677,6 +46560,198 @@ _UID = 0
 #--- ORDERED DICTIONARY ----------------------------------------------------------------------------
 # A taxonomy is based on an ordered dictionary
 # (i.e., if a taxonomy term has multiple parents, the most recent parent is the default).
+
+
+</t>
+<t tx="karstenw.20260524104544.1">#--- DBPEDIA --------------------------------------------------------------------------------------------------
+# DBPedia is a database of structured information mined from Wikipedia.
+# DBPedia data is stored as RDF triples: (subject, predicate, object),
+# e.g., X is-a Actor, Y is-a Country, Z has-birthplace Country, ...
+
+# DBPedia can be queried using SPARQL:
+# http://www.w3.org/TR/rdf-sparql-query/
+# A SPARQL query yields rows that match all triples in the WHERE clause.
+# A SPARQL query uses ?wildcards in triple subject/object to select fields.
+
+# For example:
+# &gt; PREFIX dbo: &lt;http://dbpedia.org/ontology/&gt;
+# &gt; SELECT ?actor ?place
+# &gt; WHERE {
+# &gt;     ?actor a dbo:Actor; dbo:birthPlace ?place.
+# &gt;     ?place a dbo:Country.
+# &gt; }
+#
+# - Each row in the results has an "actor" and a "place" field.
+# - The actor is of the class "Actor".
+# - The place is of the class "Country".
+# - Only actors for which a place of birth is known are retrieved.
+#
+# The fields are RDF resources, e.g.:
+# http://dbpedia.org/resource/Australia
+
+# Author: Kenneth Koch (2013) &lt;kkoch986@gmail.com&gt;
+
+DBPEDIA = "http://dbpedia.org/sparql?"
+
+SPARQL = "sparql"
+
+
+</t>
+<t tx="karstenw.20260524104609.1">#--- FLICKR ----------------------------------------------------------------------------------------
+# Flickr is a popular image hosting and video hosting website.
+# http://www.flickr.com/services/api/
+
+FLICKR = "https://api.flickr.com/services/rest/"
+FLICKR_LICENSE = api.license["Flickr"]
+
+INTERESTING = "interesting"
+
+
+</t>
+<t tx="karstenw.20260524104621.1">#--- FACEBOOK --------------------------------------------------------------------------------------
+# Facebook is a popular online social networking service.
+# https://developers.facebook.com/docs/reference/api/
+
+FACEBOOK = "https://graph.facebook.com/"
+FACEBOOK_LICENSE = api.license["Facebook"]
+
+FEED     = "feed"      # Facebook timeline.
+COMMENTS = "comments"  # Facebook comments (for a given news feed post).
+LIKES    = "likes"     # Facebook likes (for a given post or comment).
+FRIENDS  = "friends"   # Facebook friends (for a given profile id).
+
+
+</t>
+<t tx="karstenw.20260524104940.1">#### DOCUMENT PARSER ###############################################################################
+# Not to be confused with Document, which is the top-level element in the HTML DOM.
+
+</t>
+<t tx="karstenw.20260524105006.1">#--- PDF PARSER ------------------------------------------------------------------------------------
+#  Yusuke Shinyama, PDFMiner, http://www.unixuser.org/~euske/python/pdfminer/
+
+
+</t>
+<t tx="karstenw.20260524105030.1">#--- OOXML PARSER ----------------------------------------------------------------------------------
+# python-docx, https://github.com/python-openxml/python-docx
+
+
+</t>
+<t tx="karstenw.20260524110723.1">#### DATE FUNCTIONS ################################################################################
+
+NOW, YEAR = "now", datetime.now().year
+
+# Date formats can be found in the Python documentation:
+# http://docs.python.org/library/time.html#time.strftime
+DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+date_formats = [
+    DEFAULT_DATE_FORMAT,           # 2010-09-21 09:27:01  =&gt; SQLite + MySQL
+    "%Y-%m-%dT%H:%M:%SZ",          # 2010-09-20T09:27:01Z =&gt; Bing
+    "%a, %d %b %Y %H:%M:%S +0000", # Fri, 21 Sep 2010 09:27:01 +000 =&gt; Twitter
+    "%a %b %d %H:%M:%S +0000 %Y",  # Fri Sep 21 09:21:01 +0000 2010 =&gt; Twitter
+    "%Y-%m-%dT%H:%M:%S+0000",      # 2010-09-20T09:27:01+0000 =&gt; Facebook
+    "%Y-%m-%d %H:%M",              # 2010-09-21 09:27
+    "%Y-%m-%d",                    # 2010-09-21
+    "%d/%m/%Y",                    # 21/09/2010
+    "%d %B %Y",                    # 21 September 2010
+    "%d %b %Y",                    # 21 Sep 2010
+    "%B %d %Y",                    # September 21 2010
+    "%B %d, %Y",                   # September 21, 2010
+]
+
+
+</t>
+<t tx="karstenw.20260524110900.1">#### LIST FUNCTIONS ################################################################################
+
+
+</t>
+<t tx="karstenw.20260524110929.1">#### SQLITE FUNCTIONS ##############################################################################
+# Convenient MySQL functions not in in pysqlite2. These are created at each Database.connect().
+
+
+</t>
+<t tx="karstenw.20260524114525.1">#### DATABASE ######################################################################################
+
+
+</t>
+<t tx="karstenw.20260524114615.1">#### TABLE #########################################################################################
+
+ALL = "*"
+
+
+</t>
+<t tx="karstenw.20260524114636.1">#### QUERY #########################################################################################
+
+#--- QUERY SYNTAX ----------------------------------------------------------------------------------
+
+BETWEEN, LIKE, IN = \
+    "between", "like", "in"
+
+sql_functions = \
+    "first|last|count|min|max|sum|avg|stdev|group_concat|concatenate|" \
+    "year|month|day|hour|minute|second|" \
+    "length|lower|upper|substr|substring|replace|trim|round|random|rand|" \
+    "strftime|date_format"
+
+
+</t>
+<t tx="karstenw.20260524114721.1"># Functions for date fields: cmp(year("date"), 1999, "&gt;").
+
+
+</t>
+<t tx="karstenw.20260524114735.1"># Aggregate functions.
+
+
+</t>
+<t tx="karstenw.20260524114815.1">#--- QUERY -----------------------------------------------------------------------------------------
+
+# Relations:
+INNER = "inner" # The rows for which there is a match in both tables (same as join=None).
+LEFT = "left"  # All rows from this table, with field values from the related table when possible.
+RIGHT = "right" # All rows from the related table, with field values from this table when possible.
+FULL = "full"  # All rows form both tables.
+
+
+</t>
+<t tx="karstenw.20260524114913.1">#### VIEW ##########################################################################################
+# A representation of data based on a table in the database.
+# The render() method can be overridden to output data in a certain format (e.g., HTML for a web app).
+
+
+</t>
+<t tx="karstenw.20260524114928.1">#### XML PARSER ####################################################################################
+
+XML_HEADER = "&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;"
+
+
+</t>
+<t tx="karstenw.20260524114954.1">#### DATASHEET #####################################################################################
+
+#--- CSV -------------------------------------------------------------------------------------------
+
+# Raise the default field size limit:
+if sys.platform == 'win32':
+    csvlib.field_size_limit(min(sys.maxsize, 2147483647))
+else:
+    csvlib.field_size_limit(sys.maxsize)
+
+
+</t>
+<t tx="karstenw.20260524115014.1">#--- DATASHEET ROWS --------------------------------------------------------------------------------
+# Datasheet.rows mimics the operations on Datasheet:
+
+
+</t>
+<t tx="karstenw.20260524115034.1">#--- DATASHEET COLUMNS -----------------------------------------------------------------------------
+
+
+</t>
+<t tx="karstenw.20260524115058.1">#---------------------------------------------------------------------------------------------------
+
+_UID = 0
+
+
+</t>
+<t tx="karstenw.20260524115349.1">#--- DATASHEET COLUMN ------------------------------------------------------------------------------
 
 
 </t>
