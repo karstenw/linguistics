@@ -19,7 +19,7 @@ from builtins import object, range, next
 
 from .utils import get_url_query, get_form_action, stringify_values, json_iter_parse
 
-import os
+import os, pdb
 import sys
 import threading
 import time
@@ -2496,16 +2496,35 @@ class MediaWiki(SearchEngine):
                  parser = self, **kwargs)
 
     def _parse_article_sections(self, article, data):
-        # If "References" is a section in the article,
-        # the HTML will contain a marker <h*><span class="mw-headline" id="References">.
-        # http://en.wikipedia.org/wiki/Section_editing
+        """
+        
+        Old comment:
+        If "References" is a section in the article,
+        the HTML will contain a marker <h*><span class="mw-headline" id="References">.
+        http://en.wikipedia.org/wiki/Section_editing
+        """
+        
+        
         t = article.title
         d = 0
         i = 0
+        
+        """
+        # why does this code errornously parse html text when data is already parsed JSON?
+        # because the byteoffset is bogus?
+        
+        # current section examples
+        # From: https://en.wikipedia.org/wiki/Cat
+            <div class="mw-heading mw-heading2"><h2 id="Etymology_and_naming">Etymology and naming</h2></div>
+            <div class="mw-heading mw-heading2"><h2 id="Taxonomy">Taxonomy</h2></div>
+            <div class="mw-heading mw-heading2"><h2 id="Evolution">Evolution</h2></div>
+        """
+        
         for x in data.get("sections", {}):
             a = x.get("anchor")
             if a:
-                p = r"<h.>\s*.*?\s*<span class=\"mw-headline\" id=\"%s\">" % a
+                # p = r"<h.>\s*.*?\s*<span class=\"mw-headline\" id=\"%s\">" % a
+                p = '''<div class="mw-heading mw-heading."><h. id="%s">''' % a
                 p = re.compile(p)
                 m = p.search(article.source, i)
                 if m:

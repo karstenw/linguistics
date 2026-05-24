@@ -13,8 +13,8 @@
 <v t="karstenw.20230303122029.1"><vh>@clean pattern/__init__.py</vh>
 <v t="karstenw.20230303122044.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230303123040.1" a="E"><vh>db</vh>
-<v t="karstenw.20230303123043.1" a="E"><vh>@clean pattern/db/__init__.py</vh>
+<v t="karstenw.20230303123040.1"><vh>db</vh>
+<v t="karstenw.20230303123043.1"><vh>@clean pattern/db/__init__.py</vh>
 <v t="karstenw.20230303123103.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303123103.2"><vh>_import_db</vh></v>
 <v t="karstenw.20230303123103.3"><vh>pd</vh></v>
@@ -3454,7 +3454,7 @@
 </v>
 <v t="karstenw.20230303140224.85"><vh>suite</vh></v>
 </v>
-<v t="karstenw.20230303140139.1"><vh>@clean pattern/test/test_web.py</vh>
+<v t="karstenw.20230303140139.1" a="E"><vh>@clean pattern/test/test_web.py</vh>
 <v t="karstenw.20230303140227.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303140227.2"><vh>class TestCache</vh>
 <v t="karstenw.20230303140227.3"><vh>setUp</vh></v>
@@ -3504,7 +3504,7 @@
 <v t="karstenw.20230303140227.44"><vh>test_collapse_linebreaks</vh></v>
 <v t="karstenw.20230303140227.45"><vh>test_plaintext</vh></v>
 </v>
-<v t="karstenw.20230303140227.46"><vh>class TestSearchEngine</vh>
+<v t="karstenw.20230303140227.46" a="E"><vh>class TestSearchEngine</vh>
 <v t="karstenw.20230303140227.47"><vh>setUp</vh></v>
 <v t="karstenw.20230303140227.48"><vh>_test_search_engine</vh></v>
 <v t="karstenw.20230303140227.49"><vh>test_search_google</vh></v>
@@ -38347,7 +38347,7 @@ from builtins import object, range, next
 
 from .utils import get_url_query, get_form_action, stringify_values, json_iter_parse
 
-import os
+import os, pdb
 import sys
 import threading
 import time
@@ -39789,16 +39789,35 @@ list = index
 
 </t>
 <t tx="karstenw.20230303141230.159">def _parse_article_sections(self, article, data):
-    # If "References" is a section in the article,
-    # the HTML will contain a marker &lt;h*&gt;&lt;span class="mw-headline" id="References"&gt;.
-    # http://en.wikipedia.org/wiki/Section_editing
+    """
+    
+    Old comment:
+    If "References" is a section in the article,
+    the HTML will contain a marker &lt;h*&gt;&lt;span class="mw-headline" id="References"&gt;.
+    http://en.wikipedia.org/wiki/Section_editing
+    """
+    
+    
     t = article.title
     d = 0
     i = 0
+    
+    """
+    # why does this code errornously parse html text when data is already parsed JSON?
+    # because the byteoffset is bogus?
+    
+    # current section examples
+    # From: https://en.wikipedia.org/wiki/Cat
+        &lt;div class="mw-heading mw-heading2"&gt;&lt;h2 id="Etymology_and_naming"&gt;Etymology and naming&lt;/h2&gt;&lt;/div&gt;
+        &lt;div class="mw-heading mw-heading2"&gt;&lt;h2 id="Taxonomy"&gt;Taxonomy&lt;/h2&gt;&lt;/div&gt;
+        &lt;div class="mw-heading mw-heading2"&gt;&lt;h2 id="Evolution"&gt;Evolution&lt;/h2&gt;&lt;/div&gt;
+    """
+    
     for x in data.get("sections", {}):
         a = x.get("anchor")
         if a:
-            p = r"&lt;h.&gt;\s*.*?\s*&lt;span class=\"mw-headline\" id=\"%s\"&gt;" % a
+            # p = r"&lt;h.&gt;\s*.*?\s*&lt;span class=\"mw-headline\" id=\"%s\"&gt;" % a
+            p = '''&lt;div class="mw-heading mw-heading."&gt;&lt;h. id="%s"&gt;''' % a
             p = re.compile(p)
             m = p.search(article.source, i)
             if m:
