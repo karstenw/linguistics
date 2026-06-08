@@ -10,13 +10,13 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230316191437.2" a="E"><vh>conceptnetreader</vh>
-<v t="karstenw.20230412164348.1" a="E"><vh>@clean conceptnetreader/__init__.py</vh>
+<v t="karstenw.20230412164348.1"><vh>@clean conceptnetreader/__init__.py</vh>
 <v t="karstenw.20230412164348.2"><vh>Declarations</vh></v>
 <v t="karstenw.20230412164348.3"><vh>+ GLOBALS</vh></v>
 <v t="karstenw.20230412164348.18"><vh>+ DB DEF +</vh></v>
 <v t="karstenw.20260222152934.1"><vh>+ REDUCED LANGUAGESET +</vh></v>
 <v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
-<v t="karstenw.20230503150110.1" a="E"><vh>+ CNR +</vh>
+<v t="karstenw.20230503150110.1"><vh>+ CNR +</vh>
 <v t="karstenw.20260521133700.1"><vh>newHeadline</vh></v>
 <v t="karstenw.20230503201353.1"><vh>getconcept</vh></v>
 <v t="karstenw.20230504104816.1"><vh>getconceptByID</vh></v>
@@ -27,7 +27,7 @@
 <v t="karstenw.20260222223643.1"><vh>filter_lang</vh></v>
 <v t="karstenw.20260226103048.1"><vh>intOrIterable</vh></v>
 </v>
-<v t="karstenw.20230521140353.1" a="E"><vh>sdb</vh>
+<v t="karstenw.20230521140353.1"><vh>sdb</vh>
 <v t="karstenw.20260222153130.1"><vh>tableItems</vh></v>
 <v t="karstenw.20260224171849.1"><vh>+ GLOBALS +</vh></v>
 <v t="karstenw.20230521140814.1"><vh>makeunicode</vh></v>
@@ -954,7 +954,10 @@ RecordNamedTupletypes[key] = FullConcept
 
 
 </t>
-<t tx="karstenw.20260224231701.1"></t>
+<t tx="karstenw.20260224231701.1">@language python
+@tabwidth -4
+@others
+</t>
 <t tx="karstenw.20260226103048.1">def intOrIterable( value, argument ):
     """Check if value is either equal to argument or contained in argument"""
     if type( argument ) in (int, float, str, bytes):
