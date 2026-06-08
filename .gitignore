@@ -23,3 +23,5 @@ pattern/examples/06-graph/trend*
 linguistics-archives
 linguistics-data
 pattern/examples/05-vector/en-model.slp
+
+wn/docs/_build
