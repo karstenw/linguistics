@@ -17,7 +17,7 @@
 <v t="karstenw.20260222152934.1"><vh>+ REDUCED LANGUAGESET +</vh></v>
 <v t="karstenw.20230503151220.1"><vh>initlib</vh></v>
 <v t="karstenw.20230503150110.1"><vh>+ CNR +</vh>
-<v t="karstenw.20260521133700.1"><vh>newHeadline</vh></v>
+<v t="karstenw.20260521133700.1"><vh>longlanguagename</vh></v>
 <v t="karstenw.20230503201353.1"><vh>getconcept</vh></v>
 <v t="karstenw.20230504104816.1"><vh>getconceptByID</vh></v>
 <v t="karstenw.20260222160914.1"><vh>getedges</vh></v>
