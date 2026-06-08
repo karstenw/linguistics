@@ -12,6 +12,7 @@
 <v t="karstenw.20230317172542.2" a="E"><vh>linguistics</vh>
 <v t="karstenw.20230317172648.1"><vh>@clean __init__.py</vh>
 <v t="karstenw.20230317172648.2"><vh>Declarations</vh></v>
+<v t="karstenw.20260606163217.1"><vh>Globals</vh></v>
 <v t="karstenw.20230317172816.1"><vh>pattern init</vh></v>
 <v t="karstenw.20230317172648.3"><vh>nltk init</vh></v>
 <v t="karstenw.20230317172812.1"><vh>wn init</vh></v>
@@ -19,9 +20,10 @@
 <v t="karstenw.20230428163032.1"><vh>conceptnet init</vh></v>
 <v t="karstenw.20230317172931.1"><vh>tools</vh></v>
 </v>
-<v t="karstenw.20230524124241.1" a="E"><vh>@clean FlowerWord.py</vh>
+<v t="karstenw.20230524124241.1"><vh>@clean FlowerWord.py</vh>
 <v t="karstenw.20230524124307.1"><vh>Declarations</vh></v>
-<v t="karstenw.20230524124417.1" a="E"><vh>FlowerWord</vh>
+<v t="karstenw.20260606163051.1"><vh>handleResult - TODO</vh></v>
+<v t="karstenw.20230524124417.1"><vh>FlowerWord</vh>
 <v t="karstenw.20230524124417.2"><vh>__init__</vh></v>
 <v t="karstenw.20230524124417.3"><vh>hyponyms</vh></v>
 <v t="karstenw.20230524124417.4"><vh>hypernyms</vh></v>
@@ -31,13 +33,13 @@
 <v t="karstenw.20260501093741.1"><vh>print</vh></v>
 </v>
 </v>
-<v t="karstenw.20230518135525.1" a="E"><vh>@clean download_corpora.py</vh>
+<v t="karstenw.20230518135525.1"><vh>@clean download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
+<v t="karstenw.20260606162533.1"><vh>script</vh></v>
 </v>
-<v t="karstenw.20230521225929.1" a="E"><vh>@clean install-conceptnet-database.py</vh>
+<v t="karstenw.20230521225929.1"><vh>@clean install-conceptnet-database.py</vh>
 <v t="karstenw.20230521225929.2"><vh>Declarations 1</vh></v>
 <v t="karstenw.20230521225929.3"><vh>Globals</vh></v>
-<v t="karstenw.20230521225929.4"><vh>handleDataArchive_OLD</vh></v>
 <v t="karstenw.20230521225929.5"><vh>handleDataArchive</vh></v>
 <v t="karstenw.20230521225929.6"><vh>readstatic</vh></v>
 <v t="karstenw.20230521225929.7"><vh>importConceptnetTables</vh></v>
@@ -71,21 +73,8 @@ import pprint
 pp = pprint.pprint
 
 import pdb
-kwlog = False
-kwdbg = False
-
-t1 = time.time()
-
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
-
-DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
-if not os.path.exists( DATA_DIR ):
-    os.makedirs( DATA_DIR )
-
-# print("PACKAGE_DIR:", PACKAGE_DIR)
-if PACKAGE_DIR not in sys.path:
-    sys.path.insert(0, PACKAGE_DIR)
+kwlog = 1
+kwdbg = 1
 
 
 
@@ -94,24 +83,14 @@ if PACKAGE_DIR not in sys.path:
 # NLTK
 #
 import nltk
-# wordnet = nltk.wordnet
-    
+
+
 # data path init
 nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
 
-t4 = time.time()
+wn_time = time.time()
 if kwlog:
-    print("import nltk: %.3f" % (t4-t3)  )
-
-
-
-# nltk.download( download_dir=nltk.data.path[0] )
-#
-# nltk.download( "wordnet_ic", download_dir=nltk.data.path[0] )
-# nltk.download( "wordnet", download_dir=nltk.data.path[0] )
-
-# seems interesting
-# nltk.download( "framenet_v17", download_dir=nltk.data.path[0] )
+    print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
 
 
 
@@ -121,25 +100,10 @@ if kwlog:
 
 import textblob
 
-t6 = time.time()
+conceptnetreader_time = time.time()
 if kwlog:
-    print("import textblob: %.3f" % (t6-t5)  )
+    print("SYS import textblob: %.3f" % (conceptnetreader_time-textblob_time)  )
 
-# from . textblob import *
-# import textblob.Word
-
-
-# textblob downloads via nltk
-#
-# minimal
-# brown, punkt, wordnet, averaged_perceptron_tagger
-#
-# all
-# + conll2000, movie_reviews
-# 
-# pattern nltk downloads
-# 
-# wordnet_ic
 
 </t>
 <t tx="karstenw.20230317172812.1">"""
@@ -152,9 +116,9 @@ import wn
 # data path init
 wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
 
-t5 = time.time()
+textblob_time = time.time()
 if kwlog:
-    print("import wn: %.3f" % (t5-t4)  )
+    print("SYS import wn: %.3f" % (textblob_time-wn_time)  )
 
 
 # not sure what to use yet
@@ -175,19 +139,21 @@ if 0:
         if lang not in lexicons:
             lexicons[lang] = []
         lexicons[lang].append( (lang, lid, label, lexicon) )
-    
+
 
 </t>
-<t tx="karstenw.20230317172816.1">t2 = time.time()
+<t tx="karstenw.20230317172816.1">init_time = time.time()
 
 import pattern
 
 # no data path init - instead
 # change pattern webcache setting in pattern/web/cache/__init__.py
 
-t3 = time.time()
+
+
+nltk_time = time.time()
 if kwlog:
-    print("import pattern: %.3f" % (t3-t2)  )
+    print("SYS import pattern: %.3f" % (nltk_time-init_time)  )
 
 </t>
 <t tx="karstenw.20230317172931.1">if 0:
@@ -221,17 +187,20 @@ if kwlog:
 
 import FlowerWord
 
+end_time = time.time()
+
+if kwlog:
+    print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
+    print("SYS import linguistics: %.3f" % (end_time - init_time)  )
+
 </t>
-<t tx="karstenw.20230428163032.1"># conceptnet
-# from . import conceptnetreader
-# package path should be valid by now
-import conceptnetreader
+<t tx="karstenw.20230428163032.1">import conceptnetreader
 
-t7 = time.time()
-print("import conceptnetreader: %.3f" % (t7-t6)  )
+FlowerWord_time = time.time()
+if kwlog:
+    print("SYS import conceptnetreader: %.3f" % (FlowerWord_time-conceptnetreader_time)  )
 
-# data path init - not yet used
-# dbfile = os.path.join( DATA_DIR, 'conceptnet-data', 'conceptnet.sqlite3' )
+
 </t>
 <t tx="karstenw.20230518135525.1">@language python
 @tabwidth -4
@@ -243,56 +212,12 @@ import sys
 import os
 
 import pdb
-kwdbg = False
+kwdbg = True
 
 
 import pprint
 import time
 
-start = time.time()
-
-try:
-    PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
-except NameError as err:
-    print(err)
-    PACKAGE_DIR = os.path.abspath( './' )
-
-if kwdbg:
-    print("PACKAGE_DIR:", PACKAGE_DIR)
-
-PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
-DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
-
-if not os.path.exists( DATA_DIR ):
-    os.makedirs( DATA_DIR )
-
-sys.path.insert(0, PACKAGE_DIR)
-
-# textblob uses nltk
-import nltk
-nltk_data_dir = os.path.join( DATA_DIR, 'nltk-data' )
-nltk.data.path = [ nltk_data_dir ]
-
-nltk.download( "wordnet_ic", download_dir=nltk_data_dir )
-nltk.download( "wordnet", download_dir=nltk_data_dir )
-nltk.download( "sentiwordnet", download_dir=nltk_data_dir )
-
-# textblob downloads
-nltk.download( "brown", download_dir=nltk_data_dir )
-nltk.download( "punkt", download_dir=nltk_data_dir )
-nltk.download( "averaged_perceptron_tagger", download_dir=nltk_data_dir )
-nltk.download( "conll2000", download_dir=nltk_data_dir )
-nltk.download( "movie_reviews", download_dir=nltk_data_dir )
-
-
-import wn
-wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
-wn.download("omw")
-wn.download("odenet")
-wn.download("cili")
-
-stop = time.time()
-print("nltk &amp; wn in %.3fsec" % (stop-start,) )
 </t>
 <t tx="karstenw.20230521225929.1">@language python
 @tabwidth -4
@@ -462,8 +387,10 @@ import pdb
 import pprint
 pp=pprint.pprint
 
+nb = True
 try:
     PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+    nb = False
 except NameError as err:
     print(err)
     PACKAGE_DIR = os.path.abspath( './' )
@@ -511,8 +438,7 @@ if 0:
 
 exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
 exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
-</t>
-<t tx="karstenw.20230521225929.4">
+
 
 </t>
 <t tx="karstenw.20230521225929.5">def handleDataArchive( zipfilepath, extractdir ):
@@ -608,7 +534,8 @@ exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
             if i % bucketsize == 0:
                 emptyBucket( conn, bucket, tablename )
                 bucket = []
-                dotprinter(i, bucketsize)
+                if not nb:
+                    dotprinter(i, bucketsize)
         emptyBucket(conn, bucket, tablename)
         bucket = []
         commit( conn )
@@ -674,7 +601,9 @@ The name stuck.
 import time
 import io
 
-kwdbg = 0
+kwdbg = 1
+kwlog = 1
+
 import pdb
 import pprint
 pp = pprint.pprint
@@ -682,31 +611,39 @@ pp = pprint.pprint
 # seed(1)
 
 # need to import linguistics first - sets up sys.path and corpus/data folders for the sublibs
+
+start = time.time()
+
 import linguistics
 
 import pattern
-import pattern.en
-
-from pattern.en import article, referenced
-from pattern.en import pluralize, singularize
-from pattern.en import comparative, superlative
-from pattern.en import conjugate, lemma, lexeme, tenses
-from pattern.en import number, numerals, quantify, reflect, suggest, ngrams
-from pattern.en import parse, tokenize, tag, parsetree, tree
-from pattern.en import Sentence, Word, Chunk, PNPChunk, sentiment, mood, modality
-
-
-from pattern.en import NOUN, VERB, ADJECTIVE, DEFINITE, INDEFINITE
-from pattern.en import INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
-from pattern.en import SINGULAR, PLURAL
-
-from pattern.text import IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
-from pattern.text import INFINITIVE, PRESENT, PAST, FUTURE
-
 import pattern.text
-import pattern.text.en
-en = pattern.text.en
+import pattern.text.en as en
 wordnet = en.wordnet
+
+
+if 0:
+    from pattern.en import article, referenced
+    from pattern.en import pluralize, singularize
+    from pattern.en import comparative, superlative
+    from pattern.en import conjugate, lemma, lexeme, tenses
+    from pattern.en import number, numerals, quantify, reflect, suggest, ngrams
+    from pattern.en import parse, tokenize, tag, parsetree, tree
+    from pattern.en import Sentence, Word, Chunk, PNPChunk, sentiment, mood, modality
+
+
+    from pattern.en import NOUN, VERB, ADJECTIVE, DEFINITE, INDEFINITE
+    from pattern.en import INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
+    from pattern.en import SINGULAR, PLURAL
+
+    from pattern.text import IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
+    from pattern.text import INFINITIVE, PRESENT, PAST, FUTURE
+
+
+stop = time.time()
+if kwlog:
+    print("FlowerWord imports: %.3f" % (stop-start,)  )
+
 
 
 # synonym = a word that is similar in meaning,
@@ -715,9 +652,6 @@ wordnet = en.wordnet
 # holonym = a word that is the whole of parts,   (tree =&gt; forest)
 # meronym = a word that is a part of the whole,  (tree =&gt; trunk)
 # antonym = a word that is opposite in meaning.
-
-def handleResult( items ):
-    pass
 
 </t>
 <t tx="karstenw.20230524124417.1">class FlowerWord:
@@ -875,6 +809,113 @@ except NameError:
     print("       senses:", self.senses() )
     print("     holonyms:", self.holonyms() )
     print("     meronyms:", self.meronyms() )
+
+
+</t>
+<t tx="karstenw.20260606162533.1">start = time.time()
+
+
+# handle regular python / Nodebox
+nb=True
+try:
+    PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+    nb=False
+except NameError as err:
+    print(err)
+    PACKAGE_DIR = os.path.abspath( './' )
+
+if kwdbg:
+    print("PACKAGE_DIR:", PACKAGE_DIR)
+
+PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
+DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
+
+if not os.path.exists( DATA_DIR ):
+    os.makedirs( DATA_DIR )
+
+sys.path.insert(0, PACKAGE_DIR)
+
+# pdb.set_trace()
+
+# if run from Nodebox do not accumulate endless messages...
+# therefore 
+#       quiet=nb
+# or
+#       progress_handler=pg
+
+# textblob uses nltk
+if 1:
+    import nltk
+    nltk_data_dir = os.path.join( DATA_DIR, 'nltk-data' )
+    nltk.data.path = [ nltk_data_dir ]
+
+    nltk.download( "wordnet", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet_ic", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "sentiwordnet", download_dir=nltk_data_dir, quiet=nb )
+
+    nltk.download( "wordnet2021", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet2022", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet31", download_dir=nltk_data_dir, quiet=nb )
+
+
+    # textblob minimal downloads
+    # wordnet already loaded
+    nltk.download( "brown", download_dir=nltk_data_dir, quiet=nb )
+    #nltk.download( "punkt", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "punkt_tab", download_dir=nltk_data_dir, quiet=nb )
+    #nltk.download( "averaged_perceptron_tagger", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "averaged_perceptron_tagger_eng", download_dir=nltk_data_dir, quiet=nb )
+
+    # textblob additional
+    nltk.download( "conll2000", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "movie_reviews", download_dir=nltk_data_dir, quiet=nb )
+
+
+import wn
+from wn.util import ProgressHandler, ProgressBar
+
+pg = ProgressBar
+if nb:
+    pg = ProgressHandler
+wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+
+# https://github.com/omwn - open multilingual wordnet
+wn.download("omw", add=True, progress_handler=pg)
+
+# https://github.com/hdaSprachtechnologie/odenet - open german wordnet
+wn.download("odenet", add=True, progress_handler=pg)
+
+# https://github.com/globalwordnet/cili/ - collaborative interlingual index
+wn.download("cili", add=True, progress_handler=pg)
+
+stop = time.time()
+print("nltk &amp; wn in %.3fsec" % (stop-start,) )
+</t>
+<t tx="karstenw.20260606163051.1">def handleResult( items ):
+    pass
+
+</t>
+<t tx="karstenw.20260606163217.1"># directory init
+#
+# set data path "linguistics-data"
+#
+# insert current directory into sys.path
+
+PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
+
+if kwlog:
+    print("PACKAGE_DIR:", PACKAGE_DIR)
+
+DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
+if not os.path.exists( DATA_DIR ):
+    os.makedirs( DATA_DIR )
+
+if kwlog:
+    print("DATA_DIR:", DATA_DIR)
+
+if PACKAGE_DIR not in sys.path:
+    sys.path.insert(0, PACKAGE_DIR)
 
 
 </t>
