@@ -12,6 +12,8 @@ import time
 
 start = time.time()
 
+
+# handle regular python / Nodebox
 nb=True
 try:
     PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
