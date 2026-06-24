@@ -24,4 +24,4 @@ linguistics-archives
 linguistics-data
 pattern/examples/05-vector/en-model.slp
 
-wn/docs/_build
+#wn/docs/_build

@@ -1,0 +1,604 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="wn.lmf" href="wn.lmf.html" /><link rel="prev" title="wn.constants" href="wn.constants.html" />
+        <link rel="prefetch" href="../_static/wn-logo.svg" as="image" />
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
+        <title>wn.ic - wn 0.13.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=55b73dce" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=25af2a20" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/svg.css?v=8fd09d06" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f3f3;
+  --color-code-foreground: black;
+  --color-brand-primary: #006699;
+  --color-brand-content: #006699;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #00CCFF;
+  --color-brand-content: #00CCFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #00CCFF;
+  --color-brand-content: #00CCFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">wn 0.13.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/wn-logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">wn 0.13.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup.html">Installation and Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/lexicons.html">Working with Lexicons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/basic.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/interlingual.html">Interlingual Queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/wordnet.html">The Structure of a Wordnet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/lemmatization.html">Lemmatization and Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/nltk-migration.html">Migrating from the NLTK</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="wn.html">wn</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="wn.compat.html">wn.compat</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of wn.compat</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="wn.compat.sensekey.html">wn.compat.sensekey</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wn.compat.sensekey.html">wn.compat.sensekey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.constants.html">wn.constants</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">wn.ic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.lmf.html">wn.lmf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.morphy.html">wn.morphy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.project.html">wn.project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.similarity.html">wn.similarity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.taxonomy.html">wn.taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.util.html">wn.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.validate.html">wn.validate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.web.html">wn.web</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-wn.ic">
+<span id="wn-ic"></span><h1>wn.ic<a class="headerlink" href="#module-wn.ic" title="Link to this heading">¶</a></h1>
+<p>Information Content is a corpus-based metrics of synset or sense
+specificity.</p>
+<p>The mathematical formulae for information content are defined in
+<a class="reference internal" href="#formal-description">Formal Description</a>, and the corresponding Python API function are
+described in <a class="reference internal" href="#calculating-information-content">Calculating Information Content</a>. These functions
+require information content weights obtained either by <a class="reference internal" href="#computing-corpus-weights">computing them
+from a corpus</a>, or by <a class="reference internal" href="#reading-pre-computed-information-content-files">loading
+pre-computed weights from a file</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The term <em>information content</em> can be ambiguous. It often, and most
+accurately, refers to the result of the <a class="reference internal" href="#wn.ic.information_content" title="wn.ic.information_content"><code class="xref py py-func docutils literal notranslate"><span class="pre">information_content()</span></code></a>
+function (<span class="math notranslate nohighlight">\(\text{IC}(c)\)</span> in the mathematical notation), but
+is also sometimes used to refer to the corpus frequencies/weights
+(<span class="math notranslate nohighlight">\(\text{freq}(c)\)</span> in the mathematical notation) returned by
+<a class="reference internal" href="#wn.ic.load" title="wn.ic.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> or <a class="reference internal" href="#wn.ic.compute" title="wn.ic.compute"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute()</span></code></a>, as these weights are the basis of
+the value computed by <a class="reference internal" href="#wn.ic.information_content" title="wn.ic.information_content"><code class="xref py py-func docutils literal notranslate"><span class="pre">information_content()</span></code></a>. The Wn
+documentation tries to consistently refer to former as the
+<em>information content value</em>, or just <em>information content</em>, and the
+latter as <em>information content weights</em>, or <em>weights</em>.</p>
+</div>
+<section id="formal-description">
+<h2>Formal Description<a class="headerlink" href="#formal-description" title="Link to this heading">¶</a></h2>
+<p>The Information Content (IC) of a concept (synset) is a measure of its
+specificity computed from the wordnet's taxonomy structure and corpus
+frequencies. It is defined by Resnik 1995 (<a class="reference internal" href="#res95" id="id1"><span>[RES95]</span></a>), following
+information theory, as the negative log-probability of a concept:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{IC}(c) = -\log{p(c)}\]</div>
+</div>
+<p>A concept's probability is the empirical probability over a corpus:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[p(c) = \frac{\text{freq}(c)}{N}\]</div>
+</div>
+<p>Here, <span class="math notranslate nohighlight">\(N\)</span> is the total count of words of the same category as
+concept <span class="math notranslate nohighlight">\(c\)</span> (<a class="reference internal" href="#res95" id="id2"><span>[RES95]</span></a> only considered nouns) where each word has
+some representation in the wordnet, and <span class="math notranslate nohighlight">\(\text{freq}\)</span> is defined
+as the sum of corpus counts of words in <span class="math notranslate nohighlight">\(\text{words}(c)\)</span>, which
+is the set of words subsumed by concept <span class="math notranslate nohighlight">\(c\)</span>:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{freq}(c) = \sum_{w \in \text{words}(c)}{\text{count}(w)}\]</div>
+</div>
+<p>It is common for <span class="math notranslate nohighlight">\(\text{freq}\)</span> to not contain actual frequencies
+but instead weights distributed evenly among the synsets for a
+word. These weights are calculated as the word frequency divided by
+the number of synsets for the word:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{freq}_{\text{distributed}}(c)
+= \sum_{w \in \text{words}(c)}{\frac{\text{count}(w)}{|\text{synsets}(w)|}}\]</div>
+</div>
+<div role="list" class="citation-list">
+<div class="citation" id="res95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>RES95<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>Resnik, Philip. &quot;Using information content to evaluate
+semantic similarity.&quot; In Proceedings of the 14th International
+Joint Conference on Artificial Intelligence (IJCAI-95), Montreal,
+Canada, pp. 448-453. 1995.</p>
+</div>
+</div>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
+<p>In the Princeton WordNet 3.0 (hereafter <em>WordNet</em>, but note that the
+equivalent lexicon in Wn is the <em>OMW English Wordnet based on WordNet
+3.0</em> with specifier <code class="docutils literal notranslate"><span class="pre">omw-en:1.4</span></code>), the frequency of a concept like
+<strong>stone fruit</strong> is not just the number of occurrences of <em>stone
+fruit</em>, but also includes the counts of the words for its hyponyms
+(<em>almond</em>, <em>olive</em>, etc.) and other taxonomic descendants (<em>Jordan
+almond</em>, <em>green olive</em>, etc.). The word <em>almond</em> has two synsets: one
+for the fruit or nut, another for the plant. Thus, if the word
+<em>almond</em> is encountered <span class="math notranslate nohighlight">\(n\)</span> times in a corpus, then the weight
+(either the frequency <span class="math notranslate nohighlight">\(n\)</span> or distributed weight
+<span class="math notranslate nohighlight">\(\frac{n}{2}\)</span>) is added to the total weights for both synsets
+and to those of their ancestors, but not for descendant synsets, such
+as for <strong>Jordan almond</strong>. The fruit/nut synset of almond has two
+hypernym paths which converge on <strong>fruit</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>almond</strong> ⊃ <strong>stone fruit</strong> ⊃ <strong>fruit</strong></p></li>
+<li><p><strong>almond</strong> ⊃ <strong>nut</strong> ⊃ <strong>seed</strong> ⊃ <strong>fruit</strong></p></li>
+</ol>
+<p>The weight is added to each ancestor (<strong>stone fruit</strong>, <strong>nut</strong>,
+<strong>seed</strong>, <strong>fruit</strong>, …) once. That is, the weight is not added to
+the convergent ancestor for <strong>fruit</strong> twice, but only once.</p>
+</section>
+<section id="calculating-information-content">
+<h2>Calculating Information Content<a class="headerlink" href="#calculating-information-content" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="wn.ic.information_content">
+<span class="sig-prename descclassname"><span class="pre">wn.ic.</span></span><span class="sig-name descname"><span class="pre">information_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">synset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wn.html#wn.Synset" title="wn.Synset"><span class="pre">Synset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#wn.ic.information_content" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the Information Content value for a synset.</p>
+<p>The information content of a synset is the negative log of the
+synset probability (see <a class="reference internal" href="#wn.ic.synset_probability" title="wn.ic.synset_probability"><code class="xref py py-func docutils literal notranslate"><span class="pre">synset_probability()</span></code></a>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wn.ic.synset_probability">
+<span class="sig-prename descclassname"><span class="pre">wn.ic.</span></span><span class="sig-name descname"><span class="pre">synset_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">synset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wn.html#wn.Synset" title="wn.Synset"><span class="pre">Synset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#wn.ic.synset_probability" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the synset probability.</p>
+<p>The synset probability is defined as freq(ss)/N where freq(ss) is
+the IC weight for the synset and N is the total IC weight for all
+synsets with the same part of speech.</p>
+<p>Note: this function is not generally used directly, but indirectly
+through <a class="reference internal" href="#wn.ic.information_content" title="wn.ic.information_content"><code class="xref py py-func docutils literal notranslate"><span class="pre">information_content()</span></code></a>.</p>
+</dd></dl>
+
+</section>
+<section id="computing-corpus-weights">
+<h2>Computing Corpus Weights<a class="headerlink" href="#computing-corpus-weights" title="Link to this heading">¶</a></h2>
+<p>If pre-computed weights are not available for a wordnet or for some
+domain, they can be computed given a corpus and a wordnet.</p>
+<p>The corpus is an iterable of words. For large corpora it may help to
+use a generator for this iterable, but the entire vocabulary (i.e.,
+unique words and counts) will be held at once in memory. Multi-word
+expressions are also possible if they exist in the wordnet. For
+instance, WordNet has <em>stone fruit</em>, with a single space delimiting
+the words, as an entry.</p>
+<p>The <a class="reference internal" href="wn.html#wn.Wordnet" title="wn.Wordnet"><code class="xref py py-class docutils literal notranslate"><span class="pre">wn.Wordnet</span></code></a> object must be instantiated with a single
+lexicon, although it may have expand-lexicons for relation
+traversal. For best results, the wordnet should use a lemmatizer to
+help it deal with inflected wordforms from running text.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="wn.ic.compute">
+<span class="sig-prename descclassname"><span class="pre">wn.ic.</span></span><span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corpus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wordnet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wn.html#wn.Wordnet" title="wn.Wordnet"><span class="pre">Wordnet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribute_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wn.ic.compute" title="Link to this definition">¶</a></dt>
+<dd><p>Compute Information Content weights from a corpus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corpus</strong> – An iterable of string tokens. This is a flat list of
+words and the order does not matter. Tokens may be single
+words or multiple words separated by a space.</p></li>
+<li><p><strong>wordnet</strong> – An instantiated <a class="reference internal" href="wn.html#wn.Wordnet" title="wn.Wordnet"><code class="xref py py-class docutils literal notranslate"><span class="pre">wn.Wordnet</span></code></a> object, used to
+look up synsets from words.</p></li>
+<li><p><strong>distribute_weight</strong> – If <code class="code highlight python docutils literal highlight-python"><span class="kc">True</span></code>, the counts for a word
+are divided evenly among all synsets for the word.</p></li>
+<li><p><strong>smoothing</strong> – The initial value given to each synset.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">wn</span><span class="o">,</span><span class="w"> </span><span class="nn">wn.ic</span><span class="o">,</span><span class="w"> </span><span class="nn">wn.morphy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ewn</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">Wordnet</span><span class="p">(</span><span class="s1">&#39;ewn:2020&#39;</span><span class="p">,</span> <span class="n">lemmatizer</span><span class="o">=</span><span class="n">wn</span><span class="o">.</span><span class="n">morphy</span><span class="o">.</span><span class="n">morphy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">ic</span><span class="o">.</span><span class="n">compute</span><span class="p">([</span><span class="s2">&quot;Dogs&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Cats&quot;</span><span class="p">,</span> <span class="s2">&quot;sleep&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">],</span> <span class="n">ewn</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dog</span> <span class="o">=</span> <span class="n">ewn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cat</span> <span class="o">=</span> <span class="n">ewn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frog</span> <span class="o">=</span> <span class="n">ewn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s1">&#39;frog&#39;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">dog</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+<span class="go">1.125</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">cat</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+<span class="go">1.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">frog</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>  <span class="c1"># no occurrence; smoothing value only</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">carnivore</span> <span class="o">=</span> <span class="n">dog</span><span class="o">.</span><span class="n">lowest_common_hypernyms</span><span class="p">(</span><span class="n">cat</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">carnivore</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+<span class="go">1.3250000000000002</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="reading-pre-computed-information-content-files">
+<h2>Reading Pre-computed Information Content Files<a class="headerlink" href="#reading-pre-computed-information-content-files" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="#wn.ic.load" title="wn.ic.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> function reads pre-computed information content
+weights files as used by the <a class="reference external" href="http://wn-similarity.sourceforge.net/">WordNet::Similarity</a> Perl module or the <a class="reference external" href="http://www.nltk.org/">NLTK</a> Python package. These files are computed for
+a specific version of a wordnet using the synset offsets from the
+<a class="reference external" href="https://wordnet.princeton.edu/documentation/wndb5wn">WNDB</a> format,
+which Wn does not use. These offsets therefore must be converted into
+an identifier that matches those used by the wordnet. By default,
+<a class="reference internal" href="#wn.ic.load" title="wn.ic.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> uses the lexicon identifier from its <em>wordnet</em> argument
+with synset offsets (padded with 0s to make 8 digits) and
+parts-of-speech from the weights file to format an identifier, such as
+<code class="docutils literal notranslate"><span class="pre">omw-en-00001174-n</span></code>. For wordnets that use a different identifier
+scheme, the <em>get_synset_id</em> parameter of <a class="reference internal" href="#wn.ic.load" title="wn.ic.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> can be given a
+callable created with <a class="reference internal" href="wn.util.html#wn.util.synset_id_formatter" title="wn.util.synset_id_formatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">wn.util.synset_id_formatter()</span></code></a>. It can also
+be given another callable with the same signature as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">get_synset_id</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</pre></div>
+</div>
+<p>When loading pre-computed information content files, it is recommended
+to use the ones with smoothing (i.e., <code class="docutils literal notranslate"><span class="pre">*-add1.dat</span></code> or
+<code class="docutils literal notranslate"><span class="pre">*-resnik-add1.dat</span></code>) to avoid math domain errors when computing the
+information content value.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The weights files are only valid for the version of wordnet for
+which they were created. Files created for WordNet 3.0 do not work
+for WordNet 3.1 because the offsets used in its identifiers are
+different, although the <em>get_synset_id</em> parameter of <a class="reference internal" href="#wn.ic.load" title="wn.ic.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a>
+could be given a function that performs a suitable mapping. Some
+<a class="reference external" href="https://github.com/omwn/omw-data">Open Multilingual Wordnet</a>
+wordnets use the WordNet 3.0 offsets in their identifiers and can
+therefore technically use the weights, but this usage is
+discouraged because the distributional properties of text in
+another language and the structure of the other wordnet will not be
+compatible with that of the English WordNet. For these cases, it is
+recommended to compute new weights using <a class="reference internal" href="#wn.ic.compute" title="wn.ic.compute"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute()</span></code></a>.</p>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="wn.ic.load">
+<span class="sig-prename descclassname"><span class="pre">wn.ic.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wordnet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wn.html#wn.Wordnet" title="wn.Wordnet"><span class="pre">Wordnet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_synset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wn.ic.load" title="Link to this definition">¶</a></dt>
+<dd><p>Load an Information Content mapping from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – A path to an information content weights file.</p></li>
+<li><p><strong>wordnet</strong> – A <a class="reference internal" href="wn.html#wn.Wordnet" title="wn.Wordnet"><code class="xref py py-class docutils literal notranslate"><span class="pre">wn.Wordnet</span></code></a> instance with synset
+identifiers matching the offsets in the weights file.</p></li>
+<li><p><strong>get_synset_id</strong> – A callable that takes a synset offset and part
+of speech and returns a synset ID valid in <em>wordnet</em>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="wn.html#wn.Error" title="wn.Error"><strong>wn.Error</strong></a> – If <em>wordnet</em> does not have exactly one
+    lexicon.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">wn</span><span class="o">,</span><span class="w"> </span><span class="nn">wn.ic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pwn</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">Wordnet</span><span class="p">(</span><span class="s1">&#39;pwn:3.0&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;~/nltk_data/corpora/wordnet_ic/ic-brown-resnik-add1.dat&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">ic</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pwn</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="wn.lmf.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">wn.lmf</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="wn.constants.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">wn.constants</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2020, Michael Wayne Goodman
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">wn.ic</a><ul>
+<li><a class="reference internal" href="#formal-description">Formal Description</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#calculating-information-content">Calculating Information Content</a><ul>
+<li><a class="reference internal" href="#wn.ic.information_content"><code class="docutils literal notranslate"><span class="pre">information_content()</span></code></a></li>
+<li><a class="reference internal" href="#wn.ic.synset_probability"><code class="docutils literal notranslate"><span class="pre">synset_probability()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#computing-corpus-weights">Computing Corpus Weights</a><ul>
+<li><a class="reference internal" href="#wn.ic.compute"><code class="docutils literal notranslate"><span class="pre">compute()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reading-pre-computed-information-content-files">Reading Pre-computed Information Content Files</a><ul>
+<li><a class="reference internal" href="#wn.ic.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=1019fba8"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=34bd459d"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
