@@ -7,7 +7,7 @@ pp = pprint.pprint
 
 import pdb
 kwlog = 1
-kwdbg = 1
+kwdbg = 0
 
 
 
@@ -34,31 +34,35 @@ if PACKAGE_DIR not in sys.path:
     sys.path.insert(0, PACKAGE_DIR)
 
 
-init_time = time.time()
+fullinit = False
 
-import pattern
+if fullinit:
 
-# no data path init - instead
-# change pattern webcache setting in pattern/web/cache/__init__.py
-
-
-
+    init_time = time.time()
+    
+    import pattern
+    
+    # no data path init - instead
+    # change pattern webcache setting in pattern/web/cache/__init__.py
+    
 nltk_time = time.time()
-if kwlog:
-    print("SYS import pattern: %.3f" % (nltk_time-init_time)  )
+if fullinit:
+    if kwlog:
+        print("SYS import pattern: %.3f" % (nltk_time-init_time)  )
 
 #
 # NLTK
 #
-import nltk
-
-
-# data path init
-nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
-
-wn_time = time.time()
-if kwlog:
-    print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
+if 1: # need data.path init - fullinit:
+    import nltk
+    
+    
+    # data path init
+    nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+    
+    wn_time = time.time()
+    if kwlog:
+        print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
 
 
 
@@ -67,52 +71,64 @@ This is the wn interface for NodeBox and possibly others.
 
 """
 
-import wn
+if fullinit:
+    import wn
+        
+    # data path init
+    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
     
-# data path init
-wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
-
-textblob_time = time.time()
-if kwlog:
-    print("SYS import wn: %.3f" % (textblob_time-wn_time)  )
-
-
-# not sure what to use yet
-if 0:
-    # check if english lexicon is loaded
-    try:
-        prj = wn.config.get_project_info("oewn")
-    except TypeError as err:
-        print( err )
+    textblob_time = time.time()
+    if kwlog:
+        print("SYS import wn: %.3f" % (textblob_time-wn_time)  )
     
-    en = wn.wordnet("oewn")
-
-    lexicons = {}
-    for lexicon in wn.lexicons():
-        lang = lexicon.language
-        lid = lexicon.id
-        label = lexicon.label
-        if lang not in lexicons:
-            lexicons[lang] = []
-        lexicons[lang].append( (lang, lid, label, lexicon) )
+    
+    # not sure what to use yet
+    if 0:
+        # check if english lexicon is loaded
+        try:
+            prj = wn.config.get_project_info("oewn")
+        except TypeError as err:
+            print( err )
+        
+        en = wn.wordnet("oewn")
+    
+        lexicons = {}
+        for lexicon in wn.lexicons():
+            lang = lexicon.language
+            lid = lexicon.id
+            label = lexicon.label
+            if lang not in lexicons:
+                lexicons[lang] = []
+            lexicons[lang].append( (lang, lid, label, lexicon) )
 
 
 # perhaps delete ? havent used this
 # TextBlob, Word, Sentence, Blobber, WordList
 
-import textblob
+if fullinit:
+    import textblob
+    
+    conceptnetreader_time = time.time()
+    if kwlog:
+        print("SYS import textblob: %.3f" % (conceptnetreader_time-textblob_time)  )
 
-conceptnetreader_time = time.time()
-if kwlog:
-    print("SYS import textblob: %.3f" % (conceptnetreader_time-textblob_time)  )
+
+if fullinit:
+    import conceptnetreader
+    
+    FlowerWord_time = time.time()
+    if kwlog:
+        print("SYS import conceptnetreader: %.3f" % (FlowerWord_time-conceptnetreader_time)  )
 
 
-import conceptnetreader
-
-FlowerWord_time = time.time()
-if kwlog:
-    print("SYS import conceptnetreader: %.3f" % (FlowerWord_time-conceptnetreader_time)  )
-
+if fullinit:
+    import FlowerWord
+    
+    
+    if kwlog:
+        end_time = time.time()
+        print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
+        print("SYS import linguistics: %.3f" % (end_time - init_time)  )
 
 if 0:
     def _firstwordtags( wl ):
@@ -142,12 +158,4 @@ if 0:
         _,tag = _firstwordtags( w )
         return wordnet.is_adverb( a )
 
-
-import FlowerWord
-
-end_time = time.time()
-
-if kwlog:
-    print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
-    print("SYS import linguistics: %.3f" % (end_time - init_time)  )
 

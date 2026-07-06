@@ -10,7 +10,7 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230317172542.2" a="E"><vh>linguistics</vh>
-<v t="karstenw.20230317172648.1"><vh>@clean __init__.py</vh>
+<v t="karstenw.20230317172648.1" a="E"><vh>@clean __init__.py</vh>
 <v t="karstenw.20230317172648.2"><vh>Declarations</vh></v>
 <v t="karstenw.20260606163217.1"><vh>Globals</vh></v>
 <v t="karstenw.20230317172816.1"><vh>pattern init</vh></v>
@@ -18,6 +18,7 @@
 <v t="karstenw.20230317172812.1"><vh>wn init</vh></v>
 <v t="karstenw.20230317172648.4"><vh>textblob init</vh></v>
 <v t="karstenw.20230428163032.1"><vh>conceptnet init</vh></v>
+<v t="karstenw.20260628144829.1"><vh>Flowerword init</vh></v>
 <v t="karstenw.20230317172931.1"><vh>tools</vh></v>
 </v>
 <v t="karstenw.20230524124241.1"><vh>@clean FlowerWord.py</vh>
@@ -74,7 +75,7 @@ pp = pprint.pprint
 
 import pdb
 kwlog = 1
-kwdbg = 1
+kwdbg = 0
 
 
 
@@ -82,15 +83,16 @@ kwdbg = 1
 <t tx="karstenw.20230317172648.3">#
 # NLTK
 #
-import nltk
-
-
-# data path init
-nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
-
-wn_time = time.time()
-if kwlog:
-    print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
+if 1: # need data.path init - fullinit:
+    import nltk
+    
+    
+    # data path init
+    nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
+    
+    wn_time = time.time()
+    if kwlog:
+        print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
 
 
 
@@ -98,11 +100,12 @@ if kwlog:
 <t tx="karstenw.20230317172648.4"># perhaps delete ? havent used this
 # TextBlob, Word, Sentence, Blobber, WordList
 
-import textblob
-
-conceptnetreader_time = time.time()
-if kwlog:
-    print("SYS import textblob: %.3f" % (conceptnetreader_time-textblob_time)  )
+if fullinit:
+    import textblob
+    
+    conceptnetreader_time = time.time()
+    if kwlog:
+        print("SYS import textblob: %.3f" % (conceptnetreader_time-textblob_time)  )
 
 
 </t>
@@ -111,49 +114,51 @@ This is the wn interface for NodeBox and possibly others.
 
 """
 
-import wn
+if fullinit:
+    import wn
+        
+    # data path init
+    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
     
-# data path init
-wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
-
-textblob_time = time.time()
-if kwlog:
-    print("SYS import wn: %.3f" % (textblob_time-wn_time)  )
-
-
-# not sure what to use yet
-if 0:
-    # check if english lexicon is loaded
-    try:
-        prj = wn.config.get_project_info("oewn")
-    except TypeError as err:
-        print( err )
+    textblob_time = time.time()
+    if kwlog:
+        print("SYS import wn: %.3f" % (textblob_time-wn_time)  )
     
-    en = wn.wordnet("oewn")
-
-    lexicons = {}
-    for lexicon in wn.lexicons():
-        lang = lexicon.language
-        lid = lexicon.id
-        label = lexicon.label
-        if lang not in lexicons:
-            lexicons[lang] = []
-        lexicons[lang].append( (lang, lid, label, lexicon) )
+    
+    # not sure what to use yet
+    if 0:
+        # check if english lexicon is loaded
+        try:
+            prj = wn.config.get_project_info("oewn")
+        except TypeError as err:
+            print( err )
+        
+        en = wn.wordnet("oewn")
+    
+        lexicons = {}
+        for lexicon in wn.lexicons():
+            lang = lexicon.language
+            lid = lexicon.id
+            label = lexicon.label
+            if lang not in lexicons:
+                lexicons[lang] = []
+            lexicons[lang].append( (lang, lid, label, lexicon) )
 
 
 </t>
-<t tx="karstenw.20230317172816.1">init_time = time.time()
+<t tx="karstenw.20230317172816.1">if fullinit:
 
-import pattern
-
-# no data path init - instead
-# change pattern webcache setting in pattern/web/cache/__init__.py
-
-
-
+    init_time = time.time()
+    
+    import pattern
+    
+    # no data path init - instead
+    # change pattern webcache setting in pattern/web/cache/__init__.py
+    
 nltk_time = time.time()
-if kwlog:
-    print("SYS import pattern: %.3f" % (nltk_time-init_time)  )
+if fullinit:
+    if kwlog:
+        print("SYS import pattern: %.3f" % (nltk_time-init_time)  )
 
 </t>
 <t tx="karstenw.20230317172931.1">if 0:
@@ -185,20 +190,13 @@ if kwlog:
         return wordnet.is_adverb( a )
 
 
-import FlowerWord
-
-end_time = time.time()
-
-if kwlog:
-    print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
-    print("SYS import linguistics: %.3f" % (end_time - init_time)  )
-
 </t>
-<t tx="karstenw.20230428163032.1">import conceptnetreader
-
-FlowerWord_time = time.time()
-if kwlog:
-    print("SYS import conceptnetreader: %.3f" % (FlowerWord_time-conceptnetreader_time)  )
+<t tx="karstenw.20230428163032.1">if fullinit:
+    import conceptnetreader
+    
+    FlowerWord_time = time.time()
+    if kwlog:
+        print("SYS import conceptnetreader: %.3f" % (FlowerWord_time-conceptnetreader_time)  )
 
 
 </t>
@@ -917,6 +915,18 @@ if kwlog:
 if PACKAGE_DIR not in sys.path:
     sys.path.insert(0, PACKAGE_DIR)
 
+
+fullinit = False
+
+</t>
+<t tx="karstenw.20260628144829.1">if fullinit:
+    import FlowerWord
+    
+    
+    if kwlog:
+        end_time = time.time()
+        print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
+        print("SYS import linguistics: %.3f" % (end_time - init_time)  )
 
 </t>
 </tnodes>
