@@ -14,23 +14,13 @@
 
 <p>Rename the downloaded folder &#8220;linguistics&#8221; and place it inside the Nodebox &#8220;Library&#8221; folder.</p>
 
-<p>Before the first run, open and run <code>download_corpora.py</code> inside the linguistics folder. This downloads the needed corpora for <code>nltk</code>, <code>textblob</code> and <code>wn</code> to run. The data folder <code>linguistics-data</code> will be placed in the same folder as the <code>linguistics</code> folder.</p>
+<p>Before the first run, open and run <code>DOWNLOAD_DATABASES_AND_INSTALL_CONCEPTNET.py</code> inside the linguistics folder. This downloads the needed corpora for <code>nltk</code>, <code>textblob</code>, <code>wn</code> and installs the conceptnet database. The data folder <code>linguistics-data</code> will be placed in the same folder as the <code>linguistics</code> folder. The runtime is ca. 10 minutes.</p>
 
 <h4 id="nltkcorporafortextblobwnandpattern">nltk corpora for textblob, wn and pattern</h4>
 
-<p>The runtime for <code>download_corpora.py</code> is ca. 5 minutes.</p>
-
 <p>If you run it from NodeBox there will be no feedback except the spinning beachball.</p>
 
-<p>Alternatively you can run it from the terminal with a current python3. Perhaps you must install the requirements first.</p>
-
-<h4 id="conceptnetdatabase">conceptnet database</h4>
-
-<p>For the conceptnet database open and run <code>install-conceptnet-database.py</code>.</p>
-
-<p>The runtime for <code>install-conceptnet-database.py</code> is ca. 4 minutes.</p>
-
-<p>As with the nltk download there is no feedback but it can be run from the terminal to see what&#8217;s going on.</p>
+<p>Alternatively you can run it from the terminal with a current python3.</p>
 
 <h2 id="general">General</h2>
 
@@ -41,7 +31,7 @@
 <ol>
 <li><p>Make it available to Nodebox1</p></li>
 <li><p>Keep it usable from a standard python3</p></li>
-<li><p>Adapt Nodebox1 scripts using &#8220;en&#8221;</p></li>
+<li><p>Adapt Nodebox1 scripts using &#8220;en&#8221;, &#8220;web&#8221;</p></li>
 </ol>
 
 <h3 id="usage">Usage</h3>
@@ -52,4 +42,4 @@
 import linguistics
 </code></pre>
 
-<p>After the linguistics import the submodules pattern, wn,nltk &amp; textblob can be accessed with <code>linguistics.nltk</code> or <code>import nltk</code>.</p>
+<p>After the linguistics import the submodules pattern, wn,nltk &amp; textblob can be accessed with <code>import pattern</code>, <code>import nltk</code>, <code>import wn</code>, <code>import textblob</code>.</p>

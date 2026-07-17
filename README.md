@@ -15,24 +15,14 @@ These are the installed sources of the libraries. I am currently using Python 3.
 
 Rename the downloaded folder "linguistics" and place it inside the Nodebox "Library" folder.
 
-Before the first run, open and run `download_corpora.py` inside the linguistics folder. This downloads the needed corpora for `nltk`, `textblob` and `wn` to run. The data folder `linguistics-data` will be placed in the same folder as the `linguistics` folder.
-
+Before the first run, open and run `DOWNLOAD_DATABASES_AND_INSTALL_CONCEPTNET.py` inside the linguistics folder. This downloads the needed corpora for `nltk`, `textblob`, `wn` and installs the conceptnet database. The data folder `linguistics-data` will be placed in the same folder as the `linguistics` folder. The runtime  is ca. 10 minutes.
 
 #### nltk corpora for textblob, wn and pattern
 
-The runtime for `download_corpora.py` is ca. 5 minutes.
-
 If you run it from NodeBox there will be no feedback except the spinning beachball. 
 
-Alternatively you can run it from the terminal with a current python3. Perhaps you must install the requirements first.
+Alternatively you can run it from the terminal with a current python3.
 
-#### conceptnet database
-
-For the conceptnet database open and run `install-conceptnet-database.py`.
-
-The runtime for `install-conceptnet-database.py` is ca. 4 minutes.
-
-As with the nltk download there is no feedback but it can be run from the terminal to see what's going on.
 
 
 ## General
@@ -45,7 +35,7 @@ Goals:
 
 1. Keep it usable from a standard python3
 
-1. Adapt Nodebox1 scripts using "en"
+1. Adapt Nodebox1 scripts using "en", "web"
 
 
 
@@ -58,5 +48,5 @@ In a nodebox script do:
 import linguistics
 ```
 
-After the linguistics import the submodules pattern, wn,nltk & textblob can be accessed with `linguistics.nltk` or `import nltk`.
+After the linguistics import the submodules pattern, wn,nltk & textblob can be accessed with  `import pattern`, `import nltk`, `import wn`, `import textblob`.
 
