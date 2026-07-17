@@ -609,7 +609,7 @@ from wn._module_functions import (
     ili, ilis,
 )
 
-__version__ = '0.12.0'
+__version__ = '0.13.0'
 </t>
 <t tx="karstenw.20230225123120.1">@language python
 @tabwidth -4
@@ -939,7 +939,7 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
             (ss['id'],
              lexid,
              ss['ili'] if ss['ili'] and ss['ili'] != 'in' else None,
-             ss['partOfSpeech'],
+             ss.get('partOfSpeech'),
              ss.get('lexicalized', True),
              ss.get('lexfile'),
              ss['meta'])
@@ -1155,9 +1155,11 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     progress: ProgressHandler
 ) -&gt; None:
     progress.set(status='Senses')
-    ssrank = {s: i
-              for ss in _local_synsets(synsets)
-              for i, s in enumerate(ss.get('members', []))}
+    ssrank = {
+        (ss['id'], _id): i
+        for ss in _local_synsets(synsets)
+        for i, _id in enumerate(ss.get('members', []))
+    }
     query = f'''
         INSERT INTO senses
         VALUES (null,
@@ -1172,14 +1174,23 @@ _AnySynset = Union[lmf.Synset, lmf.ExternalSynset]
     '''
     for batch in _batch(entries):
         data = [
-            (sense['id'],
-             lexid,
-             entry['id'], lexidmap.get(entry['id'], lexid),
-             i,
-             sense['synset'], lexidmap.get(sense['synset'], lexid),
-             ssrank.get(sense['id'], DEFAULT_MEMBER_RANK),
-             sense.get('lexicalized', True),
-             sense['meta'])
+            (
+                sense['id'],
+                lexid,
+                entry['id'], lexidmap.get(entry['id'], lexid),
+                i,
+                sense['synset'], lexidmap.get(sense['synset'], lexid),
+                # members can be sense or entry IDs
+                ssrank.get(
+                    (sense['synset'], sense['id']),
+                    ssrank.get(
+                        (sense['synset'], entry['id']),
+                        DEFAULT_MEMBER_RANK
+                    )
+                ),
+                sense.get('lexicalized', True),
+                sense['meta']
+            )
             for entry in batch
             for i, sense in enumerate(_local_senses(_senses(entry)))
         ]
@@ -2214,7 +2225,8 @@ from importlib.resources import as_file, files
 from typing import Any, Optional
 from pathlib import Path
 
-import tomli
+# import tomli
+import tomllib
 
 from wn import ConfigurationError, ProjectError
 from wn._types import AnyPath
@@ -2497,8 +2509,9 @@ def index(self) -&gt; dict[str, dict]:
     path = Path(path).expanduser()
     with path.open('rb') as indexfile:
         try:
-            index = tomli.load(indexfile)
-        except tomli.TOMLDecodeError as exc:
+            # index = tomli.load(indexfile)
+            index = tomllib.load(indexfile)
+        except tomllib.TOMLDecodeError as exc: #tomli.TOMLDecodeError as exc:
             raise ConfigurationError('malformed index file') from exc
     self.update({'index': index})
 
@@ -7995,7 +8008,6 @@ from typing import Optional
 from pathlib import Path
 import tarfile
 import tempfile
-from contextlib import contextmanager
 import gzip
 import lzma
 import shutil
@@ -8014,7 +8026,7 @@ _ADDITIONAL_FILE_SUFFIXES = ('', '.txt', '.md', '.rst')
 
 </t>
 <t tx="karstenw.20230225124217.10">def citation(self) -&gt; Optional[Path]:
-    """Return the path of the citation, or ``None`` if none exists."""
+    """Return the path of the citation, or :data:`None` if none exists."""
     return self._find_file(self._path / 'citation', ('.bib',))
 
 </t>
@@ -8027,9 +8039,11 @@ _ADDITIONAL_FILE_SUFFIXES = ('', '.txt', '.md', '.rst')
 
 
 </t>
-<t tx="karstenw.20230225124217.12">class Package(_Project):
-    """This class represents a wordnet or ILI package -- a directory with
-       a resource file and optional metadata.
+<t tx="karstenw.20230225124217.12">class Package(Project):
+    """A wordnet or ILI package.
+
+    A package is a directory with a resource file and optional
+    metadata files.
 
     """
 
@@ -8037,6 +8051,13 @@ _ADDITIONAL_FILE_SUFFIXES = ('', '.txt', '.md', '.rst')
 </t>
 <t tx="karstenw.20230225124217.13">@property
 def type(self) -&gt; Optional[str]:
+    """Return the name of the type of resource contained by the package.
+
+    Valid return values are:
+    - :python:`"wordnet"` -- the resource is a WN-LMF lexicon file
+    - :python:`"ili"` -- the resource is an interlingual index file
+    - :data:`None` -- the resource type is undetermined
+    """
     return _resource_file_type(self.resource_file())
 
 </t>
@@ -8051,7 +8072,15 @@ def type(self) -&gt; Optional[str]:
 
 
 </t>
-<t tx="karstenw.20230225124217.15">class _ResourceOnlyPackage(Package):
+<t tx="karstenw.20230225124217.15">class ResourceOnlyPackage(Package):
+    """A virtual package for a single-file resource.
+
+    This class is for resource files that are not distributed in a
+    package directory. The :meth:`readme() &lt;Project.readme&gt;`,
+    :meth:`license() &lt;Project.license&gt;`, and
+    :meth:`citation() &lt;Project.citation&gt;` methods all return
+    :data:`None`.
+    """
 
     @others
 </t>
@@ -8074,10 +8103,11 @@ def type(self) -&gt; Optional[str]:
 
 
 </t>
-<t tx="karstenw.20230225124217.20">class Collection(_Project):
-    """This class represents a wordnet or ILI collection -- a directory
-       with one or more wordnet/ILI packages and optional metadata.
+<t tx="karstenw.20230225124217.20">class Collection(Project):
+    """A wordnet or ILI collection
 
+    Collections are directories that contain package directories and
+    optional metadata files.
     """
 
     @others
@@ -8090,7 +8120,88 @@ def type(self) -&gt; Optional[str]:
 
 
 </t>
-<t tx="karstenw.20230225124217.22">def iterpackages(path: AnyPath) -&gt; Iterator[Package]:
+<t tx="karstenw.20230225124217.22">def get_project(
+    *,
+    project: Optional[str] = None,
+    path: Optional[AnyPath] = None,
+) -&gt; Project:
+    """Return the :class:`Project` object for *project* or *path*.
+
+    The *project* argument is a project specifier and will look in the
+    download cache for the project data. If the project has not been
+    downloaded and cached, an error will be raised.
+
+    The *path* argument looks for project data at the given path. It
+    can point to a resource file, a package directory, or a collection
+    directory. Unlike :func:`iterpackages`, this function does not
+    iterate over packages within a collection, and instead the
+    :class:`Collection` object is returned.
+
+    .. note::
+
+       If the target is compressed or archived, the data will be
+       extracted to a temporary directory. It is the user's
+       responsibility to delete this temporary directory, which is
+       indicated by :data:`Project.path`.
+    """
+    if project and path:
+        raise TypeError('expected a project specifier or a path, not both')
+    if not project and not path:
+        raise TypeError('expected a project specifier or a path')
+
+    if project:
+        info = wn.config.get_project_info(project)
+        if not info['cache']:
+            raise wn.Error(
+                f'{project} is not cached; try `wn.download({project!r}` first'
+            )
+        path = info['cache']
+    assert path
+
+    proj, _ = _get_project_from_path(path)
+    return proj
+
+
+def _get_project_from_path(
+    path: AnyPath, tmp_path: Optional[Path] = None,
+) -&gt; tuple[Project, Optional[Path]]:
+    path = Path(path).expanduser()
+
+    if path.is_dir():
+        if is_package_directory(path):
+            return Package(path), tmp_path
+
+        elif is_collection_directory(path):
+            return Collection(path), tmp_path
+
+        else:
+            raise wn.Error(
+                f'does not appear to be a valid package or collection: {path!s}'
+            )
+
+    elif tarfile.is_tarfile(path):
+        tmpdir_ = Path(tempfile.mkdtemp())
+        with tarfile.open(path) as tar:
+            _check_tar(tar)
+            tar.extractall(path=tmpdir_)
+            contents = list(tmpdir_.iterdir())
+            if len(contents) != 1:
+                raise wn.Error(
+                    'archive may only have one resource, package, or collection'
+                )
+            return _get_project_from_path(contents[0], tmp_path=tmpdir_)
+
+    else:
+        decompressed, tmp_path = _get_decompressed(path, tmp_path)
+        if lmf.is_lmf(decompressed) or _ili.is_ili(decompressed):
+            return ResourceOnlyPackage(decompressed), tmp_path
+        else:
+            raise wn.Error(
+                f'not a valid lexical resource: {path!s}'
+            )
+
+
+def iterpackages(path: AnyPath, delete: bool = True) -&gt; Iterator[Package]:
     """Yield any wordnet or ILI packages found at *path*.
 
     The *path* argument can point to one of the following:
@@ -8099,72 +8210,70 @@ def type(self) -&gt; Optional[str]:
       - a wordnet collection directory
       - a tar archive containing one of the above
       - a compressed (gzip or lzma) resource file or tar archive
+
+    The *delete* argument determines whether any created temporary
+    directories will be deleted after iteration is complete. When it
+    is :data:`True`, the package objects can only be inspected during
+    iteration. If one needs persistent objects (e.g.,
+    :python:`pkgs = list(iterpackages(...))`), then set *delete* to
+    :data:`False`.
+
+    .. warning::
+
+       When *delete* is set to :data:`False`, the user is responsible
+       for cleaning up any temporary directories. The
+       :data:`Project.path` attribute indicates the path of the
+       temporary directory.
+
     """
-    path = Path(path).expanduser()
+    project, tmp_path = _get_project_from_path(path)
 
-    if path.is_dir():
-        if is_package_directory(path):
-            yield Package(path)
-
-        elif is_collection_directory(path):
-            yield from Collection(path).packages()
-
+    try:
+        if isinstance(project, Package):
+            yield project
+        elif isinstance(project, Collection):
+            yield from project.packages()
         else:
-            raise wn.Error(
-                f'does not appear to be a valid package or collection: {path!s}'
-            )
-
-    elif tarfile.is_tarfile(path):
-        with tarfile.open(path) as tar:
-            _check_tar(tar)
-            with tempfile.TemporaryDirectory() as tmpdir:
-                tar.extractall(path=tmpdir)
-                contents = list(Path(tmpdir).iterdir())
-                if len(contents) != 1:
-                    raise wn.Error(
-                        'archive may only have one resource, package, or collection'
-                    )
-                yield from iterpackages(contents[0])
-
-    else:
-        decompressed: Path
-        with _get_decompressed(path) as decompressed:
-            if lmf.is_lmf(decompressed) or _ili.is_ili(decompressed):
-                yield _ResourceOnlyPackage(decompressed)
+            raise wn.Error(f'unexpected project type: {project.__class__.__name__}')
+    finally:
+        if tmp_path and delete:
+            if tmp_path.is_dir():
+                shutil.rmtree(tmp_path)
+            elif tmp_path.is_file():
+                tmp_path.unlink()
             else:
-                raise wn.Error(
-                    f'not a valid lexical resource: {path!s}'
-                )
+                raise wn.Error(f'could not remove temporary path: {tmp_path}')
 
 
+def _get_decompressed(
+    source: Path,
 </t>
-<t tx="karstenw.20230225124217.23">@contextmanager
-def _get_decompressed(source: Path) -&gt; Iterator[Path]:
+<t tx="karstenw.20230225124217.23">    tmp_path: Optional[Path],
+) -&gt; tuple[Path, Optional[Path]]:
     gzipped = is_gzip(source)
     xzipped = is_lzma(source)
     if not (gzipped or xzipped):
-        yield source
+        return source, tmp_path
     else:
         tmp = tempfile.NamedTemporaryFile(suffix='.xml', delete=False)
         path = Path(tmp.name)
         try:
-            # for typing issues, see https://github.com/python/mypy/issues/15031
             if gzipped:
                 with gzip.open(source, 'rb') as gzip_src:
-                    shutil.copyfileobj(gzip_src, tmp)  # type: ignore
+                    shutil.copyfileobj(gzip_src, tmp)
             else:  # xzipped
                 with lzma.open(source, 'rb') as lzma_src:
-                    shutil.copyfileobj(lzma_src, tmp)  # type: ignore
+                    shutil.copyfileobj(lzma_src, tmp)
 
             tmp.close()  # Windows cannot reliably reopen until it's closed
-
-            yield path
 
         except (OSError, EOFError, lzma.LZMAError) as exc:
             raise wn.Error(f'could not decompress file: {source}') from exc
 
-        finally:
-            path.unlink()
+        # if tmp_path is not None, the compressed file was in a
+        # temporary directory, so return that. Otherwise the new path
+        # becomes the tmp_path
+        return path, tmp_path or path
 
 
 </t>
@@ -8213,7 +8322,9 @@ def _get_decompressed(source: Path) -&gt; Iterator[Path]:
 
 
 </t>
-<t tx="karstenw.20230225124217.6">class _Project:
+<t tx="karstenw.20230225124217.6">class Project:
+    """The base class for packages and collections."""
+
     __slots__ = '_path',
 
     @others
@@ -8221,14 +8332,25 @@ def _get_decompressed(source: Path) -&gt; Iterator[Path]:
 <t tx="karstenw.20230225124217.7">def __init__(self, path: AnyPath):
     self._path: Path = Path(path).expanduser()
 
+@property
+def path(self) -&gt; Path:
+    """The path of the project directory or resource file.
+
+    For :class:`Package` and :class:`Collection` objects, the path
+    is its directory. For :class:`ResourceOnlyPackage` objects,
+    the path is the same as from
+    :meth:`resource_file() &lt;Package.resource_file&gt;`
+    """
+    return self._path
+
 </t>
 <t tx="karstenw.20230225124217.8">def readme(self) -&gt; Optional[Path]:
-    """Return the path of the README file, or ``None`` if none exists."""
+    """Return the path of the README file, or :data:`None` if none exists."""
     return self._find_file(self._path / 'README', _ADDITIONAL_FILE_SUFFIXES)
 
 </t>
 <t tx="karstenw.20230225124217.9">def license(self) -&gt; Optional[Path]:
-    """Return the path of the license, or ``None`` if none exists."""
+    """Return the path of the license, or :data:`None` if none exists."""
     return self._find_file(self._path / 'LICENSE', _ADDITIONAL_FILE_SUFFIXES)
 
 </t>
@@ -9479,7 +9601,6 @@ from wn._util import format_lexicon_specifier
 
     """
     return wn.Wordnet(lang=lang, lexicon=lexicon).ilis(status=status)
-
 </t>
 <t tx="karstenw.20250529173235.2">def projects() -&gt; list[dict]:
     """Return the list of indexed projects.

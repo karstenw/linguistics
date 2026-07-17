@@ -10,7 +10,7 @@
 <find_panel_settings/>
 <vnodes>
 <v t="karstenw.20230317172542.2" a="E"><vh>linguistics</vh>
-<v t="karstenw.20230317172648.1" a="E"><vh>@clean __init__.py</vh>
+<v t="karstenw.20230317172648.1"><vh>@clean __init__.py</vh>
 <v t="karstenw.20230317172648.2"><vh>Declarations</vh></v>
 <v t="karstenw.20260606163217.1"><vh>Globals</vh></v>
 <v t="karstenw.20230317172816.1"><vh>pattern init</vh></v>
@@ -34,7 +34,7 @@
 <v t="karstenw.20260501093741.1"><vh>print</vh></v>
 </v>
 </v>
-<v t="karstenw.20230518135525.1"><vh>@clean download_corpora.py</vh>
+<v t="karstenw.20230518135525.1" a="E"><vh>@clean download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
 <v t="karstenw.20260606162533.1"><vh>script</vh></v>
 </v>
@@ -57,6 +57,30 @@
 <v t="karstenw.20230521225929.15"><vh>createStatement</vh></v>
 <v t="karstenw.20230521225929.16"><vh>createRecord</vh></v>
 </v>
+</v>
+<v t="karstenw.20260717113823.1" a="E"><vh>@clean DOWNLOAD AND INSTALL.py</vh>
+<v t="karstenw.20260717113901.1"><vh>Declarations nltk &amp; wn</vh></v>
+<v t="karstenw.20260717115023.1"><vh>Declarations conceptnet</vh></v>
+<v t="karstenw.20260717114158.1"><vh>scripte</vh>
+<v t="karstenw.20260717115129.1"><vh>importConceptnetTables</vh></v>
+<v t="karstenw.20260717115122.1"><vh>readstatic</vh></v>
+<v t="karstenw.20260717115113.1"><vh>handleDataArchive</vh></v>
+<v t="karstenw.20260717115140.1"><vh>sdb</vh>
+<v t="karstenw.20260717115140.2"><vh>py3</vh></v>
+<v t="karstenw.20260717115140.3"><vh>makeunicode</vh></v>
+<v t="karstenw.20260717115140.4"><vh>datestring</vh></v>
+<v t="karstenw.20260717115140.5"><vh>dotprinter</vh></v>
+<v t="karstenw.20260717115140.6"><vh>tabline2items</vh></v>
+<v t="karstenw.20260717115140.7"><vh>getconnection</vh></v>
+<v t="karstenw.20260717115140.8"><vh>commit</vh></v>
+<v t="karstenw.20260717115140.9"><vh>dict_factory</vh></v>
+<v t="karstenw.20260717115140.10"><vh>getTableFieldnames</vh></v>
+<v t="karstenw.20260717115140.11"><vh>createStatement</vh></v>
+<v t="karstenw.20260717115140.12"><vh>createRecord</vh></v>
+</v>
+</v>
+<v t="karstenw.20260717114827.1"><vh>download_nltk</vh></v>
+<v t="karstenw.20260717114851.1"><vh>download_wn</vh></v>
 </v>
 </v>
 </vnodes>
@@ -927,6 +951,510 @@ fullinit = False
         end_time = time.time()
         print("SYS import FlowerWord: %.3f" % (end_time - FlowerWord_time)  )
         print("SYS import linguistics: %.3f" % (end_time - init_time)  )
+
+</t>
+<t tx="karstenw.20260717113823.1">@language python
+@tabwidth -4
+@others
+
+# the nodebox namespace for a script is 'builtins'
+if __name__ in ('__main__', 'builtins'):
+    start = time.time()
+    try:
+        download_nltk()
+    except Exception as err:
+        print("Could not download NLTK data:")
+        print(err)
+        
+    nltktime = time.time()
+    try:
+        download_wn()
+    except Exception as err:
+        print("Could not download WNdata:")
+        print(err)
+    wntime = time.time()
+    
+    # pdb.set_trace()
+    handleDataArchive( sqlitezifile, basefolder )
+    print()
+    importConceptnetTables( importfiles )
+    cntime = time.time()
+    if kwdbg:
+        print()
+        print("nltk in %.3fsec" % (nltktime-start,) )
+        print()
+        print("wn in %.3fsec" % (wntime-nltktime,) )
+        print()
+        print("conceptnet in %.3fsec" % (cntime-wntime,) )
+        print("total time: %.3fsec" % (cntime-start,) )
+
+</t>
+<t tx="karstenw.20260717113901.1">
+
+"""Download and install missing databases.
+
+Downloads for nltk, wn, textblob.
+
+Install for conceptnet.
+
+"""
+
+
+import sys
+import os
+
+import pdb
+kwdbg = True
+
+import pprint
+pp=pprint.pprint
+
+import io
+import time
+
+import sqlite3
+import unicodedata
+
+import zipfile
+import gzip
+
+
+nb = False
+if __name__ in ('builtins',):
+    nb = True
+    
+PACKAGE_DIR = os.path.abspath( './' )
+sys.path.insert(0, PACKAGE_DIR)
+if kwdbg:
+    print("PACKAGE_DIR:", PACKAGE_DIR)
+
+PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
+if kwdbg:
+    print("PARENT_DIR:", PARENT_DIR)
+sys.path.insert(0, PARENT_DIR)
+
+DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
+if kwdbg:
+    print("DATA_DIR:", DATA_DIR)
+if not os.path.exists( DATA_DIR ):
+    os.makedirs( DATA_DIR )
+
+import nltk
+import wn
+from wn.util import ProgressHandler, ProgressBar
+
+pg = ProgressBar
+if nb:
+    pg = ProgressHandler
+
+</t>
+<t tx="karstenw.20260717114158.1"># if run from Nodebox do not accumulate endless messages...
+# therefore 
+#       quiet=nb
+# or
+#       progress_handler=pg
+
+# textblob uses nltk
+
+</t>
+<t tx="karstenw.20260717114827.1">def download_nltk():
+    nltk_data_dir = os.path.join( DATA_DIR, 'nltk-data' )
+    nltk.data.path = [ nltk_data_dir ]
+
+    nltk.download( "wordnet", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet_ic", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "sentiwordnet", download_dir=nltk_data_dir, quiet=nb )
+
+    nltk.download( "wordnet2021", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet2022", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet31", download_dir=nltk_data_dir, quiet=nb )
+    
+    # textblob minimal downloads
+    # wordnet already loaded
+    nltk.download( "brown", download_dir=nltk_data_dir, quiet=nb )
+    #nltk.download( "punkt", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "punkt_tab", download_dir=nltk_data_dir, quiet=nb )
+    #nltk.download( "averaged_perceptron_tagger", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "averaged_perceptron_tagger_eng", download_dir=nltk_data_dir, quiet=nb )
+    
+    # textblob additional
+    nltk.download( "conll2000", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "movie_reviews", download_dir=nltk_data_dir, quiet=nb )
+
+
+</t>
+<t tx="karstenw.20260717114851.1">def download_wn():
+    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+    
+    # https://github.com/omwn - open multilingual wordnet
+    wn.download("omw", add=True, progress_handler=pg)
+    
+    # https://github.com/hdaSprachtechnologie/odenet - open german wordnet
+    wn.download("odenet", add=True, progress_handler=pg)
+    
+    # https://github.com/globalwordnet/cili/ - collaborative interlingual index
+    wn.download("cili", add=True, progress_handler=pg)
+    
+</t>
+<t tx="karstenw.20260717115023.1">ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
+sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
+conceptsdump1 = os.path.join( ZIPFOLDER, "concept_aa.tab.gz" )
+conceptsdump2 = os.path.join( ZIPFOLDER, "concept_ab.tab.gz" )
+edgesdump1 = os.path.join( ZIPFOLDER, "edge_aa.tab.gz" )
+edgesdump2 = os.path.join( ZIPFOLDER, "edge_ab.tab.gz" )
+edgesdump3 = os.path.join( ZIPFOLDER, "edge_ac.tab.gz" )
+edgesdump4 = os.path.join( ZIPFOLDER, "edge_ad.tab.gz" )
+
+importfiles = (conceptsdump1, conceptsdump2,
+               edgesdump1, edgesdump2, edgesdump3, edgesdump4 )
+
+basefolder = os.path.join( DATA_DIR, "conceptnet-data" )
+if not os.path.exists( basefolder ):
+    os.makedirs( basefolder )
+
+databasefile =  os.path.join( basefolder, "conceptnet.sqlite3" )
+if 0:
+    print("conceptsdump1:", conceptsdump1 )
+    print("conceptsdump2:", conceptsdump2 )
+    print("edgesdump1:", edgesdump1 )
+    print("edgesdump2:", edgesdump2 )
+    print("edgesdump3:", edgesdump3 )
+    print("importfiles:", importfiles )
+    print("databasefile:", databasefile )
+
+
+exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
+exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
+
+
+</t>
+<t tx="karstenw.20260717115113.1">def handleDataArchive( zipfilepath, extractdir ):
+    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
+
+    with zipfile.ZipFile( zipfilepath ) as archivezip:
+        zipmembers = archivezip.infolist()
+        for zipmember in zipmembers:
+            filename = zipmember.filename
+            if filename.startswith('_'):
+                print("SKIPPED ZIFILEMEMBER:", filename)
+                continue
+            basename, ext = os.path.splitext( filename )
+            if ext not in (".sqlite3", ): #".tab", 
+                print("SKIPPED:", filename)
+                continue
+            zipmember.filename = zipmember.filename.replace( "data/", "")
+            print("EXTRACT zipfilename:", zipmember.filename )
+            archivezip.extract( zipmember, extractdir )
+    print("EXTRACT DONE!")
+
+
+</t>
+<t tx="karstenw.20260717115122.1">def readstatic( path ):
+    """read a tabtext or gzipped tabtext export.
+    
+    Yield per record
+    """
+    path = os.path.abspath( path )
+    folder, filename = os.path.split( path )
+    basename, ext = os.path.splitext( filename )
+
+    if ext == ".gz":
+        # check the gzip file for .tab
+        if basename.endswith(".tab"):
+            f = gzip.open(path, 'rt', encoding="utf-8")
+        else:
+            return 0
+    elif ext == ".tab":
+        f = io.open(path, 'r', encoding="utf-8")
+    else:
+        return 0
+    i = 0
+    for line in f:
+        items = tabline2items( line )
+        yield items
+        i += 1
+    return i
+
+</t>
+<t tx="karstenw.20260717115129.1">def importConceptnetTables( importfiles ):
+    total = time.time()    
+    # side effect - create sqlite database and fill it with the
+    # constant tables (language, relation, context)
+    conn = getconnection( databasefile )
+    
+    bucketsize = 100000
+    
+    def emptyBucket(conn, bucket, tablename):
+        c = conn.cursor()
+        insert = 'INSERT INTO "%s" VALUES (?,?,?,?,?);' % (tablename,)
+        c.executemany( insert, bucket )
+        commit( conn )
+    
+    bucket = []
+    
+    # pdb.set_trace()
+    
+    for name in importfiles:
+        start = time.time()
+        i = 0
+        folder, filename = os.path.split( name )
+        basename, ext = os.path.splitext( filename )
+        
+        if '_' in basename:
+            tablename = basename.split('_')[0]
+        else:
+            # use this - there are multiple dots in there
+            tablename = filename.split( '.' )[0]
+        
+        print()
+        print("tablename:", tablename)
+        print(name)
+        print()
+        
+        fieldnames = getTableFieldnames( conn, tablename )
+        for items in readstatic( name ):
+            # record = dict(zip(fieldnames, items) )
+            # createRecord( conn, tablename, record, docommit=False )
+            record = items
+            bucket.append( record )
+            i += 1
+            if i % bucketsize == 0:
+                emptyBucket( conn, bucket, tablename )
+                bucket = []
+                if not nb:
+                    dotprinter(i, bucketsize)
+        emptyBucket(conn, bucket, tablename)
+        bucket = []
+        commit( conn )
+        stop = time.time()
+        print("\nImport %s / %i records in %.3f" % (tablename, i, stop-start) ) 
+
+    indices = (
+        "CREATE INDEX idx_idconcept on concept (idconcept);",
+        "CREATE INDEX idx_language on concept (languagecode);",
+        "CREATE INDEX idx_concept on concept (concept);",
+        "CREATE INDEX idx_context on concept (context);",
+        
+        # "CREATE INDEX idx_idedge  on edge (idedge);",
+        "CREATE INDEX idx_concept1id  on edge (concept1id);",
+        "CREATE INDEX idx_concept2id  on edge (concept2id);",
+        "CREATE INDEX idx_weight  on edge (weight);"
+    )
+    c = conn.cursor()
+    for index in indices:
+        start = time.time()
+        insert = 'INSERT INTO "%s" VALUES (?,?,?,?,?);' % (tablename,)
+        c.execute(  index )
+        commit( conn )
+        stop = time.time()
+        print("\n%s    in %.3f" % (index, stop-start) )
+    print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
+
+
+</t>
+<t tx="karstenw.20260717115140.1"></t>
+<t tx="karstenw.20260717115140.10">def getTableFieldnames(conn, tablename):
+
+    oldfactory = conn.row_factory
+    conn.row_factory = dict_factory
+
+    c = conn.cursor()
+    q = "PRAGMA table_info(%s);" % tablename
+    c.execute(q)
+
+    # extract fieldname from description
+    fieldnames = []
+    for rec in c:
+        fieldnames.append( rec['name' ] )
+
+    c.close()
+    conn.row_factory = oldfactory
+    return fieldnames
+
+
+</t>
+<t tx="karstenw.20260717115140.11">def createStatement( tablename, fieldnames ):
+    """
+    Create SELECT, INSERT and UPDATE statements from tablename and
+    fieldname list.
+    """
+    u = "UPDATE %s SET " % (tablename,)
+    nkeys = len(fieldnames)
+
+    lfieldnames = ",".join(fieldnames)
+    ifieldnames = '(' + lfieldnames + ')'
+    qfieldnames = lfieldnames
+
+    repmarks = [ '?'] * nkeys
+    repmarks = ','.join( repmarks )
+
+    q = "SELECT (%s) FROM %s" % ( lfieldnames, tablename )
+    if nkeys &gt; 1:
+        q = "SELECT %s FROM %s" % ( lfieldnames, tablename )
+    
+    i = "INSERT INTO %s (%s) VALUES (%s)" % ( tablename, lfieldnames, repmarks)
+    
+    ufielditems = []
+    s = "%s=?"
+    for f in fieldnames:
+        ufielditems.append( s % f )
+    ufieldnames = ",".join( ufielditems )
+    u = u + ufieldnames
+
+    result = []
+    return (q,i,u)
+
+
+</t>
+<t tx="karstenw.20260717115140.12">def createRecord( conn, tablename, recordDict, docommit=True):
+
+    fieldnames = []
+    fieldvalues = []
+
+    tablefieldnames = getTableFieldnames(conn, tablename)
+
+    for item in recordDict.items():
+        k,v= item
+        if k in tablefieldnames:
+            fieldnames.append( k )
+            fieldvalues.append( v )
+
+    q,i,u = createStatement( tablename, fieldnames )
+    c = conn.cursor()
+
+    if not fieldnames:
+        i = "INSERT INTO `%s` DEFAULT VALUES;" % tablename
+        c.execute( i )
+    else:
+        c.execute( i, fieldvalues )
+    last = c.lastrowid
+    if docommit:
+        commit( conn )
+    return last
+
+
+</t>
+<t tx="karstenw.20260717115140.2"># py3 stuff
+py3 = False
+try:
+    unicode('')
+    punicode = unicode
+    pstr = str
+    punichr = unichr
+except NameError:
+    punicode = str
+    pstr = bytes
+    py3 = True
+    punichr = chr
+    long = int
+
+</t>
+<t tx="karstenw.20260717115140.3">def makeunicode(s, srcencoding="utf-8", normalizer="NFC"):
+    """Make input string normalized unicode."""
+    
+    if type(s) not in (pstr, punicode):
+        # apart from str/unicode/bytes we just need the repr
+        s = str( s )
+    if type(s) != punicode:
+        s = punicode(s, srcencoding)
+    s = unicodedata.normalize(normalizer, s)
+    return s
+
+
+</t>
+<t tx="karstenw.20260717115140.4">def datestring(dt = None, dateonly=False, nospaces=True, nocolons=True):
+    """Make an ISO datestring."""
+    if not dt:
+        now = str(datetime.datetime.now())
+    else:
+        now = str(dt)
+    if not dateonly:
+        now = now[:19]
+    else:
+        now = now[:10]
+    if nospaces:
+        now = now.replace(" ", "_")
+    if nocolons:
+        now = now.replace(":", "")
+    return now
+
+</t>
+<t tx="karstenw.20260717115140.5">def dotprinter( count, scale=1000, lineitems=100 ):
+    """Non-interactive terminal video game ;-)"""
+
+    # how many counted things ( count) per line
+    line = scale * lineitems
+
+    # make an empty line every 5 lines
+    block = line * 5
+
+    sys.stdout.write(".")
+    if count % line == 0:
+        # end of line; print count up to here
+        sys.stdout.write( f"  {count:,}" )
+        sys.stdout.write("\n")
+        if count % block == 0:
+            sys.stdout.write("\n")
+    sys.stdout.flush()
+
+
+</t>
+<t tx="karstenw.20260717115140.6">def tabline2items( line ):
+    line = line.strip(" \r\n")
+    line = makeunicode( line )
+    items = line.split( "\t" )
+    return items
+
+
+</t>
+<t tx="karstenw.20260717115140.7">def getconnection( filepath ):
+    """open sqlite db at filepath.
+
+    returns either:
+        connection to database OR
+        0: parent folder does not exists. Something is wrong.
+    """
+
+    filepath = os.path.abspath( filepath )
+    folder, filename = os.path.split( filepath )
+    if not os.path.exists( folder ):
+        return 0
+    
+    conn = sqlite3.connect( filepath,
+                            detect_types=  sqlite3.PARSE_DECLTYPES
+                                         | sqlite3.PARSE_COLNAMES)
+
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA automatic_index=1;")
+
+    return conn
+
+
+</t>
+<t tx="karstenw.20260717115140.8">def commit( conn ):
+    ok = False
+    i = 0
+    while not ok:
+        if i &gt; 20:
+            break
+        try:
+            conn.commit()
+            ok = True
+        except sqlite3.OperationalError as err:
+            debugprint("")
+            debugprint( "ERR: " + repr(err) )
+            time.sleep( 0.01 )
+            i += 1
+
+
+</t>
+<t tx="karstenw.20260717115140.9">def dict_factory(cursor, row):
+    # from pysqlite code examples
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
 
 </t>
 </tnodes>
