@@ -1,7 +1,23 @@
 
 
+"""Download and install missing databases.
+
+Downloads for nltk, wn, textblob.
+
+Install for conceptnet.
+
+"""
+
+
 import sys
 import os
+
+import pdb
+kwdbg = True
+
+import pprint
+pp=pprint.pprint
+
 import io
 import time
 
@@ -11,30 +27,34 @@ import unicodedata
 import zipfile
 import gzip
 
-import pdb
-import pprint
-pp=pprint.pprint
 
-nb = True
-try:
-    PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
-    nb = False
-except NameError as err:
-    print(err)
-    PACKAGE_DIR = os.path.abspath( './' )
-
-print("PACKAGE_DIR:", PACKAGE_DIR)
+nb = False
+if __name__ in ('builtins',):
+    nb = True
+    
+PACKAGE_DIR = os.path.abspath( './' )
+sys.path.insert(0, PACKAGE_DIR)
+if kwdbg:
+    print("PACKAGE_DIR:", PACKAGE_DIR)
 
 PARENT_DIR, _ = os.path.split( PACKAGE_DIR )
-print("PARENT_DIR:", PARENT_DIR)
+if kwdbg:
+    print("PARENT_DIR:", PARENT_DIR)
 sys.path.insert(0, PARENT_DIR)
 
-
-
 DATA_DIR = os.path.join( PARENT_DIR, "linguistics-data" )
+if kwdbg:
+    print("DATA_DIR:", DATA_DIR)
 if not os.path.exists( DATA_DIR ):
     os.makedirs( DATA_DIR )
 
+import nltk
+import wn
+from wn.util import ProgressHandler, ProgressBar
+
+pg = ProgressBar
+if nb:
+    pg = ProgressHandler
 
 ZIPFOLDER = os.path.join( PACKAGE_DIR, "conceptnetreader/data" )
 sqlitezifile =  os.path.join( ZIPFOLDER, "conceptnet.sqlite3.zip" )
@@ -67,51 +87,13 @@ exportfoldersqlite = os.path.join( basefolder, "sqliteimport")
 exportfolderfilemaker = os.path.join( basefolder, "fmpimport")
 
 
-def handleDataArchive( zipfilepath, extractdir ):
-    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
+# if run from Nodebox do not accumulate endless messages...
+# therefore 
+#       quiet=nb
+# or
+#       progress_handler=pg
 
-    with zipfile.ZipFile( zipfilepath ) as archivezip:
-        zipmembers = archivezip.infolist()
-        for zipmember in zipmembers:
-            filename = zipmember.filename
-            if filename.startswith('_'):
-                print("SKIPPED ZIFILEMEMBER:", filename)
-                continue
-            basename, ext = os.path.splitext( filename )
-            if ext not in (".sqlite3", ): #".tab", 
-                print("SKIPPED:", filename)
-                continue
-            zipmember.filename = zipmember.filename.replace( "data/", "")
-            print("EXTRACT zipfilename:", zipmember.filename )
-            archivezip.extract( zipmember, extractdir )
-    print("EXTRACT DONE!")
-
-
-def readstatic( path ):
-    """read a tabtext or gzipped tabtext export.
-    
-    Yield per record
-    """
-    path = os.path.abspath( path )
-    folder, filename = os.path.split( path )
-    basename, ext = os.path.splitext( filename )
-
-    if ext == ".gz":
-        # check the gzip file for .tab
-        if basename.endswith(".tab"):
-            f = gzip.open(path, 'rt', encoding="utf-8")
-        else:
-            return 0
-    elif ext == ".tab":
-        f = io.open(path, 'r', encoding="utf-8")
-    else:
-        return 0
-    i = 0
-    for line in f:
-        items = tabline2items( line )
-        yield items
-        i += 1
-    return i
+# textblob uses nltk
 
 def importConceptnetTables( importfiles ):
     total = time.time()    
@@ -186,6 +168,52 @@ def importConceptnetTables( importfiles ):
         stop = time.time()
         print("\n%s    in %.3f" % (index, stop-start) )
     print("\nImport CONCEPTNET-LITE into sqlite in %.3fs" % (time.time()-total,) ) 
+
+
+def readstatic( path ):
+    """read a tabtext or gzipped tabtext export.
+    
+    Yield per record
+    """
+    path = os.path.abspath( path )
+    folder, filename = os.path.split( path )
+    basename, ext = os.path.splitext( filename )
+
+    if ext == ".gz":
+        # check the gzip file for .tab
+        if basename.endswith(".tab"):
+            f = gzip.open(path, 'rt', encoding="utf-8")
+        else:
+            return 0
+    elif ext == ".tab":
+        f = io.open(path, 'r', encoding="utf-8")
+    else:
+        return 0
+    i = 0
+    for line in f:
+        items = tabline2items( line )
+        yield items
+        i += 1
+    return i
+
+def handleDataArchive( zipfilepath, extractdir ):
+    """Obsolete. Switched to single .gz files due to 100MB limit for github."""
+
+    with zipfile.ZipFile( zipfilepath ) as archivezip:
+        zipmembers = archivezip.infolist()
+        for zipmember in zipmembers:
+            filename = zipmember.filename
+            if filename.startswith('_'):
+                print("SKIPPED ZIFILEMEMBER:", filename)
+                continue
+            basename, ext = os.path.splitext( filename )
+            if ext not in (".sqlite3", ): #".tab", 
+                print("SKIPPED:", filename)
+                continue
+            zipmember.filename = zipmember.filename.replace( "data/", "")
+            print("EXTRACT zipfilename:", zipmember.filename )
+            archivezip.extract( zipmember, extractdir )
+    print("EXTRACT DONE!")
 
 
 # py3 stuff
@@ -381,11 +409,74 @@ def createRecord( conn, tablename, recordDict, docommit=True):
     return last
 
 
-if 1: # __name__ == '__main__':
-    print()
+def download_nltk():
+    nltk_data_dir = os.path.join( DATA_DIR, 'nltk-data' )
+    nltk.data.path = [ nltk_data_dir ]
+
+    nltk.download( "wordnet", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet_ic", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "sentiwordnet", download_dir=nltk_data_dir, quiet=nb )
+
+    nltk.download( "wordnet2021", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet2022", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "wordnet31", download_dir=nltk_data_dir, quiet=nb )
+    
+    # textblob minimal downloads
+    # wordnet already loaded
+    nltk.download( "brown", download_dir=nltk_data_dir, quiet=nb )
+    #nltk.download( "punkt", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "punkt_tab", download_dir=nltk_data_dir, quiet=nb )
+    #nltk.download( "averaged_perceptron_tagger", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "averaged_perceptron_tagger_eng", download_dir=nltk_data_dir, quiet=nb )
+    
+    # textblob additional
+    nltk.download( "conll2000", download_dir=nltk_data_dir, quiet=nb )
+    nltk.download( "movie_reviews", download_dir=nltk_data_dir, quiet=nb )
+
+
+def download_wn():
+    wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+    
+    # https://github.com/omwn - open multilingual wordnet
+    wn.download("omw", add=True, progress_handler=pg)
+    
+    # https://github.com/hdaSprachtechnologie/odenet - open german wordnet
+    wn.download("odenet", add=True, progress_handler=pg)
+    
+    # https://github.com/globalwordnet/cili/ - collaborative interlingual index
+    wn.download("cili", add=True, progress_handler=pg)
+    
+
+# the nodebox namespace for a script is 'builtins'
+if __name__ in ('__main__', 'builtins'):
+    start = time.time()
+    try:
+        download_nltk()
+    except Exception as err:
+        print()
+        print("Could not download NLTK data:")
+        print(err)
+        
+    nltktime = time.time()
+    try:
+        download_wn()
+    except Exception as err:
+        print()
+        print("Could not download WN data:")
+        print(err)
+    wntime = time.time()
+    
     # pdb.set_trace()
     handleDataArchive( sqlitezifile, basefolder )
     print()
     importConceptnetTables( importfiles )
-
+    cntime = time.time()
+    if kwdbg:
+        print()
+        print("nltk in %.3fsec" % (nltktime-start,) )
+        print()
+        print("wn in %.3fsec" % (wntime-nltktime,) )
+        print()
+        print("conceptnet in %.3fsec" % (cntime-wntime,) )
+        print("total time: %.3fsec" % (cntime-start,) )
 
