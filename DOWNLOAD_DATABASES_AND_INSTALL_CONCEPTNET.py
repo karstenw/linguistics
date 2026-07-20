@@ -437,6 +437,9 @@ def download_nltk():
 def download_wn():
     wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
     
+    # https://github.com/oewn - Open English WordNet
+    wn.download("oewn", add=True, progress_handler=pg)
+    
     # https://github.com/omwn - open multilingual wordnet
     wn.download("omw", add=True, progress_handler=pg)
     
@@ -450,26 +453,30 @@ def download_wn():
 # the nodebox namespace for a script is 'builtins'
 if __name__ in ('__main__', 'builtins'):
     start = time.time()
-    try:
-        download_nltk()
-    except Exception as err:
-        print()
-        print("Could not download NLTK data:")
-        print(err)
+    if 1:
+        try:
+            download_nltk()
+        except Exception as err:
+            print()
+            print("Could not download NLTK data:")
+            print(err)
         
     nltktime = time.time()
-    try:
-        download_wn()
-    except Exception as err:
-        print()
-        print("Could not download WN data:")
-        print(err)
+    
+    if 1:
+        try:
+            download_wn()
+        except Exception as err:
+            print()
+            print("Could not download WN data:")
+            print(err)
     wntime = time.time()
     
-    # pdb.set_trace()
-    handleDataArchive( sqlitezifile, basefolder )
-    print()
-    importConceptnetTables( importfiles )
+    if 1:
+        # pdb.set_trace()
+        handleDataArchive( sqlitezifile, basefolder )
+        print()
+        importConceptnetTables( importfiles )
     cntime = time.time()
     if kwdbg:
         print()
