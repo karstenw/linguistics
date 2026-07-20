@@ -1,0 +1,797 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="wn.ic" href="wn.ic.html" /><link rel="prev" title="wn.compat.sensekey" href="wn.compat.sensekey.html" />
+        <link rel="prefetch" href="../_static/wn-logo.svg" as="image" />
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
+        <title>wn.constants - wn 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=55b73dce" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=25af2a20" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/svg.css?v=8fd09d06" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f3f3;
+  --color-code-foreground: black;
+  --color-brand-primary: #006699;
+  --color-brand-content: #006699;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #00CCFF;
+  --color-brand-content: #00CCFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #00CCFF;
+  --color-brand-content: #00CCFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">wn 1.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/wn-logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">wn 1.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup.html">Installation and Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/lexicons.html">Working with Lexicons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/basic.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/interlingual.html">Interlingual Queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/wordnet.html">The Structure of a Wordnet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/lemmatization.html">Lemmatization and Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/nltk-migration.html">Migrating from the NLTK</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="wn.html">wn</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="wn.compat.html">wn.compat</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of wn.compat</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="wn.compat.sensekey.html">wn.compat.sensekey</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">wn.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.ic.html">wn.ic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.ili.html">wn.ili</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.lmf.html">wn.lmf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.morphy.html">wn.morphy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.project.html">wn.project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.similarity.html">wn.similarity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.taxonomy.html">wn.taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.util.html">wn.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wn.validate.html">wn.validate</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-wn.constants">
+<span id="wn-constants"></span><h1>wn.constants<a class="headerlink" href="#module-wn.constants" title="Link to this heading">¶</a></h1>
+<p>Constants and literals used in wordnets.</p>
+<section id="synset-relations">
+<h2>Synset Relations<a class="headerlink" href="#synset-relations" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.SYNSET_RELATIONS">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">SYNSET_RELATIONS</span></span><a class="headerlink" href="#wn.constants.SYNSET_RELATIONS" title="Link to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">agent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">also</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attribute</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">be_in_state</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">causes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">classified_by</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">classifies</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_agent_instrument</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_agent_patient</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_agent_result</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_instrument_agent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_instrument_patient</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_instrument_result</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_patient_agent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_patient_instrument</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_result_agent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_result_instrument</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_role</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain_region</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain_topic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exemplifies</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entails</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eq_synonym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_domain_region</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_domain_topic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_exemplified_by</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holo_location</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holo_member</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holo_part</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holo_portion</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holo_substance</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holonym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hypernym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hyponym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">in_manner</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance_hypernym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance_hyponym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instrument</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_agent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_direction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_instrument</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_location</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_patient</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_result</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_source_direction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">involved_target_direction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_caused_by</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_entailed_by</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">location</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">manner_of</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mero_location</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mero_member</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mero_part</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mero_portion</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mero_substance</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">meronym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">similar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">other</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">patient</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restricted_by</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restricts</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">result</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">role</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_direction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state_of</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_direction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subevent</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_subevent_of</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">antonym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">feminine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_feminine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">masculine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_masculine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">young</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_young</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diminutive</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_diminutive</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">augmentative</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_augmentative</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anto_gradable</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anto_simple</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anto_converse</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ir_synonym</span></code></p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="sense-relations">
+<h2>Sense Relations<a class="headerlink" href="#sense-relations" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.SENSE_RELATIONS">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">SENSE_RELATIONS</span></span><a class="headerlink" href="#wn.constants.SENSE_RELATIONS" title="Link to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">antonym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">also</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">participle</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pertainym</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">derivation</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain_topic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_domain_topic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain_region</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_domain_region</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exemplifies</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_exemplified_by</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">similar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">other</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">feminine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_feminine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">masculine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_masculine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">young</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_young</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diminutive</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_diminutive</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">augmentative</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_augmentative</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anto_gradable</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anto_simple</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anto_converse</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simple_aspect_ip</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">secondary_aspect_ip</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simple_aspect_pi</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">secondary_aspect_pi</span></code></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.SENSE_SYNSET_RELATIONS">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">SENSE_SYNSET_RELATIONS</span></span><a class="headerlink" href="#wn.constants.SENSE_SYNSET_RELATIONS" title="Link to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">domain_topic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain_region</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exemplifies</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">other</span></code></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.REVERSE_RELATIONS">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">REVERSE_RELATIONS</span></span><a class="headerlink" href="#wn.constants.REVERSE_RELATIONS" title="Link to this definition">¶</a></dt>
+<dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;hypernym&#39;</span><span class="p">:</span> <span class="s1">&#39;hyponym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;hyponym&#39;</span><span class="p">:</span> <span class="s1">&#39;hypernym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;instance_hypernym&#39;</span><span class="p">:</span> <span class="s1">&#39;instance_hyponym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;instance_hyponym&#39;</span><span class="p">:</span> <span class="s1">&#39;instance_hypernym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;antonym&#39;</span><span class="p">:</span> <span class="s1">&#39;antonym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;eq_synonym&#39;</span><span class="p">:</span> <span class="s1">&#39;eq_synonym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;similar&#39;</span><span class="p">:</span> <span class="s1">&#39;similar&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;meronym&#39;</span><span class="p">:</span> <span class="s1">&#39;holonym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;holonym&#39;</span><span class="p">:</span> <span class="s1">&#39;meronym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mero_location&#39;</span><span class="p">:</span> <span class="s1">&#39;holo_location&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;holo_location&#39;</span><span class="p">:</span> <span class="s1">&#39;mero_location&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mero_member&#39;</span><span class="p">:</span> <span class="s1">&#39;holo_member&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;holo_member&#39;</span><span class="p">:</span> <span class="s1">&#39;mero_member&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mero_part&#39;</span><span class="p">:</span> <span class="s1">&#39;holo_part&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;holo_part&#39;</span><span class="p">:</span> <span class="s1">&#39;mero_part&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mero_portion&#39;</span><span class="p">:</span> <span class="s1">&#39;holo_portion&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;holo_portion&#39;</span><span class="p">:</span> <span class="s1">&#39;mero_portion&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mero_substance&#39;</span><span class="p">:</span> <span class="s1">&#39;holo_substance&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;holo_substance&#39;</span><span class="p">:</span> <span class="s1">&#39;mero_substance&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;also&#39;</span><span class="p">:</span> <span class="s1">&#39;also&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;state_of&#39;</span><span class="p">:</span> <span class="s1">&#39;be_in_state&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;be_in_state&#39;</span><span class="p">:</span> <span class="s1">&#39;state_of&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;causes&#39;</span><span class="p">:</span> <span class="s1">&#39;is_caused_by&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;is_caused_by&#39;</span><span class="p">:</span> <span class="s1">&#39;causes&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subevent&#39;</span><span class="p">:</span> <span class="s1">&#39;is_subevent_of&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;is_subevent_of&#39;</span><span class="p">:</span> <span class="s1">&#39;subevent&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;manner_of&#39;</span><span class="p">:</span> <span class="s1">&#39;in_manner&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;in_manner&#39;</span><span class="p">:</span> <span class="s1">&#39;manner_of&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;attribute&#39;</span><span class="p">:</span> <span class="s1">&#39;attribute&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;restricts&#39;</span><span class="p">:</span> <span class="s1">&#39;restricted_by&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;restricted_by&#39;</span><span class="p">:</span> <span class="s1">&#39;restricts&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;classifies&#39;</span><span class="p">:</span> <span class="s1">&#39;classified_by&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;classified_by&#39;</span><span class="p">:</span> <span class="s1">&#39;classifies&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;entails&#39;</span><span class="p">:</span> <span class="s1">&#39;is_entailed_by&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;is_entailed_by&#39;</span><span class="p">:</span> <span class="s1">&#39;entails&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;domain_topic&#39;</span><span class="p">:</span> <span class="s1">&#39;has_domain_topic&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_domain_topic&#39;</span><span class="p">:</span> <span class="s1">&#39;domain_topic&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;domain_region&#39;</span><span class="p">:</span> <span class="s1">&#39;has_domain_region&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_domain_region&#39;</span><span class="p">:</span> <span class="s1">&#39;domain_region&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;exemplifies&#39;</span><span class="p">:</span> <span class="s1">&#39;is_exemplified_by&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;is_exemplified_by&#39;</span><span class="p">:</span> <span class="s1">&#39;exemplifies&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;involved&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved&#39;</span><span class="p">:</span> <span class="s1">&#39;role&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;agent&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_agent&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_agent&#39;</span><span class="p">:</span> <span class="s1">&#39;agent&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;patient&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_patient&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_patient&#39;</span><span class="p">:</span> <span class="s1">&#39;patient&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_result&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_result&#39;</span><span class="p">:</span> <span class="s1">&#39;result&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;instrument&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_instrument&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_instrument&#39;</span><span class="p">:</span> <span class="s1">&#39;instrument&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_location&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_location&#39;</span><span class="p">:</span> <span class="s1">&#39;location&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_direction&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_direction&#39;</span><span class="p">:</span> <span class="s1">&#39;direction&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;target_direction&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_target_direction&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_target_direction&#39;</span><span class="p">:</span> <span class="s1">&#39;target_direction&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;source_direction&#39;</span><span class="p">:</span> <span class="s1">&#39;involved_source_direction&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;involved_source_direction&#39;</span><span class="p">:</span> <span class="s1">&#39;source_direction&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_role&#39;</span><span class="p">:</span> <span class="s1">&#39;co_role&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_agent_patient&#39;</span><span class="p">:</span> <span class="s1">&#39;co_patient_agent&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_patient_agent&#39;</span><span class="p">:</span> <span class="s1">&#39;co_agent_patient&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_agent_instrument&#39;</span><span class="p">:</span> <span class="s1">&#39;co_instrument_agent&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_instrument_agent&#39;</span><span class="p">:</span> <span class="s1">&#39;co_agent_instrument&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_agent_result&#39;</span><span class="p">:</span> <span class="s1">&#39;co_result_agent&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_result_agent&#39;</span><span class="p">:</span> <span class="s1">&#39;co_agent_result&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_patient_instrument&#39;</span><span class="p">:</span> <span class="s1">&#39;co_instrument_patient&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_instrument_patient&#39;</span><span class="p">:</span> <span class="s1">&#39;co_patient_instrument&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_result_instrument&#39;</span><span class="p">:</span> <span class="s1">&#39;co_instrument_result&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;co_instrument_result&#39;</span><span class="p">:</span> <span class="s1">&#39;co_result_instrument&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pertainym&#39;</span><span class="p">:</span> <span class="s1">&#39;pertainym&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;derivation&#39;</span><span class="p">:</span> <span class="s1">&#39;derivation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;simple_aspect_ip&#39;</span><span class="p">:</span> <span class="s1">&#39;simple_aspect_pi&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;simple_aspect_pi&#39;</span><span class="p">:</span> <span class="s1">&#39;simple_aspect_ip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;secondary_aspect_ip&#39;</span><span class="p">:</span> <span class="s1">&#39;secondary_aspect_pi&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;secondary_aspect_pi&#39;</span><span class="p">:</span> <span class="s1">&#39;secondary_aspect_ip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;feminine&#39;</span><span class="p">:</span> <span class="s1">&#39;has_feminine&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_feminine&#39;</span><span class="p">:</span> <span class="s1">&#39;feminine&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;masculine&#39;</span><span class="p">:</span> <span class="s1">&#39;has_masculine&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_masculine&#39;</span><span class="p">:</span> <span class="s1">&#39;masculine&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;young&#39;</span><span class="p">:</span> <span class="s1">&#39;has_young&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_young&#39;</span><span class="p">:</span> <span class="s1">&#39;young&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;diminutive&#39;</span><span class="p">:</span> <span class="s1">&#39;has_diminutive&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_diminutive&#39;</span><span class="p">:</span> <span class="s1">&#39;diminutive&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;augmentative&#39;</span><span class="p">:</span> <span class="s1">&#39;has_augmentative&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;has_augmentative&#39;</span><span class="p">:</span> <span class="s1">&#39;augmentative&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;anto_gradable&#39;</span><span class="p">:</span> <span class="s1">&#39;anto_gradable&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;anto_simple&#39;</span><span class="p">:</span> <span class="s1">&#39;anto_simple&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;anto_converse&#39;</span><span class="p">:</span> <span class="s1">&#39;anto_converse&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ir_synonym&#39;</span><span class="p">:</span> <span class="s1">&#39;ir_synonym&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="parts-of-speech">
+<span id="id1"></span><h2>Parts of Speech<a class="headerlink" href="#parts-of-speech" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.PARTS_OF_SPEECH">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">PARTS_OF_SPEECH</span></span><a class="headerlink" href="#wn.constants.PARTS_OF_SPEECH" title="Link to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> – Noun</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – Verb</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code> – Adjective</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> – Adverb</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> – Adjective Satellite</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t</span></code> – Phrase</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c</span></code> – Conjunction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> – Adposition</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> – Other</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code> – Unknown</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.NOUN">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">NOUN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'n'</span></em><a class="headerlink" href="#wn.constants.NOUN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.VERB">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">VERB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'v'</span></em><a class="headerlink" href="#wn.constants.VERB" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADJECTIVE">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADJECTIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'a'</span></em><a class="headerlink" href="#wn.constants.ADJECTIVE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADJ">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADJ</span></span><a class="headerlink" href="#wn.constants.ADJ" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <a class="reference internal" href="#wn.constants.ADJECTIVE" title="wn.constants.ADJECTIVE"><code class="xref py py-data docutils literal notranslate"><span class="pre">ADJECTIVE</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADJECTIVE_SATELLITE">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADJECTIVE_SATELLITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'s'</span></em><a class="headerlink" href="#wn.constants.ADJECTIVE_SATELLITE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADJ_SAT">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADJ_SAT</span></span><a class="headerlink" href="#wn.constants.ADJ_SAT" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <a class="reference internal" href="#wn.constants.ADJECTIVE_SATELLITE" title="wn.constants.ADJECTIVE_SATELLITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">ADJECTIVE_SATELLITE</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.PHRASE">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">PHRASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'t'</span></em><a class="headerlink" href="#wn.constants.PHRASE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.CONJUNCTION">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">CONJUNCTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'c'</span></em><a class="headerlink" href="#wn.constants.CONJUNCTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.CONJ">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">CONJ</span></span><a class="headerlink" href="#wn.constants.CONJ" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <a class="reference internal" href="#wn.constants.CONJUNCTION" title="wn.constants.CONJUNCTION"><code class="xref py py-data docutils literal notranslate"><span class="pre">CONJUNCTION</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADPOSITION">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADPOSITION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'p'</span></em><a class="headerlink" href="#wn.constants.ADPOSITION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADP">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'p'</span></em><a class="headerlink" href="#wn.constants.ADP" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <a class="reference internal" href="#wn.constants.ADPOSITION" title="wn.constants.ADPOSITION"><code class="xref py py-data docutils literal notranslate"><span class="pre">ADPOSITION</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.OTHER">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">OTHER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'x'</span></em><a class="headerlink" href="#wn.constants.OTHER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.UNKNOWN">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'u'</span></em><a class="headerlink" href="#wn.constants.UNKNOWN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="adjective-positions">
+<h2>Adjective Positions<a class="headerlink" href="#adjective-positions" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.ADJPOSITIONS">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">ADJPOSITIONS</span></span><a class="headerlink" href="#wn.constants.ADJPOSITIONS" title="Link to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code> – Attributive</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ip</span></code>  – Immediate Postnominal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> – Predicative</p></li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="lexicographer-files">
+<h2>Lexicographer Files<a class="headerlink" href="#lexicographer-files" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="wn.constants.LEXICOGRAPHER_FILES">
+<span class="sig-prename descclassname"><span class="pre">wn.constants.</span></span><span class="sig-name descname"><span class="pre">LEXICOGRAPHER_FILES</span></span><a class="headerlink" href="#wn.constants.LEXICOGRAPHER_FILES" title="Link to this definition">¶</a></dt>
+<dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;adj.all&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;adj.pert&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;adv.all&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;noun.Tops&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s1">&#39;noun.act&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s1">&#39;noun.animal&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s1">&#39;noun.artifact&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="s1">&#39;noun.attribute&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="s1">&#39;noun.body&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;noun.cognition&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+    <span class="s1">&#39;noun.communication&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s1">&#39;noun.event&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+    <span class="s1">&#39;noun.feeling&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="s1">&#39;noun.food&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+    <span class="s1">&#39;noun.group&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="s1">&#39;noun.location&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="s1">&#39;noun.motive&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="s1">&#39;noun.object&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+    <span class="s1">&#39;noun.person&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+    <span class="s1">&#39;noun.phenomenon&#39;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
+    <span class="s1">&#39;noun.plant&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s1">&#39;noun.possession&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+    <span class="s1">&#39;noun.process&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
+    <span class="s1">&#39;noun.quantity&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+    <span class="s1">&#39;noun.relation&#39;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="s1">&#39;noun.shape&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="s1">&#39;noun.state&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
+    <span class="s1">&#39;noun.substance&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
+    <span class="s1">&#39;noun.time&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span>
+    <span class="s1">&#39;verb.body&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span>
+    <span class="s1">&#39;verb.change&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">&#39;verb.cognition&#39;</span><span class="p">:</span> <span class="mi">31</span><span class="p">,</span>
+    <span class="s1">&#39;verb.communication&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="s1">&#39;verb.competition&#39;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span>
+    <span class="s1">&#39;verb.consumption&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span>
+    <span class="s1">&#39;verb.contact&#39;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+    <span class="s1">&#39;verb.creation&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
+    <span class="s1">&#39;verb.emotion&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span>
+    <span class="s1">&#39;verb.motion&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span>
+    <span class="s1">&#39;verb.perception&#39;</span><span class="p">:</span> <span class="mi">39</span><span class="p">,</span>
+    <span class="s1">&#39;verb.possession&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+    <span class="s1">&#39;verb.social&#39;</span><span class="p">:</span> <span class="mi">41</span><span class="p">,</span>
+    <span class="s1">&#39;verb.stative&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="s1">&#39;verb.weather&#39;</span><span class="p">:</span> <span class="mi">43</span><span class="p">,</span>
+    <span class="s1">&#39;adj.ppl&#39;</span><span class="p">:</span> <span class="mi">44</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="wn.ic.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">wn.ic</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="wn.compat.sensekey.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">wn.compat.sensekey</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2020, Michael Wayne Goodman
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">wn.constants</a><ul>
+<li><a class="reference internal" href="#synset-relations">Synset Relations</a><ul>
+<li><a class="reference internal" href="#wn.constants.SYNSET_RELATIONS"><code class="docutils literal notranslate"><span class="pre">SYNSET_RELATIONS</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sense-relations">Sense Relations</a><ul>
+<li><a class="reference internal" href="#wn.constants.SENSE_RELATIONS"><code class="docutils literal notranslate"><span class="pre">SENSE_RELATIONS</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.SENSE_SYNSET_RELATIONS"><code class="docutils literal notranslate"><span class="pre">SENSE_SYNSET_RELATIONS</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.REVERSE_RELATIONS"><code class="docutils literal notranslate"><span class="pre">REVERSE_RELATIONS</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#parts-of-speech">Parts of Speech</a><ul>
+<li><a class="reference internal" href="#wn.constants.PARTS_OF_SPEECH"><code class="docutils literal notranslate"><span class="pre">PARTS_OF_SPEECH</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.NOUN"><code class="docutils literal notranslate"><span class="pre">NOUN</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.VERB"><code class="docutils literal notranslate"><span class="pre">VERB</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.ADJECTIVE"><code class="docutils literal notranslate"><span class="pre">ADJECTIVE</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.ADJ"><code class="docutils literal notranslate"><span class="pre">ADJ</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.ADJECTIVE_SATELLITE"><code class="docutils literal notranslate"><span class="pre">ADJECTIVE_SATELLITE</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.ADJ_SAT"><code class="docutils literal notranslate"><span class="pre">ADJ_SAT</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.PHRASE"><code class="docutils literal notranslate"><span class="pre">PHRASE</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.CONJUNCTION"><code class="docutils literal notranslate"><span class="pre">CONJUNCTION</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.CONJ"><code class="docutils literal notranslate"><span class="pre">CONJ</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.ADPOSITION"><code class="docutils literal notranslate"><span class="pre">ADPOSITION</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.ADP"><code class="docutils literal notranslate"><span class="pre">ADP</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.OTHER"><code class="docutils literal notranslate"><span class="pre">OTHER</span></code></a></li>
+<li><a class="reference internal" href="#wn.constants.UNKNOWN"><code class="docutils literal notranslate"><span class="pre">UNKNOWN</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adjective-positions">Adjective Positions</a><ul>
+<li><a class="reference internal" href="#wn.constants.ADJPOSITIONS"><code class="docutils literal notranslate"><span class="pre">ADJPOSITIONS</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lexicographer-files">Lexicographer Files</a><ul>
+<li><a class="reference internal" href="#wn.constants.LEXICOGRAPHER_FILES"><code class="docutils literal notranslate"><span class="pre">LEXICOGRAPHER_FILES</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=34bd459d"></script>
+    </body>
+</html>
