@@ -70,8 +70,8 @@ if 1: # need data.path init - fullinit:
 This is the wn interface for NodeBox and possibly others.
 
 """
-
-if fullinit:
+# must always be imported due to data_directory
+if 1:
     import wn
         
     # data path init
