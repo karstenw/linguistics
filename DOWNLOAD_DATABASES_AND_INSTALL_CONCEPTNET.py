@@ -424,9 +424,7 @@ def download_nltk():
     # textblob minimal downloads
     # wordnet already loaded
     nltk.download( "brown", download_dir=nltk_data_dir, quiet=nb )
-    #nltk.download( "punkt", download_dir=nltk_data_dir, quiet=nb )
     nltk.download( "punkt_tab", download_dir=nltk_data_dir, quiet=nb )
-    #nltk.download( "averaged_perceptron_tagger", download_dir=nltk_data_dir, quiet=nb )
     nltk.download( "averaged_perceptron_tagger_eng", download_dir=nltk_data_dir, quiet=nb )
     
     # textblob additional
