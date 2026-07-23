@@ -17,6 +17,8 @@ from liblinear import __all__ as liblinear_all
 from liblinear import scipy, sparse
 from ctypes import c_double
 
+import numpy as np
+
 __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
            'train', 'predict'] + liblinear_all
 
@@ -97,7 +99,8 @@ def evaluations_scipy(ty, pv):
     Calculate accuracy, mean squared error and squared correlation coefficient
     using the true values (ty) and predicted values (pv).
     """
-    if not (scipy is not None and isinstance(ty, scipy.ndarray) and isinstance(pv, scipy.ndarray)):
+    if (not (    scipy is not None and isinstance(ty, np.ndarray)
+             and isinstance(pv, np.ndarray))):
         raise TypeError("type of ty and pv must be ndarray")
     if len(ty) != len(pv):
         raise ValueError("len(ty) must be equal to len(pv)")
@@ -109,7 +112,7 @@ def evaluations_scipy(ty, pv):
     sumvy = (pv * ty).sum()
     sumvv = (pv * pv).sum()
     sumyy = (ty * ty).sum()
-    with scipy.errstate(all = 'raise'):
+    with np.errstate(all = 'raise'):
         try:
             SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / ((l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy))
         except:
@@ -127,7 +130,7 @@ def evaluations(ty, pv, useScipy = True):
     using the true values (ty) and predicted values (pv).
     """
     if scipy is not None and useScipy:
-        return evaluations_scipy(scipy.asarray(ty), scipy.asarray(pv))
+        return evaluations_scipy(np.asarray(ty), np.asarray(pv))
     if len(ty) != len(pv):
         raise ValueError("len(ty) must be equal to len(pv)")
     total_correct = total_error = 0
@@ -208,8 +211,10 @@ def train(arg1, arg2=None, arg3=None):
             -q : quiet mode (no outputs)
     """
     prob, param = None, None
-    if isinstance(arg1, (list, tuple)) or (scipy and isinstance(arg1, scipy.ndarray)):
-        assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (scipy.ndarray, sparse.spmatrix)))
+    if (    isinstance(arg1, (list, tuple))
+         or (   scipy
+            and isinstance(arg1, np.ndarray))):
+        assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (np.ndarray, sparse.spmatrix)))
         y, x, options = arg1, arg2, arg3
         prob = problem(y, x)
         param = parameter(options)
@@ -295,14 +300,14 @@ def predict(y, x, m, options=""):
     def info(s):
         print(s)
 
-    if scipy and isinstance(x, scipy.ndarray):
+    if scipy and isinstance(x, np.ndarray):
         x = scipy.ascontiguousarray(x) # enforce row-major
     elif sparse and isinstance(x, sparse.spmatrix):
         x = x.tocsr()
     elif not isinstance(x, (list, tuple)):
         raise TypeError("type of x: {0} is not supported!".format(type(x)))
 
-    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, scipy.ndarray))):
+    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, np.ndarray))):
         raise TypeError("type of y: {0} is not supported!".format(type(y)))
 
     predict_probability = 0

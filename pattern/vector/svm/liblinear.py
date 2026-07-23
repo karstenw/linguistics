@@ -13,6 +13,8 @@ from ctypes.util import find_library
 from os import path
 import sys
 
+import numpy as np
+
 try:
     import scipy
     from scipy import sparse
@@ -83,12 +85,16 @@ def gen_feature_nodearray(xi, feature_max=None):
         assert(isinstance(feature_max, int))
 
     xi_shift = 0 # ensure correct indices of xi
-    if scipy and isinstance(xi, tuple) and len(xi) == 2\
-            and isinstance(xi[0], scipy.ndarray) and isinstance(xi[1], scipy.ndarray): # for a sparse vector
+    if (    scipy
+        and isinstance(xi, tuple)
+        and len(xi) == 2
+        and isinstance(xi[0], np.ndarray)
+        and isinstance(xi[1], np.ndarray)):
+        # for a sparse vector
         index_range = xi[0] + 1 # index starts from 1
         if feature_max:
             index_range = index_range[scipy.where(index_range <= feature_max)]
-    elif scipy and isinstance(xi, scipy.ndarray):
+    elif scipy and isinstance(xi, np.ndarray):
         xi_shift = 1
         index_range = xi.nonzero()[0] + 1 # index starts from 1
         if feature_max:
@@ -111,8 +117,12 @@ def gen_feature_nodearray(xi, feature_max=None):
     ret[-1].index = -1 # for bias term
     ret[-2].index = -1
 
-    if scipy and isinstance(xi, tuple) and len(xi) == 2\
-            and isinstance(xi[0], scipy.ndarray) and isinstance(xi[1], scipy.ndarray): # for a sparse vector
+    if (    scipy
+        and isinstance(xi, tuple)
+        and len(xi) == 2
+        and isinstance(xi[0], np.ndarray)
+        and isinstance(xi[1], np.ndarray)):
+        # for a sparse vector
         for idx, j in enumerate(index_range):
             ret[idx].index = j
             ret[idx].value = (xi[1])[idx]
@@ -172,16 +182,18 @@ class problem(Structure):
     _fields_ = genFields(_names, _types)
 
     def __init__(self, y, x, bias = -1):
-        if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, scipy.ndarray))):
+        if (    (not isinstance(y, (list, tuple)))
+            and (not (scipy and isinstance(y, np.ndarray)))):
             raise TypeError("type of y: {0} is not supported!".format(type(y)))
 
         if isinstance(x, (list, tuple)):
             if len(y) != len(x):
                 raise ValueError("len(y) != len(x)")
-        elif scipy != None and isinstance(x, (scipy.ndarray, sparse.spmatrix)):
+        elif (     scipy != None
+               and isinstance(x, (np.ndarray, sparse.spmatrix))):
             if len(y) != x.shape[0]:
                 raise ValueError("len(y) != len(x)")
-            if isinstance(x, scipy.ndarray):
+            if isinstance(x, np.ndarray):
                 x = scipy.ascontiguousarray(x) # enforce row-major
             if isinstance(x, sparse.spmatrix):
                 x = x.tocsr()
@@ -204,7 +216,7 @@ class problem(Structure):
         self.n = max_idx
 
         self.y = (c_double * l)()
-        if scipy != None and isinstance(y, scipy.ndarray):
+        if scipy != None and isinstance(y, np.ndarray):
             scipy.ctypeslib.as_array(self.y, (self.l,))[:] = y
         else:
             for i, yi in enumerate(y):
