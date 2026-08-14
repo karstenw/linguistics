@@ -34,11 +34,11 @@
 <v t="karstenw.20260501093741.1"><vh>print</vh></v>
 </v>
 </v>
-<v t="karstenw.20230518135525.1" a="E"><vh>@clean download_corpora.py</vh>
+<v t="karstenw.20230518135525.1"><vh>@clean +removed/download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
 <v t="karstenw.20260606162533.1"><vh>script</vh></v>
 </v>
-<v t="karstenw.20230521225929.1"><vh>@clean install-conceptnet-database.py</vh>
+<v t="karstenw.20230521225929.1"><vh>@clean +removed/install-conceptnet-database.py</vh>
 <v t="karstenw.20230521225929.2"><vh>Declarations 1</vh></v>
 <v t="karstenw.20230521225929.3"><vh>Globals</vh></v>
 <v t="karstenw.20230521225929.5"><vh>handleDataArchive</vh></v>
@@ -58,7 +58,7 @@
 <v t="karstenw.20230521225929.16"><vh>createRecord</vh></v>
 </v>
 </v>
-<v t="karstenw.20260717113823.1" a="E"><vh>@clean DOWNLOAD AND INSTALL.py</vh>
+<v t="karstenw.20260717113823.1" a="E"><vh>@clean DOWNLOAD_DATABASES_AND_INSTALL_CONCEPTNET.py</vh>
 <v t="karstenw.20260717113901.1"><vh>Declarations nltk &amp; wn</vh></v>
 <v t="karstenw.20260717115023.1"><vh>Declarations conceptnet</vh></v>
 <v t="karstenw.20260717114158.1"><vh>scripte</vh>
@@ -137,8 +137,8 @@ if fullinit:
 This is the wn interface for NodeBox and possibly others.
 
 """
-
-if fullinit:
+# must always be imported due to data_directory
+if 1:
     import wn
         
     # data path init
