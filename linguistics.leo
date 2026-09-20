@@ -21,10 +21,10 @@
 <v t="karstenw.20260628144829.1"><vh>Flowerword init</vh></v>
 <v t="karstenw.20230317172931.1"><vh>tools</vh></v>
 </v>
-<v t="karstenw.20230524124241.1"><vh>@clean FlowerWord.py</vh>
+<v t="karstenw.20230524124241.1" a="E"><vh>@clean FlowerWord.py</vh>
 <v t="karstenw.20230524124307.1"><vh>Declarations</vh></v>
 <v t="karstenw.20260606163051.1"><vh>handleResult - TODO</vh></v>
-<v t="karstenw.20230524124417.1"><vh>FlowerWord</vh>
+<v t="karstenw.20230524124417.1" a="E"><vh>FlowerWord</vh>
 <v t="karstenw.20230524124417.2"><vh>__init__</vh></v>
 <v t="karstenw.20230524124417.3"><vh>hyponyms</vh></v>
 <v t="karstenw.20230524124417.4"><vh>hypernyms</vh></v>
@@ -33,6 +33,8 @@
 <v t="karstenw.20230524124417.7"><vh>meronyms</vh></v>
 <v t="karstenw.20260501093741.1"><vh>print</vh></v>
 </v>
+<v t="karstenw.20260920122415.1"><vh>holonym meronym antonym hypernym fsenses hyponym</vh></v>
+<v t="karstenw.20260920123402.1"><vh>lexname</vh></v>
 </v>
 <v t="karstenw.20230518135525.1"><vh>@clean +removed/download_corpora.py</vh>
 <v t="karstenw.20230518135556.1"><vh>Declarations</vh></v>
@@ -960,24 +962,30 @@ fullinit = False
 # the nodebox namespace for a script is 'builtins'
 if __name__ in ('__main__', 'builtins'):
     start = time.time()
-    try:
-        download_nltk()
-    except Exception as err:
-        print("Could not download NLTK data:")
-        print(err)
+    if 1:
+        try:
+            download_nltk()
+        except Exception as err:
+            print()
+            print("Could not download NLTK data:")
+            print(err)
         
     nltktime = time.time()
-    try:
-        download_wn()
-    except Exception as err:
-        print("Could not download WNdata:")
-        print(err)
+    
+    if 1:
+        try:
+            download_wn()
+        except Exception as err:
+            print()
+            print("Could not download WN data:")
+            print(err)
     wntime = time.time()
     
-    # pdb.set_trace()
-    handleDataArchive( sqlitezifile, basefolder )
-    print()
-    importConceptnetTables( importfiles )
+    if 1:
+        # pdb.set_trace()
+        handleDataArchive( sqlitezifile, basefolder )
+        print()
+        importConceptnetTables( importfiles )
     cntime = time.time()
     if kwdbg:
         print()
@@ -1072,9 +1080,7 @@ if nb:
     # textblob minimal downloads
     # wordnet already loaded
     nltk.download( "brown", download_dir=nltk_data_dir, quiet=nb )
-    #nltk.download( "punkt", download_dir=nltk_data_dir, quiet=nb )
     nltk.download( "punkt_tab", download_dir=nltk_data_dir, quiet=nb )
-    #nltk.download( "averaged_perceptron_tagger", download_dir=nltk_data_dir, quiet=nb )
     nltk.download( "averaged_perceptron_tagger_eng", download_dir=nltk_data_dir, quiet=nb )
     
     # textblob additional
@@ -1085,6 +1091,9 @@ if nb:
 </t>
 <t tx="karstenw.20260717114851.1">def download_wn():
     wn.config.data_directory = os.path.join( DATA_DIR, 'wn-data' )
+    
+    # https://github.com/oewn - Open English WordNet
+    wn.download("oewn", add=True, progress_handler=pg)
     
     # https://github.com/omwn - open multilingual wordnet
     wn.download("omw", add=True, progress_handler=pg)
@@ -1454,6 +1463,76 @@ except NameError:
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
+
+
+</t>
+<t tx="karstenw.20260920122415.1"># moved here from graph/graph_example4.py
+
+def holonym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    hn = fw.holonyms()
+    #print("holonym(%s): %s" % (word, str(hn)))
+    if all:
+        return hn
+    if len(hn) &gt; 0:
+        return hn[0]
+    return ""
+
+def meronym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    mn = fw.meronyms()
+    #print("meronym(%s): %s" % (word, str(mn)))
+    if all:
+        return mn
+    if len(mn) &gt; 0:
+        return mn[0]
+    return ""
+
+def antonym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    an = fw.antonym
+    if 0: #len(an) &gt; 0:
+        print("antonym(%s): %s" % (word, str(an)))
+    if all:
+        return an
+    if len(an) &gt; 0:
+        #print("antonym(%s): %s" % (word, str(an[0].antonym)))
+        return an[0].antonym
+    return ""
+
+def hypernym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    hn = fw.hypernyms()
+    #print("hypernym(%s): %s" % (word, str(hn)))
+    if all:
+        return hn
+    if len(hn) &gt; 0:
+        return hn[0]
+    return ""
+
+def fsenses( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    sn = fw.senses()
+    if kwlog:
+        print("senses(%s): %s" % (word, str(sn)))
+    if all:
+        return sn
+    if len(sn) &gt; 0:
+        return sn[0]
+    return ""
+
+def hyponym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    hn = fw.hyponyms()
+    #print("hyponym(%s): %s" % (word, str(hn)))
+    if all:
+        return hn
+    if len(hn) &gt; 0:
+        return hn[0]
+    return ""
+</t>
+<t tx="karstenw.20260920123402.1">def lexname( word ):
+    return FlowerWord( word ).lexname
 
 
 </t>

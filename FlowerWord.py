@@ -168,3 +168,71 @@ class FlowerWord:
         print("     meronyms:", self.meronyms() )
 
 
+# moved here from graph/graph_example4.py
+
+def holonym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    hn = fw.holonyms()
+    #print("holonym(%s): %s" % (word, str(hn)))
+    if all:
+        return hn
+    if len(hn) > 0:
+        return hn[0]
+    return ""
+
+def meronym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    mn = fw.meronyms()
+    #print("meronym(%s): %s" % (word, str(mn)))
+    if all:
+        return mn
+    if len(mn) > 0:
+        return mn[0]
+    return ""
+
+def antonym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    an = fw.antonym
+    if 0: #len(an) > 0:
+        print("antonym(%s): %s" % (word, str(an)))
+    if all:
+        return an
+    if len(an) > 0:
+        #print("antonym(%s): %s" % (word, str(an[0].antonym)))
+        return an[0].antonym
+    return ""
+
+def hypernym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    hn = fw.hypernyms()
+    #print("hypernym(%s): %s" % (word, str(hn)))
+    if all:
+        return hn
+    if len(hn) > 0:
+        return hn[0]
+    return ""
+
+def fsenses( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    sn = fw.senses()
+    if kwlog:
+        print("senses(%s): %s" % (word, str(sn)))
+    if all:
+        return sn
+    if len(sn) > 0:
+        return sn[0]
+    return ""
+
+def hyponym( word, sense="", all=False ):
+    fw = FlowerWord( word )
+    hn = fw.hyponyms()
+    #print("hyponym(%s): %s" % (word, str(hn)))
+    if all:
+        return hn
+    if len(hn) > 0:
+        return hn[0]
+    return ""
+def lexname( word ):
+    return FlowerWord( word ).lexname
+
+
