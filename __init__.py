@@ -59,7 +59,7 @@ if 1: # need data.path init - fullinit:
     
     # data path init
     nltk.data.path = [os.path.join( DATA_DIR, 'nltk-data' )]
-    
+    # wordnet = nltk.wordnet
     wn_time = time.time()
     if kwlog:
         print("SYS import nltk: %.3f" % (wn_time-nltk_time)  )
