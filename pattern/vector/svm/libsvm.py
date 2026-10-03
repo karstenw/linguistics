@@ -12,6 +12,9 @@ from ctypes import *
 from ctypes.util import find_library
 from os import path
 import sys
+import platform
+
+machine = platform.machine()
 
 __all__ = ['libsvm', 'svm_problem', 'svm_parameter',
            'toPyModel', 'gen_svm_nodearray', 'print_null', 'svm_node', 'C_SVC',
@@ -23,9 +26,15 @@ try:
     dirname = path.dirname(path.abspath(__file__))
     if sys.platform == 'win32':
         libsvm = CDLL(path.join(dirname, 'windows\\libsvm-3.22\\libsvm.dll'))
+    elif sys.platform == 'darwin':
+        if machine.startswith("arm"):
+            libsvm = CDLL(path.join(dirname, 'macos/libsvm-337/arm/libsvm.so.4'))
+            print("LOAD ARM libsvm.so.4")
+        else:
+            libsvm = CDLL(path.join(dirname, 'macos/libsvm-337/intel/libsvm.so.4'))
+            print("LOAD INTEL libsvm.so.4")
     else:
-        libsvm = CDLL(path.join(dirname, 'macos/libsvm-3.22/libsvm.so.2'))
-
+        1/0
 except:
 # For unix the prefix 'lib' is not considered.
     if find_library('svm'):

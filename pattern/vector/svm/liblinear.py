@@ -34,6 +34,17 @@ try:
         liblinear = CDLL(path.join(dirname, 'windows\\liblinear-2.20\\liblinear.dll'))
     else:
         liblinear = CDLL(path.join(dirname, 'macos/liblinear-2.20/liblinear.so.3'))
+    elif sys.platform == 'darwin':
+        if machine.startswith("arm"):
+            liblinear = CDLL(path.join(dirname,
+                                       'macos/liblinear-250/arm/liblinear.so.6'))
+            print("LOAD ARM liblinear.so.6")
+        else:
+            liblinear = CDLL(path.join(dirname,
+                                       'macos/liblinear-250/intel/liblinear.so.6'))
+            print("LOAD INTEL liblinear.so.6")
+    else:
+        1/0
 except:
 # For unix the prefix 'lib' is not considered.
     if find_library('linear'):
