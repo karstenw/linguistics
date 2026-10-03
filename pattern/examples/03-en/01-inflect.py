@@ -6,9 +6,11 @@ from builtins import str, bytes, dict, int
 import sys
 import os, time
 
-sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
-
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..","..")))
+import linguistics
 import pattern
+
+
 from pattern.en import article, referenced, pluralize, singularize
 from pattern.en import comparative, superlative, conjugate, lemma, lexeme, tenses
 from pattern.en import NOUN, VERB, ADJECTIVE

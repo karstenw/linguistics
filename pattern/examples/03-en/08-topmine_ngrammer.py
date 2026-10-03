@@ -7,8 +7,10 @@ import os
 import sys
 import codecs
 
-sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..","..")))
+import linguistics
 import pattern
+
 
 import pattern.text as text_module
 from pattern.text.en.wordlist import STOPWORDS
