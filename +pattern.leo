@@ -1772,7 +1772,7 @@
 </v>
 </v>
 </v>
-<v t="karstenw.20230303140243.1"><vh>vector</vh>
+<v t="karstenw.20230303140243.1" a="E"><vh>vector</vh>
 <v t="karstenw.20230303140259.1"><vh>@clean pattern/vector/__init__.py</vh>
 <v t="karstenw.20230303140319.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303140319.2"><vh>shi</vh></v>
@@ -2110,11 +2110,19 @@
 <v t="karstenw.20230303141303.21"><vh>upper_consonant_y</vh></v>
 <v t="karstenw.20230303141303.22"><vh>stem</vh></v>
 </v>
-<v t="karstenw.20230303140338.1"><vh>svm</vh>
+<v t="karstenw.20230303140338.1" a="E"><vh>svm</vh>
 <v t="karstenw.20230303140342.1"><vh>@clean pattern/vector/svm/__init__.py</vh>
 <v t="karstenw.20230303140351.1"><vh>Declarations</vh></v>
 </v>
-<v t="karstenw.20230303140359.1"><vh>@clean pattern/vector/svm/liblinear.py</vh>
+<v t="karstenw.20261004133850.1"><vh>@clean pattern/vector/svm/commonutil.py</vh>
+<v t="karstenw.20261004133923.1"><vh>Declarations</vh></v>
+<v t="karstenw.20261004133923.2"><vh>svm_read_problem</vh></v>
+<v t="karstenw.20261004133923.3"><vh>evaluations_scipy</vh></v>
+<v t="karstenw.20261004133923.4"><vh>evaluations</vh></v>
+<v t="karstenw.20261004133923.5"><vh>csr_find_scale_param</vh></v>
+<v t="karstenw.20261004133923.6"><vh>csr_scale</vh></v>
+</v>
+<v t="karstenw.20230303140359.1" a="E"><vh>@clean pattern/vector/svm/liblinear.py</vh>
 <v t="karstenw.20230303141307.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303141307.2"><vh>print_null</vh></v>
 <v t="karstenw.20230303141307.3"><vh>genFields</vh></v>
@@ -2160,7 +2168,7 @@
 <v t="karstenw.20230303141310.7"><vh>train</vh></v>
 <v t="karstenw.20230303141310.8"><vh>predict</vh></v>
 </v>
-<v t="karstenw.20230303140421.1"><vh>@clean pattern/vector/svm/libsvm.py</vh>
+<v t="karstenw.20230303140421.1" a="E"><vh>@clean pattern/vector/svm/svm.py</vh>
 <v t="karstenw.20230303141312.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303141312.2"><vh>print_null</vh></v>
 <v t="karstenw.20230303141312.3"><vh>genFields</vh></v>
@@ -2193,7 +2201,7 @@
 </v>
 <v t="karstenw.20230303141312.27"><vh>toPyModel</vh></v>
 </v>
-<v t="karstenw.20230303140429.1"><vh>@clean pattern/vector/svm/libsvmutil.py</vh>
+<v t="karstenw.20230303140429.1"><vh>@clean pattern/vector/svm/svmutil.py</vh>
 <v t="karstenw.20230303141314.1"><vh>Declarations</vh></v>
 <v t="karstenw.20230303141314.2"><vh>svm_read_problem</vh></v>
 <v t="karstenw.20230303141314.3"><vh>svm_load_model</vh></v>
@@ -38235,8 +38243,8 @@ from __future__ import division
 LIBSVM = LIBLINEAR = True
 
 try:
-    from . import libsvm
-    from . import libsvmutil
+    from . import svm
+    from . import svmutil
 except ImportError as e:
     LIBSVM = False
     raise e
@@ -38250,9 +38258,8 @@ except:
 <t tx="karstenw.20230303140359.1">@language python
 @tabwidth -4
 @others
-
 fillprototype(liblinear.train, POINTER(model), [POINTER(problem), POINTER(parameter)])
-fillprototype(liblinear.find_parameter_C, None, [POINTER(problem), POINTER(parameter), c_int, c_double, c_double, POINTER(c_double), POINTER(c_double)])
+fillprototype(liblinear.find_parameters, None, [POINTER(problem), POINTER(parameter), c_int, c_double, c_double, POINTER(c_double), POINTER(c_double), POINTER(c_double)])
 fillprototype(liblinear.cross_validation, None, [POINTER(problem), POINTER(parameter), c_int, POINTER(c_double)])
 
 fillprototype(liblinear.predict_values, c_double, [POINTER(model), POINTER(feature_node), POINTER(c_double)])
@@ -38267,6 +38274,7 @@ fillprototype(liblinear.get_nr_class, c_int, [POINTER(model)])
 fillprototype(liblinear.get_labels, None, [POINTER(model), POINTER(c_int)])
 fillprototype(liblinear.get_decfun_coef, c_double, [POINTER(model), c_int, c_int])
 fillprototype(liblinear.get_decfun_bias, c_double, [POINTER(model), c_int])
+fillprototype(liblinear.get_decfun_rho, c_double, [POINTER(model)])
 
 fillprototype(liblinear.free_model_content, None, [POINTER(model)])
 fillprototype(liblinear.free_and_destroy_model, None, [POINTER(POINTER(model))])
@@ -38274,10 +38282,11 @@ fillprototype(liblinear.destroy_param, None, [POINTER(parameter)])
 fillprototype(liblinear.check_parameter, c_char_p, [POINTER(problem), POINTER(parameter)])
 fillprototype(liblinear.check_probability_model, c_int, [POINTER(model)])
 fillprototype(liblinear.check_regression_model, c_int, [POINTER(model)])
+fillprototype(liblinear.check_oneclass_model, c_int, [POINTER(model)])
 fillprototype(liblinear.set_print_string_function, None, [CFUNCTYPE(None, c_char_p)])
 </t>
-<t tx="karstenw.20230303140415.1">#!/usr/bin/env python
-
+<t tx="karstenw.20230303140415.1">import os, sys
+from .liblinear import *
 @others
 @language python
 @tabwidth -4
@@ -38285,7 +38294,6 @@ fillprototype(liblinear.set_print_string_function, None, [CFUNCTYPE(None, c_char
 <t tx="karstenw.20230303140421.1">@language python
 @tabwidth -4
 @others
-
 fillprototype(libsvm.svm_train, POINTER(svm_model), [POINTER(svm_problem), POINTER(svm_parameter)])
 fillprototype(libsvm.svm_cross_validation, None, [POINTER(svm_problem), POINTER(svm_parameter), c_int, POINTER(c_double)])
 
@@ -38310,11 +38318,9 @@ fillprototype(libsvm.svm_destroy_param, None, [POINTER(svm_parameter)])
 fillprototype(libsvm.svm_check_parameter, c_char_p, [POINTER(svm_problem), POINTER(svm_parameter)])
 fillprototype(libsvm.svm_check_probability_model, c_int, [POINTER(svm_model)])
 fillprototype(libsvm.svm_set_print_string_function, None, [PRINT_STRING_FUN])
-
-# ignore
 </t>
-<t tx="karstenw.20230303140429.1">#!/usr/bin/env python
-
+<t tx="karstenw.20230303140429.1">import os, sys
+from .svm import *
 @others
 @language python
 @tabwidth -4
@@ -43713,70 +43719,73 @@ RE_R1 = re.compile(r"[aeiouy][^aeiouy]")
 
 
 </t>
-<t tx="karstenw.20230303141307.1">#!/usr/bin/env python
-
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import division
-
-from builtins import str, bytes, int
-from builtins import object, range
-from builtins import map, zip, filter
-
-from ctypes import *
+<t tx="karstenw.20230303141307.1">from ctypes import *
 from ctypes.util import find_library
 from os import path
+from glob import glob
 import sys
+from enum import IntEnum
+
+import platform
+machine = platform.machine()
 
 try:
+    import numpy as np
     import scipy
     from scipy import sparse
 except:
     scipy = None
-    sparse = None
+
+if sys.version_info[0] &lt; 3:
+    range = xrange
+    from itertools import izip as zip
 
 __all__ = ['liblinear', 'feature_node', 'gen_feature_nodearray', 'problem',
-           'parameter', 'model', 'toPyModel', 'L2R_LR', 'L2R_L2LOSS_SVC_DUAL',
-           'L2R_L2LOSS_SVC', 'L2R_L1LOSS_SVC_DUAL', 'MCSVM_CS',
-           'L1R_L2LOSS_SVC', 'L1R_LR', 'L2R_LR_DUAL', 'L2R_L2LOSS_SVR',
-           'L2R_L2LOSS_SVR_DUAL', 'L2R_L1LOSS_SVR_DUAL', 'print_null']
+           'parameter', 'model', 'toPyModel', 'solver_names',
+           'print_null']
+#
+# ATTENTION:
+#
+# I have deleted the windows and ubuntu parts because I cant compile them.
+#
+# If you can compile for either please reconstruct this section from the source files and adapt for ARM / INTEL
+#
 
-try:
-    dirname = path.dirname(path.abspath(__file__))
-    if sys.platform == 'win32':
-        liblinear = CDLL(path.join(dirname, 'windows\\liblinear-2.20\\liblinear.dll'))
-    else:
-        liblinear = CDLL(path.join(dirname, 'macos/liblinear-2.20/liblinear.so.3'))
-except:
-# For unix the prefix 'lib' is not considered.
-    if find_library('linear'):
-        liblinear = CDLL(find_library('linear'))
-    elif find_library('liblinear'):
-        liblinear = CDLL(find_library('liblinear'))
-    else:
-        libsvm = CDLL(path.join(path.dirname(__file__), 'ubuntu/liblinear-2.20/liblinear.so.3'))
+dirname = path.dirname(path.abspath(__file__))
+if machine.startswith("arm"):
+    liblinear = CDLL(path.join(dirname, 'macos/liblinear-250/arm/liblinear.so.6'))
+    print("LOAD ARM liblinear.so.6")
+else:
+    liblinear = CDLL(path.join(dirname, 'macos/liblinear-250/intel/liblinear.so.6'))
+    print("LOAD INTEL liblinear.so.6")
 
-L2R_LR = 0
-L2R_L2LOSS_SVC_DUAL = 1
-L2R_L2LOSS_SVC = 2
-L2R_L1LOSS_SVC_DUAL = 3
-MCSVM_CS = 4
-L1R_L2LOSS_SVC = 5
-L1R_LR = 6
-L2R_LR_DUAL = 7
-L2R_L2LOSS_SVR = 11
-L2R_L2LOSS_SVR_DUAL = 12
-L2R_L1LOSS_SVR_DUAL = 13
+
+class solver_names(IntEnum):
+    L2R_LR = 0
+    L2R_L2LOSS_SVC_DUAL = 1
+    L2R_L2LOSS_SVC = 2
+    L2R_L1LOSS_SVC_DUAL = 3
+    MCSVM_CS = 4
+    L1R_L2LOSS_SVC = 5
+    L1R_LR = 6
+    L2R_LR_DUAL = 7
+    L2R_L2LOSS_SVR = 11
+    L2R_L2LOSS_SVR_DUAL = 12
+    L2R_L1LOSS_SVR_DUAL = 13
+    ONECLASS_SVM = 21
 
 PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
-
-
 </t>
 <t tx="karstenw.20230303141307.10">def csr_to_problem(x, prob):
+    if not x.has_sorted_indices:
+        x.sort_indices()
+
     # Extra space for termination node and (possibly) bias term
-    x_space = prob.x_space = scipy.empty((x.nnz + x.shape[0] * 2), dtype=feature_node)
-    prob.rowptr = x.indptr.copy()
-    prob.rowptr[1:] += 2 * scipy.arange(1,x.shape[0] + 1)
+    x_space = prob.x_space = np.empty((x.nnz+x.shape[0]*2), dtype=feature_node)
+    # rowptr has to be a 64bit integer because it will later be used for pointer arithmetic,
+    # which overflows when the added pointer points to an address that is numerically high.
+    prob.rowptr = x.indptr.astype(np.int64, copy=True)
+    prob.rowptr[1:] += 2*np.arange(1,x.shape[0]+1)
     prob_ind = x_space["index"]
     prob_val = x_space["value"]
     prob_ind[:] = -1
@@ -43784,7 +43793,6 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
         csr_to_problem_jit(x.shape[0], x.data, x.indices, x.indptr, prob_val, prob_ind, prob.rowptr)
     else:
         csr_to_problem_nojit(x.shape[0], x.data, x.indices, x.indptr, prob_val, prob_ind, prob.rowptr)
-
 
 </t>
 <t tx="karstenw.20230303141307.11">class problem(Structure):
@@ -43795,17 +43803,17 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
     @others
 </t>
 <t tx="karstenw.20230303141307.12">def __init__(self, y, x, bias = -1):
-    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, scipy.ndarray))):
+    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, np.ndarray))):
         raise TypeError("type of y: {0} is not supported!".format(type(y)))
 
     if isinstance(x, (list, tuple)):
         if len(y) != len(x):
             raise ValueError("len(y) != len(x)")
-    elif scipy != None and isinstance(x, (scipy.ndarray, sparse.spmatrix)):
+    elif scipy != None and isinstance(x, (np.ndarray, sparse.spmatrix)):
         if len(y) != x.shape[0]:
             raise ValueError("len(y) != len(x)")
-        if isinstance(x, scipy.ndarray):
-            x = scipy.ascontiguousarray(x) # enforce row-major
+        if isinstance(x, np.ndarray):
+            x = np.ascontiguousarray(x) # enforce row-major
         if isinstance(x, sparse.spmatrix):
             x = x.tocsr()
             pass
@@ -43827,21 +43835,19 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
     self.n = max_idx
 
     self.y = (c_double * l)()
-    if scipy != None and isinstance(y, scipy.ndarray):
-        scipy.ctypeslib.as_array(self.y, (self.l,))[:] = y
+    if scipy != None and isinstance(y, np.ndarray):
+        np.ctypeslib.as_array(self.y, (self.l,))[:] = y
     else:
-        for i, yi in enumerate(y):
-            self.y[i] = yi
+        for i, yi in enumerate(y): self.y[i] = yi
 
     self.x = (POINTER(feature_node) * l)()
     if scipy != None and isinstance(x, sparse.csr_matrix):
         base = addressof(self.x_space.ctypes.data_as(POINTER(feature_node))[0])
         x_ptr = cast(self.x, POINTER(c_uint64))
-        x_ptr = scipy.ctypeslib.as_array(x_ptr,(self.l,))
-        x_ptr[:] = self.rowptr[:-1] * sizeof(feature_node) + base
+        x_ptr = np.ctypeslib.as_array(x_ptr,(self.l,))
+        x_ptr[:] = self.rowptr[:-1]*sizeof(feature_node)+base
     else:
-        for i, xi in enumerate(self.x_space):
-            self.x[i] = xi
+        for i, xi in enumerate(self.x_space): self.x[i] = xi
 
     self.set_bias(bias)
 
@@ -43860,16 +43866,25 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
         for xi in self.x_space:
             xi[-2] = node
     else:
-        self.x_space["index"][self.rowptr[1:] - 2] = node.index
-        self.x_space["value"][self.rowptr[1:] - 2] = node.value
+        self.x_space["index"][self.rowptr[1:]-2] = node.index
+        self.x_space["value"][self.rowptr[1:]-2] = node.value
 
     self.bias = bias
+
+def copy(self):
+    prob_copy = problem.__new__(problem)
+    for key in problem._names + list(vars(self)):
+        setattr(prob_copy, key, getattr(self, key))
+    return prob_copy
 
 
 </t>
 <t tx="karstenw.20230303141307.14">class parameter(Structure):
-    _names = ["solver_type", "eps", "C", "nr_weight", "weight_label", "weight", "p", "init_sol"]
-    _types = [c_int, c_double, c_double, c_int, POINTER(c_int), POINTER(c_double), c_double, POINTER(c_double)]
+    _names = ["solver_type", "eps", "C", "nr_weight", "weight_label",
+              "weight", "p", "nu", "init_sol", "regularize_bias",
+              "w_recalc"]
+    _types = [c_int, c_double, c_double, c_int, POINTER(c_int),
+              POINTER(c_double), c_double, c_double, POINTER(c_double), c_int,c_bool]
     _fields_ = genFields(_names, _types)
 
     @others
@@ -43883,7 +43898,7 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141307.16">def __str__(self):
     s = ''
     attrs = parameter._names + list(self.__dict__.keys())
-    values = list(map(lambda attr: getattr(self, attr), attrs))
+    values = map(lambda attr: getattr(self, attr), attrs)
     for attr, val in zip(attrs, values):
         s += (' %s: %s\n' % (attr, val))
     s = s.strip()
@@ -43892,19 +43907,23 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 
 </t>
 <t tx="karstenw.20230303141307.17">def set_to_default_values(self):
-    self.solver_type = L2R_L2LOSS_SVC_DUAL
+    self.solver_type = solver_names.L2R_L2LOSS_SVC_DUAL
     self.eps = float('inf')
     self.C = 1
     self.p = 0.1
+    self.nu = 0.5
     self.nr_weight = 0
     self.weight_label = None
     self.weight = None
     self.init_sol = None
     self.bias = -1
+    self.regularize_bias = 1
+    self.w_recalc = False
     self.flag_cross_validation = False
     self.flag_C_specified = False
+    self.flag_p_specified = False
     self.flag_solver_specified = False
-    self.flag_find_C = False
+    self.flag_find_parameters = False
     self.nr_fold = 0
     self.print_func = cast(None, PRINT_STRING_FUN)
 
@@ -43922,10 +43941,10 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
     weight = []
 
     i = 0
-    while i &lt; len(argv):
+    while i &lt; len(argv) :
         if argv[i] == "-s":
             i = i + 1
-            self.solver_type = int(argv[i])
+            self.solver_type = solver_names(int(argv[i]))
             self.flag_solver_specified = True
         elif argv[i] == "-c":
             i = i + 1
@@ -43934,6 +43953,10 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
         elif argv[i] == "-p":
             i = i + 1
             self.p = float(argv[i])
+            self.flag_p_specified = True
+        elif argv[i] == "-n":
+            i = i + 1
+            self.nu = float(argv[i])
         elif argv[i] == "-e":
             i = i + 1
             self.eps = float(argv[i])
@@ -43944,56 +43967,58 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
             i = i + 1
             self.flag_cross_validation = 1
             self.nr_fold = int(argv[i])
-            if self.nr_fold &lt; 2:
+            if self.nr_fold &lt; 2 :
                 raise ValueError("n-fold cross validation: n must &gt;= 2")
         elif argv[i].startswith("-w"):
             i = i + 1
             self.nr_weight += 1
-            weight_label += [int(argv[i - 1][2:])]
+            weight_label += [int(argv[i-1][2:])]
             weight += [float(argv[i])]
         elif argv[i] == "-q":
-            self.print_func = PRINT_STRING_FUN(print_null)
+            self.print_func = ctypes_print_null
         elif argv[i] == "-C":
-            self.flag_find_C = True
-
+            self.flag_find_parameters = True
+        elif argv[i] == "-R":
+            self.regularize_bias = 0
         else:
             raise ValueError("Wrong options")
         i += 1
 
     liblinear.set_print_string_function(self.print_func)
-    self.weight_label = (c_int * self.nr_weight)()
-    self.weight = (c_double * self.nr_weight)()
+    self.weight_label = (c_int*self.nr_weight)()
+    self.weight = (c_double*self.nr_weight)()
     for i in range(self.nr_weight):
         self.weight[i] = weight[i]
         self.weight_label[i] = weight_label[i]
 
     # default solver for parameter selection is L2R_L2LOSS_SVC
-    if self.flag_find_C:
+    if self.flag_find_parameters:
         if not self.flag_cross_validation:
             self.nr_fold = 5
         if not self.flag_solver_specified:
-            self.solver_type = L2R_L2LOSS_SVC
+            self.solver_type = solver_names.L2R_L2LOSS_SVC
             self.flag_solver_specified = True
-        elif self.solver_type not in [L2R_LR, L2R_L2LOSS_SVC]:
-            raise ValueError("Warm-start parameter search only available for -s 0 and -s 2")
+        elif self.solver_type not in [solver_names.L2R_LR, solver_names.L2R_L2LOSS_SVC, solver_names.L2R_L2LOSS_SVR]:
+            raise ValueError("Warm-start parameter search only available for -s 0, -s 2 and -s 11")
 
     if self.eps == float('inf'):
-        if self.solver_type in [L2R_LR, L2R_L2LOSS_SVC]:
+        if self.solver_type in [solver_names.L2R_LR, solver_names.L2R_L2LOSS_SVC]:
             self.eps = 0.01
-        elif self.solver_type in [L2R_L2LOSS_SVR]:
-            self.eps = 0.001
-        elif self.solver_type in [L2R_L2LOSS_SVC_DUAL, L2R_L1LOSS_SVC_DUAL, MCSVM_CS, L2R_LR_DUAL]:
+        elif self.solver_type in [solver_names.L2R_L2LOSS_SVR]:
+            self.eps = 0.0001
+        elif self.solver_type in [solver_names.L2R_L2LOSS_SVC_DUAL, solver_names.L2R_L1LOSS_SVC_DUAL, solver_names.MCSVM_CS, solver_names.L2R_LR_DUAL]:
             self.eps = 0.1
-        elif self.solver_type in [L1R_L2LOSS_SVC, L1R_LR]:
+        elif self.solver_type in [solver_names.L1R_L2LOSS_SVC, solver_names.L1R_LR]:
             self.eps = 0.01
-        elif self.solver_type in [L2R_L2LOSS_SVR_DUAL, L2R_L1LOSS_SVR_DUAL]:
+        elif self.solver_type in [solver_names.L2R_L2LOSS_SVR_DUAL, solver_names.L2R_L1LOSS_SVR_DUAL]:
             self.eps = 0.1
-
+        elif self.solver_type in [solver_names.ONECLASS_SVM]:
+            self.eps = 0.01
 
 </t>
 <t tx="karstenw.20230303141307.19">class model(Structure):
-    _names = ["param", "nr_class", "nr_feature", "w", "label", "bias"]
-    _types = [parameter, c_int, c_int, POINTER(c_double), POINTER(c_int), c_double]
+    _names = ["param", "nr_class", "nr_feature", "w", "label", "bias", "rho"]
+    _types = [parameter, c_int, c_int, POINTER(c_double), POINTER(c_int), c_double, c_double]
     _fields_ = genFields(_names, _types)
 
     @others
@@ -44001,6 +44026,13 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141307.2">def print_null(s):
     return
 
+# In multi-threading, all threads share the same memory space of
+# the dynamic library (liblinear). Thus, we use a module-level
+# variable to keep a reference to ctypes print_null, preventing
+# python from garbage collecting it in thread B while thread A
+# still needs it. Check the usage of svm_set_print_string_function()
+# in LIBLINEAR README for details.
+ctypes_print_null = PRINT_STRING_FUN(print_null)
 
 </t>
 <t tx="karstenw.20230303141307.20">def __init__(self):
@@ -44035,11 +44067,18 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141307.26">def get_decfun_bias(self, label_idx=0):
     return liblinear.get_decfun_bias(self, label_idx)
 
+def get_decfun_rho(self):
+    return liblinear.get_decfun_rho(self)
+
 </t>
 <t tx="karstenw.20230303141307.27">def get_decfun(self, label_idx=0):
-    w = [liblinear.get_decfun_coef(self, feat_idx, label_idx) for feat_idx in range(1, self.nr_feature + 1)]
-    b = liblinear.get_decfun_bias(self, label_idx)
-    return (w, b)
+    w = [liblinear.get_decfun_coef(self, feat_idx, label_idx) for feat_idx in range(1, self.nr_feature+1)]
+    if self.is_oneclass_model():
+        rho = self.get_decfun_rho()
+        return (w, -rho)
+    else:
+        b = liblinear.get_decfun_bias(self, label_idx)
+        return (w, b)
 
 </t>
 <t tx="karstenw.20230303141307.28">def is_probability_model(self):
@@ -44049,11 +44088,12 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141307.29">def is_regression_model(self):
     return (liblinear.check_regression_model(self) == 1)
 
+def is_oneclass_model(self):
+    return (liblinear.check_oneclass_model(self) == 1)
 
 </t>
 <t tx="karstenw.20230303141307.3">def genFields(names, types):
     return list(zip(names, types))
-
 
 </t>
 <t tx="karstenw.20230303141307.30">def toPyModel(model_ptr):
@@ -44073,7 +44113,6 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
     f.restype = restype
     f.argtypes = argtypes
 
-
 </t>
 <t tx="karstenw.20230303141307.5">class feature_node(Structure):
     _names = ["index", "value"]
@@ -44085,7 +44124,6 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141307.6">def __str__(self):
     return '%d:%g' % (self.index, self.value)
 
-
 </t>
 <t tx="karstenw.20230303141307.7">def gen_feature_nodearray(xi, feature_max=None):
     if feature_max:
@@ -44093,38 +44131,38 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 
     xi_shift = 0 # ensure correct indices of xi
     if scipy and isinstance(xi, tuple) and len(xi) == 2\
-            and isinstance(xi[0], scipy.ndarray) and isinstance(xi[1], scipy.ndarray): # for a sparse vector
+            and isinstance(xi[0], np.ndarray) and isinstance(xi[1], np.ndarray): # for a sparse vector
         index_range = xi[0] + 1 # index starts from 1
         if feature_max:
-            index_range = index_range[scipy.where(index_range &lt;= feature_max)]
-    elif scipy and isinstance(xi, scipy.ndarray):
+            index_range = index_range[np.where(index_range &lt;= feature_max)]
+    elif scipy and isinstance(xi, np.ndarray):
         xi_shift = 1
         index_range = xi.nonzero()[0] + 1 # index starts from 1
         if feature_max:
-            index_range = index_range[scipy.where(index_range &lt;= feature_max)]
+            index_range = index_range[np.where(index_range &lt;= feature_max)]
     elif isinstance(xi, (dict, list, tuple)):
         if isinstance(xi, dict):
-            index_range = xi.keys()
+            index_range = sorted(xi.keys())
         elif isinstance(xi, (list, tuple)):
             xi_shift = 1
             index_range = range(1, len(xi) + 1)
-        index_range = list(filter(lambda j: xi[j - xi_shift] != 0, index_range))
+        index_range = list(filter(lambda j: xi[j-xi_shift] != 0, index_range))
 
         if feature_max:
             index_range = list(filter(lambda j: j &lt;= feature_max, index_range))
-        index_range = sorted(index_range)
     else:
         raise TypeError('xi should be a dictionary, list, tuple, 1-d numpy array, or tuple of (index, data)')
 
-    ret = (feature_node * (len(index_range) + 2))()
+    ret = (feature_node*(len(index_range)+2))()
     ret[-1].index = -1 # for bias term
     ret[-2].index = -1
 
     if scipy and isinstance(xi, tuple) and len(xi) == 2\
-            and isinstance(xi[0], scipy.ndarray) and isinstance(xi[1], scipy.ndarray): # for a sparse vector
-        for idx, j in enumerate(index_range):
-            ret[idx].index = j
-            ret[idx].value = (xi[1])[idx]
+            and isinstance(xi[0], np.ndarray) and isinstance(xi[1], np.ndarray): # for a sparse vector
+        # since xi=(indices, values), we must sort them simultaneously.
+        for idx, arg in enumerate(np.argsort(index_range)):
+            ret[idx].index = index_range[arg]
+            ret[idx].value = (xi[1])[arg]
     else:
         for idx, j in enumerate(index_range):
             ret[idx].index = j
@@ -44139,96 +44177,56 @@ try:
     from numba import jit
     jit_enabled = True
 except:
-    jit = lambda x: x
+    # We need to support two cases: when jit is called with no arguments, and when jit is called with
+    # a keyword argument.
+    def jit(func=None, *args, **kwargs):
+        if func is None:
+            # This handles the case where jit is used with parentheses: @jit(nopython=True)
+            return lambda x: x
+        else:
+            # This handles the case where jit is used without parentheses: @jit
+            return func
     jit_enabled = False
 
-
+@jit(nopython=True)
 </t>
-<t tx="karstenw.20230303141307.8">@jit
-def csr_to_problem_jit(l, x_val, x_ind, x_rowptr, prob_val, prob_ind, prob_rowptr):
+<t tx="karstenw.20230303141307.8">def csr_to_problem_jit(l, x_val, x_ind, x_rowptr, prob_val, prob_ind, prob_rowptr):
     for i in range(l):
-        b1,e1 = x_rowptr[i], x_rowptr[i + 1]
-        b2,e2 = prob_rowptr[i], prob_rowptr[i + 1] - 2
+        b1,e1 = x_rowptr[i], x_rowptr[i+1]
+        b2,e2 = prob_rowptr[i], prob_rowptr[i+1]-2
         for j in range(b1,e1):
-            prob_ind[j - b1 + b2] = x_ind[j] + 1
-            prob_val[j - b1 + b2] = x_val[j]
-
-
+            prob_ind[j-b1+b2] = x_ind[j]+1
+            prob_val[j-b1+b2] = x_val[j]
 </t>
 <t tx="karstenw.20230303141307.9">def csr_to_problem_nojit(l, x_val, x_ind, x_rowptr, prob_val, prob_ind, prob_rowptr):
     for i in range(l):
-        x_slice = slice(x_rowptr[i], x_rowptr[i + 1])
-        prob_slice = slice(prob_rowptr[i], prob_rowptr[i + 1] - 2)
-        prob_ind[prob_slice] = x_ind[x_slice] + 1
+        x_slice = slice(x_rowptr[i], x_rowptr[i+1])
+        prob_slice = slice(prob_rowptr[i], prob_rowptr[i+1]-2)
+        prob_ind[prob_slice] = x_ind[x_slice]+1
         prob_val[prob_slice] = x_val[x_slice]
 
-
 </t>
-<t tx="karstenw.20230303141310.1">from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-
-from builtins import str, bytes, dict, int
-from builtins import object, range
-from builtins import map, zip, filter
-
-import os
-import sys
-sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
-from liblinear import *
-from liblinear import __all__ as liblinear_all
-from liblinear import scipy, sparse
+<t tx="karstenw.20230303141310.1">from .liblinear import __all__ as liblinear_all
+from .commonutil import *
+from .commonutil import __all__ as common_all
 from ctypes import c_double
 
-__all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
-           'train', 'predict'] + liblinear_all
-
-
+try:
+    import numpy as np
+    import scipy
+    from scipy import sparse
 </t>
-<t tx="karstenw.20230303141310.2">def svm_read_problem(data_file_name, return_scipy=False):
-    """
-    svm_read_problem(data_file_name, return_scipy=False) -&gt; [y, x], y: list, x: list of dictionary
-    svm_read_problem(data_file_name, return_scipy=True)  -&gt; [y, x], y: ndarray, x: csr_matrix
+<t tx="karstenw.20230303141310.2">except:
+    scipy = None
 
-    Read LIBSVM-format data from data_file_name and return labels y
-    and data instances x.
-    """
-    prob_y = []
-    prob_x = []
-    row_ptr = [0]
-    col_idx = []
-    for i, line in enumerate(open(data_file_name)):
-        line = line.split(None, 1)
-        # In case an instance with all zero features
-        if len(line) == 1:
-            line += ['']
-        label, features = line
-        prob_y += [float(label)]
-        if scipy is not None and return_scipy:
-            nz = 0
-            for e in features.split():
-                ind, val = e.split(":")
-                val = float(val)
-                if val != 0:
-                    col_idx += [int(ind) - 1]
-                    prob_x += [val]
-                    nz += 1
-            row_ptr += [row_ptr[-1] + nz]
-        else:
-            xi = {}
-            for e in features.split():
-                ind, val = e.split(":")
-                if val != 0:
-                    xi[int(ind)] = float(val)
-            prob_x += [xi]
-    if scipy is not None and return_scipy:
-        prob_y = scipy.array(prob_y)
-        prob_x = scipy.array(prob_x)
-        col_idx = scipy.array(col_idx)
-        row_ptr = scipy.array(row_ptr)
-        prob_x = sparse.csr_matrix((prob_x, col_idx, row_ptr))
-    return (prob_y, prob_x)
+if sys.version_info[0] &lt; 3:
+    range = xrange
+    from itertools import izip as zip
+    _cstr = lambda s: s.encode("utf-8") if isinstance(s,unicode) else str(s)
+else:
+    _cstr = lambda s: bytes(s, "utf-8")
+
+__all__ = ['load_model', 'save_model', 'train', 'predict'] + liblinear_all + common_all
 
 
 </t>
@@ -44238,13 +44236,12 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
 
     Load a LIBLINEAR model from model_file_name and return.
     """
-    model = liblinear.load_model(model_file_name.encode())
+    model = liblinear.load_model(_cstr(model_file_name))
     if not model:
         print("can't open model file %s" % model_file_name)
         return None
     model = toPyModel(model)
     return model
-
 
 </t>
 <t tx="karstenw.20230303141310.4">def save_model(model_file_name, model):
@@ -44253,73 +44250,10 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
 
     Save a LIBLINEAR model to the file model_file_name.
     """
-    liblinear.save_model(model_file_name.encode(), model)
-
-
+    liblinear.save_model(_cstr(model_file_name), model)
 </t>
-<t tx="karstenw.20230303141310.5">def evaluations_scipy(ty, pv):
-    """
-    evaluations_scipy(ty, pv) -&gt; (ACC, MSE, SCC)
-    ty, pv: ndarray
-
-    Calculate accuracy, mean squared error and squared correlation coefficient
-    using the true values (ty) and predicted values (pv).
-    """
-    if not (scipy is not None and isinstance(ty, scipy.ndarray) and isinstance(pv, scipy.ndarray)):
-        raise TypeError("type of ty and pv must be ndarray")
-    if len(ty) != len(pv):
-        raise ValueError("len(ty) must be equal to len(pv)")
-    ACC = 100.0 * (ty == pv).mean()
-    MSE = ((ty - pv)**2).mean()
-    l = len(ty)
-    sumv = pv.sum()
-    sumy = ty.sum()
-    sumvy = (pv * ty).sum()
-    sumvv = (pv * pv).sum()
-    sumyy = (ty * ty).sum()
-    with scipy.errstate(all = 'raise'):
-        try:
-            SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / ((l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy))
-        except:
-            SCC = float('nan')
-    return (float(ACC), float(MSE), float(SCC))
-
-
-</t>
-<t tx="karstenw.20230303141310.6">def evaluations(ty, pv, useScipy = True):
-    """
-    evaluations(ty, pv, useScipy) -&gt; (ACC, MSE, SCC)
-    ty, pv: list, tuple or ndarray
-    useScipy: convert ty, pv to ndarray, and use scipy functions for the evaluation
-
-    Calculate accuracy, mean squared error and squared correlation coefficient
-    using the true values (ty) and predicted values (pv).
-    """
-    if scipy is not None and useScipy:
-        return evaluations_scipy(scipy.asarray(ty), scipy.asarray(pv))
-    if len(ty) != len(pv):
-        raise ValueError("len(ty) must be equal to len(pv)")
-    total_correct = total_error = 0
-    sumv = sumy = sumvv = sumyy = sumvy = 0
-    for v, y in zip(pv, ty):
-        if y == v:
-            total_correct += 1
-        total_error += (v - y) * (v - y)
-        sumv += v
-        sumy += y
-        sumvv += v * v
-        sumyy += y * y
-        sumvy += v * y
-    l = len(ty)
-    ACC = 100.0 * total_correct / l
-    MSE = total_error / l
-    try:
-        SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / ((l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy))
-    except:
-        SCC = float('nan')
-    return (float(ACC), float(MSE), float(SCC))
-
-
+<t tx="karstenw.20230303141310.5"></t>
+<t tx="karstenw.20230303141310.6">
 </t>
 <t tx="karstenw.20230303141310.7">def train(arg1, arg2=None, arg3=None):
     """
@@ -44342,44 +44276,49 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
     either accuracy (ACC) or mean-squared error (MSE) is returned.
 
     options:
-            -s type : set type of solver (default 1)
-              for multi-class classification
-                     0 -- L2-regularized logistic regression (primal)
-                     1 -- L2-regularized L2-loss support vector classification (dual)
-                     2 -- L2-regularized L2-loss support vector classification (primal)
-                     3 -- L2-regularized L1-loss support vector classification (dual)
-                     4 -- support vector classification by Crammer and Singer
-                     5 -- L1-regularized L2-loss support vector classification
-                     6 -- L1-regularized logistic regression
-                     7 -- L2-regularized logistic regression (dual)
-              for regression
-                    11 -- L2-regularized L2-loss support vector regression (primal)
-                    12 -- L2-regularized L2-loss support vector regression (dual)
-                    13 -- L2-regularized L1-loss support vector regression (dual)
-            -c cost : set the parameter C (default 1)
-            -p epsilon : set the epsilon in loss function of SVR (default 0.1)
-            -e epsilon : set tolerance of termination criterion
-                    -s 0 and 2
-                            |f'(w)|_2 &lt;= eps*min(pos,neg)/l*|f'(w0)|_2,
-                            where f is the primal function, (default 0.01)
-                    -s 11
-                            |f'(w)|_2 &lt;= eps*|f'(w0)|_2 (default 0.001)
-                    -s 1, 3, 4, and 7
-                            Dual maximal violation &lt;= eps; similar to liblinear (default 0.)
-                    -s 5 and 6
-                            |f'(w)|_inf &lt;= eps*min(pos,neg)/l*|f'(w0)|_inf,
-                            where f is the primal function (default 0.01)
-                    -s 12 and 13
-                            |f'(alpha)|_1 &lt;= eps |f'(alpha0)|,
-                            where f is the dual function (default 0.1)
-            -B bias : if bias &gt;= 0, instance x becomes [x; bias]; if &lt; 0, no bias term added (default -1)
-            -wi weight: weights adjust the parameter C of different classes (see README for details)
-            -v n: n-fold cross validation mode
-            -q : quiet mode (no outputs)
+        -s type : set type of solver (default 1)
+          for multi-class classification
+             0 -- L2-regularized logistic regression (primal)
+             1 -- L2-regularized L2-loss support vector classification (dual)
+             2 -- L2-regularized L2-loss support vector classification (primal)
+             3 -- L2-regularized L1-loss support vector classification (dual)
+             4 -- support vector classification by Crammer and Singer
+             5 -- L1-regularized L2-loss support vector classification
+             6 -- L1-regularized logistic regression
+             7 -- L2-regularized logistic regression (dual)
+          for regression
+            11 -- L2-regularized L2-loss support vector regression (primal)
+            12 -- L2-regularized L2-loss support vector regression (dual)
+            13 -- L2-regularized L1-loss support vector regression (dual)
+          for outlier detection
+            21 -- one-class support vector machine (dual)
+        -c cost : set the parameter C (default 1)
+        -p epsilon : set the epsilon in loss function of SVR (default 0.1)
+        -e epsilon : set tolerance of termination criterion
+            -s 0 and 2
+                |f'(w)|_2 &lt;= eps*min(pos,neg)/l*|f'(w0)|_2,
+                where f is the primal function, (default 0.01)
+            -s 11
+                |f'(w)|_2 &lt;= eps*|f'(w0)|_2 (default 0.0001)
+            -s 1, 3, 4, 7, and 21
+                Dual maximal violation &lt;= eps; similar to libsvm (default 0.1 except 0.01 for -s 21)
+            -s 5 and 6
+                |f'(w)|_inf &lt;= eps*min(pos,neg)/l*|f'(w0)|_inf,
+                where f is the primal function (default 0.01)
+            -s 12 and 13
+                |f'(alpha)|_1 &lt;= eps |f'(alpha0)|,
+                where f is the dual function (default 0.1)
+        -B bias : if bias &gt;= 0, instance x becomes [x; bias]; if &lt; 0, no bias term added (default -1)
+        -R : not regularize the bias; must with -B 1 to have the bias; DON'T use this unless you know what it is
+            (for -s 0, 2, 5, 6, 11)"
+        -wi weight: weights adjust the parameter C of different classes (see README for details)
+        -v n: n-fold cross validation mode
+        -C : find parameters (C for -s 0, 2 and C, p for -s 11)
+        -q : quiet mode (no outputs)
     """
     prob, param = None, None
-    if isinstance(arg1, (list, tuple)) or (scipy and isinstance(arg1, scipy.ndarray)):
-        assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (scipy.ndarray, sparse.spmatrix)))
+    if isinstance(arg1, (list, tuple)) or (scipy and isinstance(arg1, np.ndarray)):
+        assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (np.ndarray, sparse.spmatrix)))
         y, x, options = arg1, arg2, arg3
         prob = problem(y, x)
         param = parameter(options)
@@ -44389,34 +44328,42 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
             param = arg2
         else:
             param = parameter(arg2)
-    if prob is None or param is None:
+    if prob == None or param == None :
         raise TypeError("Wrong types for the arguments")
 
     prob.set_bias(param.bias)
     liblinear.set_print_string_function(param.print_func)
     err_msg = liblinear.check_parameter(prob, param)
-    if err_msg:
+    if err_msg :
         raise ValueError('Error: %s' % err_msg)
 
-    if param.flag_find_C:
+    if param.flag_find_parameters:
         nr_fold = param.nr_fold
         best_C = c_double()
-        best_rate = c_double()
-        max_C = 1024
+        best_p = c_double()
+        best_score = c_double()
         if param.flag_C_specified:
             start_C = param.C
         else:
             start_C = -1.0
-        liblinear.find_parameter_C(prob, param, nr_fold, start_C, max_C, best_C, best_rate)
-        print("Best C = %lf  CV accuracy = %g%%\n" % (best_C.value, 100.0 * best_rate.value))
-        return best_C.value, best_rate.value
+        if param.flag_p_specified:
+            start_p = param.p
+        else:
+            start_p = -1.0
+        liblinear.find_parameters(prob, param, nr_fold, start_C, start_p, best_C, best_p, best_score)
+        if param.solver_type in [solver_names.L2R_LR, solver_names.L2R_L2LOSS_SVC]:
+            print("Best C = %g  CV accuracy = %g%%\n"% (best_C.value, 100.0*best_score.value))
+        elif param.solver_type in [solver_names.L2R_L2LOSS_SVR]:
+            print("Best C = %g Best p = %g  CV MSE = %g\n"% (best_C.value, best_p.value, best_score.value))
+        return best_C.value,best_p.value,best_score.value
+
 
     elif param.flag_cross_validation:
         l, nr_fold = prob.l, param.nr_fold
         target = (c_double * l)()
         liblinear.cross_validation(prob, param, nr_fold, target)
         ACC, MSE, SCC = evaluations(prob.y[:l], target[:l])
-        if param.solver_type in [L2R_L2LOSS_SVR, L2R_L2LOSS_SVR_DUAL, L2R_L1LOSS_SVR_DUAL]:
+        if param.solver_type in [solver_names.L2R_L2LOSS_SVR, solver_names.L2R_L2LOSS_SVR_DUAL, solver_names.L2R_L1LOSS_SVR_DUAL]:
             print("Cross Validation Mean squared error = %g" % MSE)
             print("Cross Validation Squared correlation coefficient = %g" % SCC)
             return MSE
@@ -44429,11 +44376,10 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
 
         return m
 
-
 </t>
 <t tx="karstenw.20230303141310.8">def predict(y, x, m, options=""):
     """
-    predict(y, x, m [, options]) -&gt; (p_labels, p_acc, p_vals)
+    predict(y, x, m [, options]) -&gt; (pred_labels, pred_metrics, pred_values)
 
     y: a list/tuple/ndarray of l true labels (type must be int/double).
        It is used for calculating the accuracy. Use [] if true labels are
@@ -44450,10 +44396,10 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
         -q quiet mode (no outputs)
 
     The return tuple contains
-    p_labels: a list of predicted labels
-    p_acc: a tuple including  accuracy (for classification), mean-squared
+    pred_labels: a list of predicted labels
+    pred_metrics: a tuple of metrics including  accuracy (for classification), mean-squared
            error, and squared correlation coefficient (for regression).
-    p_vals: a list of decision values or probability estimates (if '-b 1'
+    pred_values: a list of decision values or probability estimates (if '-b 1'
             is specified). If k is the number of classes, for decision values,
             each element includes results of predicting k binary-class
             SVMs. if k = 2 and solver is not MCSVM_CS, only one decision value
@@ -44466,14 +44412,14 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
     def info(s):
         print(s)
 
-    if scipy and isinstance(x, scipy.ndarray):
-        x = scipy.ascontiguousarray(x) # enforce row-major
-    elif sparse and isinstance(x, sparse.spmatrix):
+    if scipy and isinstance(x, np.ndarray):
+        x = np.ascontiguousarray(x) # enforce row-major
+    elif scipy and isinstance(x, sparse.spmatrix):
         x = x.tocsr()
     elif not isinstance(x, (list, tuple)):
         raise TypeError("type of x: {0} is not supported!".format(type(x)))
 
-    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, scipy.ndarray))):
+    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, np.ndarray))):
         raise TypeError("type of y: {0} is not supported!".format(type(y)))
 
     predict_probability = 0
@@ -44487,7 +44433,7 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
             info = print_null
         else:
             raise ValueError("Wrong options")
-        i += 1
+        i+=1
 
     solver_type = m.param.solver_type
     nr_class = m.get_nr_class()
@@ -44495,7 +44441,7 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
     is_prob_model = m.is_probability_model()
     bias = m.bias
     if bias &gt;= 0:
-        biasterm = feature_node(nr_feature + 1, bias)
+        biasterm = feature_node(nr_feature+1, bias)
     else:
         biasterm = feature_node(-1, bias)
     pred_labels = []
@@ -44512,7 +44458,7 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
         prob_estimates = (c_double * nr_class)()
         for i in range(nr_instance):
             if scipy and isinstance(x, sparse.spmatrix):
-                indslice = slice(x.indptr[i], x.indptr[i + 1])
+                indslice = slice(x.indptr[i], x.indptr[i+1])
                 xi, idx = gen_feature_nodearray((x.indices[indslice], x.data[indslice]), feature_max=nr_feature)
             else:
                 xi, idx = gen_feature_nodearray(x[i], feature_max=nr_feature)
@@ -44529,7 +44475,7 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
         dec_values = (c_double * nr_classifier)()
         for i in range(nr_instance):
             if scipy and isinstance(x, sparse.spmatrix):
-                indslice = slice(x.indptr[i], x.indptr[i + 1])
+                indslice = slice(x.indptr[i], x.indptr[i+1])
                 xi, idx = gen_feature_nodearray((x.indices[indslice], x.data[indslice]), feature_max=nr_feature)
             else:
                 xi, idx = gen_feature_nodearray(x[i], feature_max=nr_feature)
@@ -44547,63 +44493,68 @@ __all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
         info("Mean squared error = %g (regression)" % MSE)
         info("Squared correlation coefficient = %g (regression)" % SCC)
     else:
-        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(round(nr_instance * ACC / 100)), nr_instance))
+        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(round(nr_instance*ACC/100)), nr_instance))
 
     return pred_labels, (ACC, MSE, SCC), pred_values
 </t>
-<t tx="karstenw.20230303141312.1">#!/usr/bin/env python
-
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import division
-
-from builtins import str, bytes, int
-from builtins import object, range
-from builtins import map, zip, filter
-
-from ctypes import *
+<t tx="karstenw.20230303141312.1">from ctypes import *
 from ctypes.util import find_library
 from os import path
+from glob import glob
+from enum import IntEnum
 import sys
 
-__all__ = ['libsvm', 'svm_problem', 'svm_parameter',
-           'toPyModel', 'gen_svm_nodearray', 'print_null', 'svm_node', 'C_SVC',
-           'EPSILON_SVR', 'LINEAR', 'NU_SVC', 'NU_SVR', 'ONE_CLASS',
-           'POLY', 'PRECOMPUTED', 'PRINT_STRING_FUN', 'RBF',
-           'SIGMOID', 'c_double', 'svm_model']
+import platform
+machine = platform.machine()
 
 try:
-    dirname = path.dirname(path.abspath(__file__))
-    if sys.platform == 'win32':
-        libsvm = CDLL(path.join(dirname, 'windows\\libsvm-3.22\\libsvm.dll'))
-    else:
-        libsvm = CDLL(path.join(dirname, 'macos/libsvm-3.22/libsvm.so.2'))
-
+    import numpy as np
+    import scipy
+    from scipy import sparse
 except:
-# For unix the prefix 'lib' is not considered.
-    if find_library('svm'):
-        libsvm = CDLL(find_library('svm'))
-    elif find_library('libsvm'):
-        libsvm = CDLL(find_library('libsvm'))
-    else:
-        libsvm = CDLL(path.join(path.dirname(__file__), 'ubuntu/libsvm-3.22/libsvm.so.2'))
+    scipy = None
 
 
-C_SVC = 0
-NU_SVC = 1
-ONE_CLASS = 2
-EPSILON_SVR = 3
-NU_SVR = 4
+if sys.version_info[0] &lt; 3:
+    range = xrange
+    from itertools import izip as zip
 
-LINEAR = 0
-POLY = 1
-RBF = 2
-SIGMOID = 3
-PRECOMPUTED = 4
+__all__ = ['libsvm', 'svm_problem', 'svm_parameter',
+           'toPyModel', 'gen_svm_nodearray', 'print_null', 'svm_node', 'svm_forms',
+            'PRINT_STRING_FUN', 'kernel_names', 'c_double', 'svm_model']
+
+#
+# ATTENTION:
+#
+# I have deleted the windows and ubuntu parts because I cant compile them.
+#
+# If you can compile for either please reconstruct this section from the source files and adapt for ARM / INTEL
+#
+
+dirname = path.dirname(path.abspath(__file__))
+if machine.startswith("arm"):
+    libsvm = CDLL(path.join(dirname, 'macos/libsvm-337/arm/libsvm.so.4'))
+    print("LOAD ARM libsvm.so.4")
+else:
+    libsvm = CDLL(path.join(dirname, 'macos/libsvm-337/intel/libsvm.so.4'))
+    print("LOAD INTEL libsvm.so.4")
+
+
+class svm_forms(IntEnum):
+    C_SVC = 0
+    NU_SVC = 1
+    ONE_CLASS = 2
+    EPSILON_SVR = 3
+    NU_SVR = 4
+
+class kernel_names(IntEnum):
+    LINEAR = 0
+    POLY = 1
+    RBF = 2
+    SIGMOID = 3
+    PRECOMPUTED = 4
 
 PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
-
-
 </t>
 <t tx="karstenw.20230303141312.10">class svm_parameter(Structure):
     _names = ["svm_type", "kernel_type", "degree", "gamma", "coef0",
@@ -44625,7 +44576,7 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141312.12">def __str__(self):
     s = ''
     attrs = svm_parameter._names + list(self.__dict__.keys())
-    values = list(map(lambda attr: getattr(self, attr), attrs))
+    values = map(lambda attr: getattr(self, attr), attrs)
     for attr, val in zip(attrs, values):
         s += (' %s: %s\n' % (attr, val))
     s = s.strip()
@@ -44634,8 +44585,8 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 
 </t>
 <t tx="karstenw.20230303141312.13">def set_to_default_values(self):
-    self.svm_type = C_SVC
-    self.kernel_type = RBF
+    self.svm_type = svm_forms.C_SVC;
+    self.kernel_type = kernel_names.RBF
     self.degree = 3
     self.gamma = 0
     self.coef0 = 0
@@ -44670,10 +44621,10 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
     while i &lt; len(argv):
         if argv[i] == "-s":
             i = i + 1
-            self.svm_type = int(argv[i])
+            self.svm_type = svm_forms(int(argv[i]))
         elif argv[i] == "-t":
             i = i + 1
-            self.kernel_type = int(argv[i])
+            self.kernel_type = kernel_names(int(argv[i]))
         elif argv[i] == "-d":
             i = i + 1
             self.degree = int(argv[i])
@@ -44705,7 +44656,7 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
             i = i + 1
             self.probability = int(argv[i])
         elif argv[i] == "-q":
-            self.print_func = PRINT_STRING_FUN(print_null)
+            self.print_func = ctypes_print_null
         elif argv[i] == "-v":
             i = i + 1
             self.cross_validation = 1
@@ -44715,28 +44666,28 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
         elif argv[i].startswith("-w"):
             i = i + 1
             self.nr_weight += 1
-            weight_label += [int(argv[i - 1][2:])]
+            weight_label += [int(argv[i-1][2:])]
             weight += [float(argv[i])]
         else:
             raise ValueError("Wrong options")
         i += 1
 
     libsvm.svm_set_print_string_function(self.print_func)
-    self.weight_label = (c_int * self.nr_weight)()
-    self.weight = (c_double * self.nr_weight)()
+    self.weight_label = (c_int*self.nr_weight)()
+    self.weight = (c_double*self.nr_weight)()
     for i in range(self.nr_weight):
         self.weight[i] = weight[i]
         self.weight_label[i] = weight_label[i]
 
-
 </t>
 <t tx="karstenw.20230303141312.15">class svm_model(Structure):
     _names = ['param', 'nr_class', 'l', 'SV', 'sv_coef', 'rho',
-            'probA', 'probB', 'sv_indices', 'label', 'nSV', 'free_sv']
+            'probA', 'probB', 'prob_density_marks', 'sv_indices',
+            'label', 'nSV', 'free_sv']
     _types = [svm_parameter, c_int, c_int, POINTER(POINTER(svm_node)),
             POINTER(POINTER(c_double)), POINTER(c_double),
-            POINTER(c_double), POINTER(c_double), POINTER(c_int),
-            POINTER(c_int), POINTER(c_int), c_int]
+            POINTER(c_double), POINTER(c_double), POINTER(c_double),
+            POINTER(c_int), POINTER(c_int), POINTER(c_int), c_int]
     _fields_ = genFields(_names, _types)
 
     @others
@@ -44748,7 +44699,7 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141312.17">def __del__(self):
     # free memory created by C to avoid memory leak
     if hasattr(self, '__createfrom__') and self.__createfrom__ == 'C':
-        libsvm.svm_free_and_destroy_model(pointer(self))
+        libsvm.svm_free_and_destroy_model(pointer(pointer(self)))
 
 </t>
 <t tx="karstenw.20230303141312.18">def get_svm_type(self):
@@ -44762,6 +44713,13 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141312.2">def print_null(s):
     return
 
+# In multi-threading, all threads share the same memory space of
+# the dynamic library (libsvm). Thus, we use a module-level
+# variable to keep a reference to ctypes print_null, preventing
+# python from garbage collecting it in thread B while thread A
+# still needs it. Check the usage of svm_set_print_string_function()
+# in LIBSVM README for details.
+ctypes_print_null = PRINT_STRING_FUN(print_null)
 
 </t>
 <t tx="karstenw.20230303141312.20">def get_svr_probability(self):
@@ -44791,8 +44749,8 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 
 </t>
 <t tx="karstenw.20230303141312.25">def get_sv_coef(self):
-    return [tuple(self.sv_coef[j][i] for j in xrange(self.nr_class - 1))
-            for i in xrange(self.l)]
+    return [tuple(self.sv_coef[j][i] for j in range(self.nr_class - 1))
+            for i in range(self.l)]
 
 </t>
 <t tx="karstenw.20230303141312.26">def get_SV(self):
@@ -44802,14 +44760,13 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 
         i = 0
         while True:
-            row[sparse_sv[i].index] = sparse_sv[i].value
             if sparse_sv[i].index == -1:
                 break
+            row[sparse_sv[i].index] = sparse_sv[i].value
             i += 1
 
         result.append(row)
     return result
-
 
 </t>
 <t tx="karstenw.20230303141312.27">def toPyModel(model_ptr):
@@ -44828,12 +44785,10 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 <t tx="karstenw.20230303141312.3">def genFields(names, types):
     return list(zip(names, types))
 
-
 </t>
 <t tx="karstenw.20230303141312.4">def fillprototype(f, restype, argtypes):
     f.restype = restype
     f.argtypes = argtypes
-
 
 </t>
 <t tx="karstenw.20230303141312.5">class svm_node(Structure):
@@ -44841,40 +44796,123 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
     _types = [c_int, c_double]
     _fields_ = genFields(_names, _types)
 
+    def __init__(self, index=-1, value=0):
+        self.index, self.value = index, value
+
     @others
 </t>
 <t tx="karstenw.20230303141312.6">def __str__(self):
     return '%d:%g' % (self.index, self.value)
 
-
+\\-4.def gen_svm_nodearray(xi, feature_max=None, isKernel=False):
 </t>
-<t tx="karstenw.20230303141312.7">def gen_svm_nodearray(xi, feature_max=None, isKernel=None):
-    if isinstance(xi, dict):
-        index_range = xi.keys()
-    elif isinstance(xi, (list, tuple)):
-        if not isKernel:
-            xi = [0] + xi  # idx should start from 1
-        index_range = range(len(xi))
-    else:
-        raise TypeError('xi should be a dictionary, list or tuple')
-
-    if feature_max:
+<t tx="karstenw.20230303141312.7">    if feature_max:
         assert(isinstance(feature_max, int))
-        index_range = list(filter(lambda j: j &lt;= feature_max, index_range))
-    if not isKernel:
-        index_range = list(filter(lambda j:xi[j] != 0, index_range))
 
-    index_range = sorted(index_range)
-    ret = (svm_node * (len(index_range) + 1))()
+    xi_shift = 0 # ensure correct indices of xi
+    if scipy and isinstance(xi, tuple) and len(xi) == 2\
+            and isinstance(xi[0], np.ndarray) and isinstance(xi[1], np.ndarray): # for a sparse vector
+        if not isKernel:
+            index_range = xi[0] + 1 # index starts from 1
+        else:
+            index_range = xi[0] # index starts from 0 for precomputed kernel
+        if feature_max:
+            index_range = index_range[np.where(index_range &lt;= feature_max)]
+    elif scipy and isinstance(xi, np.ndarray):
+        if not isKernel:
+            xi_shift = 1
+            index_range = xi.nonzero()[0] + 1 # index starts from 1
+        else:
+            index_range = np.arange(0, len(xi)) # index starts from 0 for precomputed kernel
+        if feature_max:
+            index_range = index_range[np.where(index_range &lt;= feature_max)]
+    elif isinstance(xi, (dict, list, tuple)):
+        if isinstance(xi, dict):
+            index_range = sorted(xi.keys())
+        elif isinstance(xi, (list, tuple)):
+            if not isKernel:
+                xi_shift = 1
+                index_range = range(1, len(xi) + 1) # index starts from 1
+            else:
+                index_range = range(0, len(xi)) # index starts from 0 for precomputed kernel
+
+        if feature_max:
+            index_range = list(filter(lambda j: j &lt;= feature_max, index_range))
+        if not isKernel:
+            index_range = list(filter(lambda j:xi[j-xi_shift] != 0, index_range))
+    else:
+        raise TypeError('xi should be a dictionary, list, tuple, 1-d numpy array, or tuple of (index, data)')
+
+    ret = (svm_node*(len(index_range)+1))()
     ret[-1].index = -1
-    for idx, j in enumerate(index_range):
-        ret[idx].index = j
-        ret[idx].value = xi[j]
+
+    if scipy and isinstance(xi, tuple) and len(xi) == 2\
+            and isinstance(xi[0], np.ndarray) and isinstance(xi[1], np.ndarray): # for a sparse vector
+        # since xi=(indices, values), we must sort them simultaneously.
+        for idx, arg in enumerate(np.argsort(index_range)):
+            ret[idx].index = index_range[arg]
+            ret[idx].value = (xi[1])[arg]
+    else:
+        for idx, j in enumerate(index_range):
+            ret[idx].index = j
+            ret[idx].value = xi[j - xi_shift]
+
     max_idx = 0
-    if index_range:
+    if len(index_range) &gt; 0:
         max_idx = index_range[-1]
     return ret, max_idx
 
+try:
+    from numba import jit
+    jit_enabled = True
+except:
+    # We need to support two cases: when jit is called with no arguments, and when jit is called with
+    # a keyword argument.
+    def jit(func=None, *args, **kwargs):
+        if func is None:
+            # This handles the case where jit is used with parentheses: @jit(nopython=True)
+            return lambda x: x
+        else:
+            # This handles the case where jit is used without parentheses: @jit
+            return func
+    jit_enabled = False
+
+@jit(nopython=True)
+def csr_to_problem_jit(l, x_val, x_ind, x_rowptr, prob_val, prob_ind, prob_rowptr, indx_start):
+    for i in range(l):
+        b1,e1 = x_rowptr[i], x_rowptr[i+1]
+        b2,e2 = prob_rowptr[i], prob_rowptr[i+1]-1
+        for j in range(b1,e1):
+            prob_ind[j-b1+b2] = x_ind[j]+indx_start
+            prob_val[j-b1+b2] = x_val[j]
+def csr_to_problem_nojit(l, x_val, x_ind, x_rowptr, prob_val, prob_ind, prob_rowptr, indx_start):
+    for i in range(l):
+        x_slice = slice(x_rowptr[i], x_rowptr[i+1])
+        prob_slice = slice(prob_rowptr[i], prob_rowptr[i+1]-1)
+        prob_ind[prob_slice] = x_ind[x_slice]+indx_start
+        prob_val[prob_slice] = x_val[x_slice]
+
+def csr_to_problem(x, prob, isKernel):
+    if not x.has_sorted_indices:
+        x.sort_indices()
+
+    # Extra space for termination node and (possibly) bias term
+    x_space = prob.x_space = np.empty((x.nnz+x.shape[0]), dtype=svm_node)
+    # rowptr has to be a 64bit integer because it will later be used for pointer arithmetic,
+    # which overflows when the added pointer points to an address that is numerically high.
+    prob.rowptr = x.indptr.astype(np.int64, copy=True)
+    prob.rowptr[1:] += np.arange(1,x.shape[0]+1)
+    prob_ind = x_space["index"]
+    prob_val = x_space["value"]
+    prob_ind[:] = -1
+    if not isKernel:
+        indx_start = 1 # index starts from 1
+    else:
+        indx_start = 0 # index starts from 0 for precomputed kernel
+    if jit_enabled:
+        csr_to_problem_jit(x.shape[0], x.data, x.indices, x.indptr, prob_val, prob_ind, prob.rowptr, indx_start)
+    else:
+        csr_to_problem_nojit(x.shape[0], x.data, x.indices, x.indptr, prob_val, prob_ind, prob.rowptr, indx_start)
 
 </t>
 <t tx="karstenw.20230303141312.8">class svm_problem(Structure):
@@ -44884,73 +44922,75 @@ PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 
     @others
 </t>
-<t tx="karstenw.20230303141312.9">def __init__(self, y, x, isKernel=None):
-    if len(y) != len(x):
-        raise ValueError("len(y) != len(x)")
+<t tx="karstenw.20230303141312.9">def __init__(self, y, x, isKernel=False):
+    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, np.ndarray))):
+        raise TypeError("type of y: {0} is not supported!".format(type(y)))
+
+    if isinstance(x, (list, tuple)):
+        if len(y) != len(x):
+            raise ValueError("len(y) != len(x)")
+    elif scipy != None and isinstance(x, (np.ndarray, sparse.spmatrix)):
+        if len(y) != x.shape[0]:
+            raise ValueError("len(y) != len(x)")
+        if isinstance(x, np.ndarray):
+            x = np.ascontiguousarray(x) # enforce row-major
+        if isinstance(x, sparse.spmatrix):
+            x = x.tocsr()
+            pass
+    else:
+        raise TypeError("type of x: {0} is not supported!".format(type(x)))
     self.l = l = len(y)
 
     max_idx = 0
     x_space = self.x_space = []
-    for i, xi in enumerate(x):
-        tmp_xi, tmp_idx = gen_svm_nodearray(xi,isKernel=isKernel)
-        x_space += [tmp_xi]
-        max_idx = max(max_idx, tmp_idx)
+    if scipy != None and isinstance(x, sparse.csr_matrix):
+        csr_to_problem(x, self, isKernel)
+        max_idx = x.shape[1]
+    else:
+        for i, xi in enumerate(x):
+            tmp_xi, tmp_idx = gen_svm_nodearray(xi,isKernel=isKernel)
+            x_space += [tmp_xi]
+            max_idx = max(max_idx, tmp_idx)
     self.n = max_idx
 
     self.y = (c_double * l)()
-    for i, yi in enumerate(y):
-        self.y[i] = yi
+    if scipy != None and isinstance(y, np.ndarray):
+        np.ctypeslib.as_array(self.y, (self.l,))[:] = y
+    else:
+        for i, yi in enumerate(y): self.y[i] = yi
 
     self.x = (POINTER(svm_node) * l)()
-    for i, xi in enumerate(self.x_space):
-        self.x[i] = xi
-
-
-</t>
-<t tx="karstenw.20230303141314.1">from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-
-from builtins import str, bytes, dict, int
-from builtins import object, range
-from builtins import map, zip, filter
-
-import os
-import sys
-from .libsvm import *
-from .libsvm import __all__ as svm_all
-
-__all__ = ['evaluations', 'svm_load_model', 'svm_predict', 'svm_read_problem',
-           'svm_save_model', 'svm_train'] + svm_all
-
-sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
-
+    if scipy != None and isinstance(x, sparse.csr_matrix):
+        base = addressof(self.x_space.ctypes.data_as(POINTER(svm_node))[0])
+        x_ptr = cast(self.x, POINTER(c_uint64))
+        x_ptr = np.ctypeslib.as_array(x_ptr,(self.l,))
+        x_ptr[:] = self.rowptr[:-1]*sizeof(svm_node)+base
+    else:
+        for i, xi in enumerate(self.x_space): self.x[i] = xi
 
 </t>
-<t tx="karstenw.20230303141314.2">def svm_read_problem(data_file_name):
-    """
-    svm_read_problem(data_file_name) -&gt; [y, x]
+<t tx="karstenw.20230303141314.1">from .svm import __all__ as svm_all
+from .commonutil import *
+from .commonutil import __all__ as common_all
 
-    Read LIBSVM-format data from data_file_name and return labels y
-    and data instances x.
-    """
-    prob_y = []
-    prob_x = []
-    for line in open(data_file_name):
-        line = line.split(None, 1)
-        # In case an instance with all zero features
-        if len(line) == 1:
-            line += ['']
-        label, features = line
-        xi = {}
-        for e in features.split():
-            ind, val = e.split(":")
-            xi[int(ind)] = float(val)
-        prob_y += [float(label)]
-        prob_x += [xi]
-    return (prob_y, prob_x)
+try:
+    import numpy as np
+    import scipy
+    from scipy import sparse
+except:
+    scipy = None
 
+
+if sys.version_info[0] &lt; 3:
+    range = xrange
+    from itertools import izip as zip
+    _cstr = lambda s: s.encode("utf-8") if isinstance(s,unicode) else str(s)
+else:
+    _cstr = lambda s: bytes(s, "utf-8")
+
+__all__ = ['svm_load_model', 'svm_predict', 'svm_save_model', 'svm_train'] + svm_all + common_all
+</t>
+<t tx="karstenw.20230303141314.2">
 
 </t>
 <t tx="karstenw.20230303141314.3">def svm_load_model(model_file_name):
@@ -44959,13 +44999,12 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 
     Load a LIBSVM model from model_file_name and return.
     """
-    model = libsvm.svm_load_model(model_file_name.encode())
+    model = libsvm.svm_load_model(_cstr(model_file_name))
     if not model:
         print("can't open model file %s" % model_file_name)
         return None
     model = toPyModel(model)
     return model
-
 
 </t>
 <t tx="karstenw.20230303141314.4">def svm_save_model(model_file_name, model):
@@ -44974,44 +45013,21 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 
     Save a LIBSVM model to the file model_file_name.
     """
-    libsvm.svm_save_model(model_file_name.encode(), model)
-
-
+    libsvm.svm_save_model(_cstr(model_file_name), model)
 </t>
-<t tx="karstenw.20230303141314.5">def evaluations(ty, pv):
-    """
-    evaluations(ty, pv) -&gt; (ACC, MSE, SCC)
-
-    Calculate accuracy, mean squared error and squared correlation coefficient
-    using the true values (ty) and predicted values (pv).
-    """
-    if len(ty) != len(pv):
-        raise ValueError("len(ty) must equal to len(pv)")
-    total_correct = total_error = 0
-    sumv = sumy = sumvv = sumyy = sumvy = 0
-    for v, y in zip(pv, ty):
-        if y == v:
-            total_correct += 1
-        total_error += (v - y) * (v - y)
-        sumv += v
-        sumy += y
-        sumvv += v * v
-        sumyy += y * y
-        sumvy += v * y
-    l = len(ty)
-    ACC = 100.0 * total_correct / l
-    MSE = total_error / l
-    try:
-        SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / ((l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy))
-    except:
-        SCC = float('nan')
-    return (ACC, MSE, SCC)
-
-
+<t tx="karstenw.20230303141314.5">
 </t>
 <t tx="karstenw.20230303141314.6">def svm_train(arg1, arg2=None, arg3=None):
     """
     svm_train(y, x [, options]) -&gt; model | ACC | MSE
+
+    y: a list/tuple/ndarray of l true labels (type must be int/double).
+
+    x: 1. a list/tuple of l training instances. Feature vector of
+          each training instance is a list/tuple or dictionary.
+
+       2. an l * n numpy ndarray or scipy spmatrix (n: number of features).
+
     svm_train(prob [, options]) -&gt; model | ACC | MSE
     svm_train(prob, param) -&gt; model | ACC| MSE
 
@@ -45021,11 +45037,11 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
     either accuracy (ACC) or mean-squared error (MSE) is returned.
     options:
         -s svm_type : set type of SVM (default 0)
-            0 -- C-SVC		(multi-class classification)
-            1 -- nu-SVC		(multi-class classification)
+            0 -- C-SVC        (multi-class classification)
+            1 -- nu-SVC        (multi-class classification)
             2 -- one-class SVM
-            3 -- epsilon-SVR	(regression)
-            4 -- nu-SVR		(regression)
+            3 -- epsilon-SVR    (regression)
+            4 -- nu-SVR        (regression)
         -t kernel_type : set type of kernel function (default 2)
             0 -- linear: u'*v
             1 -- polynomial: (gamma*u'*v + coef0)^degree
@@ -45041,30 +45057,31 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
         -m cachesize : set cache memory size in MB (default 100)
         -e epsilon : set tolerance of termination criterion (default 0.001)
         -h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)
-        -b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
+        -b probability_estimates : whether to train a model for probability estimates, 0 or 1 (default 0)
         -wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)
         -v n: n-fold cross validation mode
         -q : quiet mode (no outputs)
     """
     prob, param = None, None
-    if isinstance(arg1, (list, tuple)):
-        assert isinstance(arg2, (list, tuple))
+    if isinstance(arg1, (list, tuple)) or (scipy and isinstance(arg1, np.ndarray)):
+        assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (np.ndarray, sparse.spmatrix)))
         y, x, options = arg1, arg2, arg3
         param = svm_parameter(options)
-        prob = svm_problem(y, x, isKernel=(param.kernel_type == PRECOMPUTED))
+        prob = svm_problem(y, x, isKernel=(param.kernel_type == kernel_names.PRECOMPUTED))
     elif isinstance(arg1, svm_problem):
         prob = arg1
         if isinstance(arg2, svm_parameter):
             param = arg2
         else:
             param = svm_parameter(arg2)
-    if prob is None or param is None:
+    if prob == None or param == None:
         raise TypeError("Wrong types for the arguments")
 
-    if param.kernel_type == PRECOMPUTED:
-        for xi in prob.x_space:
+    if param.kernel_type == kernel_names.PRECOMPUTED:
+        for i in range(prob.l):
+            xi = prob.x[i]
             idx, val = xi[0].index, xi[0].value
-            if xi[0].index != 0:
+            if idx != 0:
                 raise ValueError('Wrong input format: first column must be 0:sample_serial_number')
             if val &lt;= 0 or val &gt; prob.n:
                 raise ValueError('Wrong input format: sample_serial_number out of range')
@@ -45081,7 +45098,7 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
         target = (c_double * l)()
         libsvm.svm_cross_validation(prob, param, nr_fold, target)
         ACC, MSE, SCC = evaluations(prob.y[:l], target[:l])
-        if param.svm_type in [EPSILON_SVR, NU_SVR]:
+        if param.svm_type in [svm_forms.EPSILON_SVR, svm_forms.NU_SVR]:
             print("Cross Validation Mean squared error = %g" % MSE)
             print("Cross Validation Squared correlation coefficient = %g" % SCC)
             return MSE
@@ -45096,23 +45113,31 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
         m.x_space = prob.x_space
         return m
 
-
 </t>
 <t tx="karstenw.20230303141314.7">def svm_predict(y, x, m, options=""):
     """
-    svm_predict(y, x, m [, options]) -&gt; (p_labels, p_acc, p_vals)
+    svm_predict(y, x, m [, options]) -&gt; (pred_labels, pred_metrics, pred_values)
+
+    y: a list/tuple/ndarray of l true labels (type must be int/double).
+       It is used for calculating the accuracy. Use [] if true labels are
+       unavailable.
+
+    x: 1. a list/tuple of l training instances. Feature vector of
+          each training instance is a list/tuple or dictionary.
+
+       2. an l * n numpy ndarray or scipy spmatrix (n: number of features).
 
     Predict data (y, x) with the SVM model m.
     options:
         -b probability_estimates: whether to predict probability estimates,
-            0 or 1 (default 0); for one-class SVM only 0 is supported.
+            0 or 1 (default 0).
         -q : quiet mode (no outputs).
 
     The return tuple contains
-    p_labels: a list of predicted labels
-    p_acc: a tuple including  accuracy (for classification), mean-squared
+    pred_labels: a list of predicted labels
+    pred_metrics: a tuple of metrics including  accuracy (for classification), mean-squared
            error, and squared correlation coefficient (for regression).
-    p_vals: a list of decision values or probability estimates (if '-b 1'
+    pred_values: a list of decision values or probability estimates (if '-b 1'
             is specified). If k is the number of classes, for decision values,
             each element includes results of predicting k(k-1)/2 binary-class
             SVMs. For probabilities, each element contains k values indicating
@@ -45123,6 +45148,16 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 
     def info(s):
         print(s)
+
+    if scipy and isinstance(x, np.ndarray):
+        x = np.ascontiguousarray(x) # enforce row-major
+    elif scipy and isinstance(x, sparse.spmatrix):
+        x = x.tocsr()
+    elif not isinstance(x, (list, tuple)):
+        raise TypeError("type of x: {0} is not supported!".format(type(x)))
+
+    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, np.ndarray))):
+        raise TypeError("type of y: {0} is not supported!".format(type(y)))
 
     predict_probability = 0
     argv = options.split()
@@ -45135,7 +45170,7 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
             info = print_null
         else:
             raise ValueError("Wrong options")
-        i += 1
+        i+=1
 
     svm_type = m.get_svm_type()
     is_prob_model = m.is_probability_model()
@@ -45143,18 +45178,27 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
     pred_labels = []
     pred_values = []
 
+    if scipy and isinstance(x, sparse.spmatrix):
+        nr_instance = x.shape[0]
+    else:
+        nr_instance = len(x)
+
     if predict_probability:
         if not is_prob_model:
             raise ValueError("Model does not support probabiliy estimates")
 
-        if svm_type in [NU_SVR, EPSILON_SVR]:
+        if svm_type in [svm_forms.NU_SVR, svm_forms.EPSILON_SVR]:
             info("Prob. model for test data: target value = predicted value + z,\n"
             "z: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g" % m.get_svr_probability());
             nr_class = 0
 
         prob_estimates = (c_double * nr_class)()
-        for xi in x:
-            xi, idx = gen_svm_nodearray(xi, isKernel=(m.param.kernel_type == PRECOMPUTED))
+        for i in range(nr_instance):
+            if scipy and isinstance(x, sparse.spmatrix):
+                indslice = slice(x.indptr[i], x.indptr[i+1])
+                xi, idx = gen_svm_nodearray((x.indices[indslice], x.data[indslice]), isKernel=(m.param.kernel_type == kernel_names.PRECOMPUTED))
+            else:
+                xi, idx = gen_svm_nodearray(x[i], isKernel=(m.param.kernel_type == kernel_names.PRECOMPUTED))
             label = libsvm.svm_predict_probability(m, xi, prob_estimates)
             values = prob_estimates[:nr_class]
             pred_labels += [label]
@@ -45162,13 +45206,17 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
     else:
         if is_prob_model:
             info("Model supports probability estimates, but disabled in predicton.")
-        if svm_type in (ONE_CLASS, EPSILON_SVR, NU_SVC):
+        if svm_type in [svm_forms.ONE_CLASS, svm_forms.EPSILON_SVR, svm_forms.NU_SVC]:
             nr_classifier = 1
         else:
-            nr_classifier = nr_class * (nr_class - 1) // 2
+            nr_classifier = nr_class*(nr_class-1)//2
         dec_values = (c_double * nr_classifier)()
-        for xi in x:
-            xi, idx = gen_svm_nodearray(xi, isKernel=(m.param.kernel_type == PRECOMPUTED))
+        for i in range(nr_instance):
+            if scipy and isinstance(x, sparse.spmatrix):
+                indslice = slice(x.indptr[i], x.indptr[i+1])
+                xi, idx = gen_svm_nodearray((x.indices[indslice], x.data[indslice]), isKernel=(m.param.kernel_type == kernel_names.PRECOMPUTED))
+            else:
+                xi, idx = gen_svm_nodearray(x[i], isKernel=(m.param.kernel_type == kernel_names.PRECOMPUTED))
             label = libsvm.svm_predict_values(m, xi, dec_values)
             if(nr_class == 1):
                 values = [1]
@@ -45177,13 +45225,15 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
             pred_labels += [label]
             pred_values += [values]
 
+    if len(y) == 0:
+        y = [0] * nr_instance
     ACC, MSE, SCC = evaluations(y, pred_labels)
-    l = len(y)
-    if svm_type in [EPSILON_SVR, NU_SVR]:
+
+    if svm_type in [svm_forms.EPSILON_SVR, svm_forms.NU_SVR]:
         info("Mean squared error = %g (regression)" % MSE)
         info("Squared correlation coefficient = %g (regression)" % SCC)
     else:
-        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(l * ACC / 100), l))
+        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(round(nr_instance*ACC/100)), nr_instance))
 
     return pred_labels, (ACC, MSE, SCC), pred_values
 </t>
@@ -46773,6 +46823,205 @@ _UID = 0
 <t tx="karstenw.20260524115349.1">#--- DATASHEET COLUMN ------------------------------------------------------------------------------
 
 
+</t>
+<t tx="karstenw.20261004133850.1">@others
+@language python
+@tabwidth -4
+</t>
+<t tx="karstenw.20261004133923.1">from __future__ import print_function
+from array import array
+import sys
+
+try:
+    import numpy as np
+    import scipy
+    from scipy import sparse
+except:
+    scipy = None
+
+
+__all__ = ['svm_read_problem', 'evaluations', 'csr_find_scale_param', 'csr_scale']
+
+</t>
+<t tx="karstenw.20261004133923.2">def svm_read_problem(data_source, return_scipy=False):
+    """
+    svm_read_problem(data_source, return_scipy=False) -&gt; [y, x], y: list, x: list of dictionary
+    svm_read_problem(data_source, return_scipy=True)  -&gt; [y, x], y: ndarray, x: csr_matrix
+
+    Read LIBSVM-format data from data_source and return labels y
+    and data instances x.
+    """
+    if scipy != None and return_scipy:
+        prob_y = array('d')
+        prob_x = array('d')
+        row_ptr = array('l', [0])
+        col_idx = array('l')
+    else:
+        prob_y = []
+        prob_x = []
+        row_ptr = [0]
+        col_idx = []
+    indx_start = 1
+
+    if hasattr(data_source, "read"):
+        file = data_source
+    else:
+        file = open(data_source)
+    try:
+        for line in file:
+            line = line.split(None, 1)
+            # In case an instance with all zero features
+            if len(line) == 1: line += ['']
+            label, features = line
+            prob_y.append(float(label))
+            if scipy != None and return_scipy:
+                nz = 0
+                for e in features.split():
+                    ind, val = e.split(":")
+                    if ind == '0':
+                        indx_start = 0
+                    val = float(val)
+                    if val != 0:
+                        col_idx.append(int(ind)-indx_start)
+                        prob_x.append(val)
+                        nz += 1
+                row_ptr.append(row_ptr[-1]+nz)
+            else:
+                xi = {}
+                for e in features.split():
+                    ind, val = e.split(":")
+                    xi[int(ind)] = float(val)
+                prob_x += [xi]
+    except Exception as err_msg:
+        raise err_msg
+    finally:
+        if not hasattr(data_source, "read"):
+            # close file only if it was created by us
+            file.close()
+
+    if scipy != None and return_scipy:
+        prob_y = np.frombuffer(prob_y, dtype='d')
+        prob_x = np.frombuffer(prob_x, dtype='d')
+        col_idx = np.frombuffer(col_idx, dtype='l')
+        row_ptr = np.frombuffer(row_ptr, dtype='l')
+        prob_x = sparse.csr_matrix((prob_x, col_idx, row_ptr))
+    return (prob_y, prob_x)
+
+</t>
+<t tx="karstenw.20261004133923.3">def evaluations_scipy(ty, pv):
+    """
+    evaluations_scipy(ty, pv) -&gt; (ACC, MSE, SCC)
+    ty, pv: ndarray
+
+    Calculate accuracy, mean squared error and squared correlation coefficient
+    using the true values (ty) and predicted values (pv).
+    """
+    if not (scipy != None and isinstance(ty, np.ndarray) and isinstance(pv, np.ndarray)):
+        raise TypeError("type of ty and pv must be ndarray")
+    if len(ty) != len(pv):
+        raise ValueError("len(ty) must be equal to len(pv)")
+    ACC = 100.0*(ty == pv).mean()
+    MSE = ((ty - pv)**2).mean()
+    l = len(ty)
+    sumv = pv.sum()
+    sumy = ty.sum()
+    sumvy = (pv*ty).sum()
+    sumvv = (pv*pv).sum()
+    sumyy = (ty*ty).sum()
+    with np.errstate(all = 'raise'):
+        try:
+            SCC = ((l*sumvy-sumv*sumy)*(l*sumvy-sumv*sumy))/((l*sumvv-sumv*sumv)*(l*sumyy-sumy*sumy))
+        except:
+            SCC = float('nan')
+    return (float(ACC), float(MSE), float(SCC))
+
+</t>
+<t tx="karstenw.20261004133923.4">def evaluations(ty, pv, useScipy = True):
+    """
+    evaluations(ty, pv, useScipy) -&gt; (ACC, MSE, SCC)
+    ty, pv: list, tuple or ndarray
+    useScipy: convert ty, pv to ndarray, and use scipy functions for the evaluation
+
+    Calculate accuracy, mean squared error and squared correlation coefficient
+    using the true values (ty) and predicted values (pv).
+    """
+    if scipy != None and useScipy:
+        return evaluations_scipy(np.asarray(ty), np.asarray(pv))
+    if len(ty) != len(pv):
+        raise ValueError("len(ty) must be equal to len(pv)")
+    total_correct = total_error = 0
+    sumv = sumy = sumvv = sumyy = sumvy = 0
+    for v, y in zip(pv, ty):
+        if y == v:
+            total_correct += 1
+        total_error += (v-y)*(v-y)
+        sumv += v
+        sumy += y
+        sumvv += v*v
+        sumyy += y*y
+        sumvy += v*y
+    l = len(ty)
+    ACC = 100.0*total_correct/l
+    MSE = total_error/l
+    try:
+        SCC = ((l*sumvy-sumv*sumy)*(l*sumvy-sumv*sumy))/((l*sumvv-sumv*sumv)*(l*sumyy-sumy*sumy))
+    except:
+        SCC = float('nan')
+    return (float(ACC), float(MSE), float(SCC))
+
+</t>
+<t tx="karstenw.20261004133923.5">def csr_find_scale_param(x, lower=-1, upper=1):
+    assert isinstance(x, sparse.csr_matrix)
+    assert lower &lt; upper
+    l, n = x.shape
+    feat_min = x.min(axis=0).toarray().flatten()
+    feat_max = x.max(axis=0).toarray().flatten()
+    coef = (feat_max - feat_min) / (upper - lower)
+    coef[coef != 0] = 1.0 / coef[coef != 0]
+
+    # (x - ones(l,1) * feat_min') * diag(coef) + lower
+    # = x * diag(coef) - ones(l, 1) * (feat_min' * diag(coef)) + lower
+    # = x * diag(coef) + ones(l, 1) * (-feat_min' * diag(coef) + lower)
+    # = x * diag(coef) + ones(l, 1) * offset'
+    offset = -feat_min * coef + lower
+    offset[coef == 0] = 0
+
+    if sum(offset != 0) * l &gt; 3 * x.getnnz():
+        print(
+            "WARNING: The #nonzeros of the scaled data is at least 2 times larger than the original one.\n"
+            "If feature values are non-negative and sparse, set lower=0 rather than the default lower=-1.",
+            file=sys.stderr)
+
+    return {'coef':coef, 'offset':offset}
+
+</t>
+<t tx="karstenw.20261004133923.6">def csr_scale(x, scale_param):
+    assert isinstance(x, sparse.csr_matrix)
+
+    offset = scale_param['offset']
+    coef = scale_param['coef']
+    assert len(coef) == len(offset)
+
+    l, n = x.shape
+
+    if not n == len(coef):
+        print("WARNING: The dimension of scaling parameters and feature number do not match.", file=sys.stderr)
+        coef = coef.resize(n) # zeros padded if n &gt; len(coef)
+        offset = offset.resize(n)
+
+    # scaled_x = x * diag(coef) + ones(l, 1) * offset'
+    offset = sparse.csr_matrix(offset.reshape(1, n))
+    offset = sparse.vstack([offset] * l, format='csr', dtype=x.dtype)
+    scaled_x = x.dot(sparse.diags(coef, 0, shape=(n, n))) + offset
+
+    if scaled_x.getnnz() &gt; x.getnnz():
+        print(
+            "WARNING: original #nonzeros %d\n" % x.getnnz() +
+            "       &gt; new      #nonzeros %d\n" % scaled_x.getnnz() +
+            "If feature values are non-negative and sparse, get scale_param by setting lower=0 rather than the default lower=-1.",
+            file=sys.stderr)
+
+    return scaled_x
 </t>
 </tnodes>
 </leo_file>

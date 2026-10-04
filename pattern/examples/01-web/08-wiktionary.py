@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 from builtins import str, bytes, dict, int
 
-import os
 import sys
+import os, pdb
 
-sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..","..")))
+import linguistics
 import pattern
 
 from pattern.web import Wiktionary, DOM

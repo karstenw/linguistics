@@ -6,7 +6,8 @@ from builtins import str, bytes, dict, int
 import sys
 import os, time
 import pdb
-sys.path.insert(0, os.path.abspath(os.path.join("..","..","..")))
+sys.path.insert(0, os.path.abspath(os.path.join("..","..","..","..")))
+import linguistics
 
 import pattern
 from pattern.de import article, referenced, pluralize, singularize
@@ -30,7 +31,7 @@ print("")
 for word in ["Stunde", "Einzeiler", "Europäer", "Universität", "Eule", "genannt", "Jahr"]:
     print( word, 'referenced:', referenced(word))
 print("")
-pdb.set_trace()
+# pdb.set_trace()
 # PLURALIZATION
 # -------------
 # The pluralize() function returns the plural form of a singular noun (or adjective).
