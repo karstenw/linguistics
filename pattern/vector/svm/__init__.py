@@ -4,8 +4,8 @@ from __future__ import division
 LIBSVM = LIBLINEAR = True
 
 try:
-    from . import libsvm
-    from . import libsvmutil
+    from . import svm
+    from . import svmutil
 except ImportError as e:
     LIBSVM = False
     raise e

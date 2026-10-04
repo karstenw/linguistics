@@ -1,71 +1,25 @@
-#!/usr/bin/env python
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-
-from builtins import str, bytes, dict, int
-from builtins import object, range
-from builtins import map, zip, filter
-
-import os
-import sys
-sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
-from liblinear import *
-from liblinear import __all__ as liblinear_all
-from liblinear import scipy, sparse
+import os, sys
+from .liblinear import *
+from .liblinear import __all__ as liblinear_all
+from .commonutil import *
+from .commonutil import __all__ as common_all
 from ctypes import c_double
 
-import numpy as np
+try:
+    import numpy as np
+    import scipy
+    from scipy import sparse
+except:
+    scipy = None
 
-__all__ = ['svm_read_problem', 'load_model', 'save_model', 'evaluations',
-           'train', 'predict'] + liblinear_all
+if sys.version_info[0] < 3:
+    range = xrange
+    from itertools import izip as zip
+    _cstr = lambda s: s.encode("utf-8") if isinstance(s,unicode) else str(s)
+else:
+    _cstr = lambda s: bytes(s, "utf-8")
 
-
-def svm_read_problem(data_file_name, return_scipy=False):
-    """
-    svm_read_problem(data_file_name, return_scipy=False) -> [y, x], y: list, x: list of dictionary
-    svm_read_problem(data_file_name, return_scipy=True)  -> [y, x], y: ndarray, x: csr_matrix
-
-    Read LIBSVM-format data from data_file_name and return labels y
-    and data instances x.
-    """
-    prob_y = []
-    prob_x = []
-    row_ptr = [0]
-    col_idx = []
-    for i, line in enumerate(open(data_file_name)):
-        line = line.split(None, 1)
-        # In case an instance with all zero features
-        if len(line) == 1:
-            line += ['']
-        label, features = line
-        prob_y += [float(label)]
-        if scipy is not None and return_scipy:
-            nz = 0
-            for e in features.split():
-                ind, val = e.split(":")
-                val = float(val)
-                if val != 0:
-                    col_idx += [int(ind) - 1]
-                    prob_x += [val]
-                    nz += 1
-            row_ptr += [row_ptr[-1] + nz]
-        else:
-            xi = {}
-            for e in features.split():
-                ind, val = e.split(":")
-                if val != 0:
-                    xi[int(ind)] = float(val)
-            prob_x += [xi]
-    if scipy is not None and return_scipy:
-        prob_y = scipy.array(prob_y)
-        prob_x = scipy.array(prob_x)
-        col_idx = scipy.array(col_idx)
-        row_ptr = scipy.array(row_ptr)
-        prob_x = sparse.csr_matrix((prob_x, col_idx, row_ptr))
-    return (prob_y, prob_x)
+__all__ = ['load_model', 'save_model', 'train', 'predict'] + liblinear_all + common_all
 
 
 def load_model(model_file_name):
@@ -74,13 +28,12 @@ def load_model(model_file_name):
 
     Load a LIBLINEAR model from model_file_name and return.
     """
-    model = liblinear.load_model(model_file_name.encode())
+    model = liblinear.load_model(_cstr(model_file_name))
     if not model:
         print("can't open model file %s" % model_file_name)
         return None
     model = toPyModel(model)
     return model
-
 
 def save_model(model_file_name, model):
     """
@@ -88,71 +41,7 @@ def save_model(model_file_name, model):
 
     Save a LIBLINEAR model to the file model_file_name.
     """
-    liblinear.save_model(model_file_name.encode(), model)
-
-
-def evaluations_scipy(ty, pv):
-    """
-    evaluations_scipy(ty, pv) -> (ACC, MSE, SCC)
-    ty, pv: ndarray
-
-    Calculate accuracy, mean squared error and squared correlation coefficient
-    using the true values (ty) and predicted values (pv).
-    """
-    if (not (    scipy is not None and isinstance(ty, np.ndarray)
-             and isinstance(pv, np.ndarray))):
-        raise TypeError("type of ty and pv must be ndarray")
-    if len(ty) != len(pv):
-        raise ValueError("len(ty) must be equal to len(pv)")
-    ACC = 100.0 * (ty == pv).mean()
-    MSE = ((ty - pv)**2).mean()
-    l = len(ty)
-    sumv = pv.sum()
-    sumy = ty.sum()
-    sumvy = (pv * ty).sum()
-    sumvv = (pv * pv).sum()
-    sumyy = (ty * ty).sum()
-    with np.errstate(all = 'raise'):
-        try:
-            SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / ((l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy))
-        except:
-            SCC = float('nan')
-    return (float(ACC), float(MSE), float(SCC))
-
-
-def evaluations(ty, pv, useScipy = True):
-    """
-    evaluations(ty, pv, useScipy) -> (ACC, MSE, SCC)
-    ty, pv: list, tuple or ndarray
-    useScipy: convert ty, pv to ndarray, and use scipy functions for the evaluation
-
-    Calculate accuracy, mean squared error and squared correlation coefficient
-    using the true values (ty) and predicted values (pv).
-    """
-    if scipy is not None and useScipy:
-        return evaluations_scipy(np.asarray(ty), np.asarray(pv))
-    if len(ty) != len(pv):
-        raise ValueError("len(ty) must be equal to len(pv)")
-    total_correct = total_error = 0
-    sumv = sumy = sumvv = sumyy = sumvy = 0
-    for v, y in zip(pv, ty):
-        if y == v:
-            total_correct += 1
-        total_error += (v - y) * (v - y)
-        sumv += v
-        sumy += y
-        sumvv += v * v
-        sumyy += y * y
-        sumvy += v * y
-    l = len(ty)
-    ACC = 100.0 * total_correct / l
-    MSE = total_error / l
-    try:
-        SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / ((l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy))
-    except:
-        SCC = float('nan')
-    return (float(ACC), float(MSE), float(SCC))
-
+    liblinear.save_model(_cstr(model_file_name), model)
 
 def train(arg1, arg2=None, arg3=None):
     """
@@ -175,45 +64,48 @@ def train(arg1, arg2=None, arg3=None):
     either accuracy (ACC) or mean-squared error (MSE) is returned.
 
     options:
-            -s type : set type of solver (default 1)
-              for multi-class classification
-                     0 -- L2-regularized logistic regression (primal)
-                     1 -- L2-regularized L2-loss support vector classification (dual)
-                     2 -- L2-regularized L2-loss support vector classification (primal)
-                     3 -- L2-regularized L1-loss support vector classification (dual)
-                     4 -- support vector classification by Crammer and Singer
-                     5 -- L1-regularized L2-loss support vector classification
-                     6 -- L1-regularized logistic regression
-                     7 -- L2-regularized logistic regression (dual)
-              for regression
-                    11 -- L2-regularized L2-loss support vector regression (primal)
-                    12 -- L2-regularized L2-loss support vector regression (dual)
-                    13 -- L2-regularized L1-loss support vector regression (dual)
-            -c cost : set the parameter C (default 1)
-            -p epsilon : set the epsilon in loss function of SVR (default 0.1)
-            -e epsilon : set tolerance of termination criterion
-                    -s 0 and 2
-                            |f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2,
-                            where f is the primal function, (default 0.01)
-                    -s 11
-                            |f'(w)|_2 <= eps*|f'(w0)|_2 (default 0.001)
-                    -s 1, 3, 4, and 7
-                            Dual maximal violation <= eps; similar to liblinear (default 0.)
-                    -s 5 and 6
-                            |f'(w)|_inf <= eps*min(pos,neg)/l*|f'(w0)|_inf,
-                            where f is the primal function (default 0.01)
-                    -s 12 and 13
-                            |f'(alpha)|_1 <= eps |f'(alpha0)|,
-                            where f is the dual function (default 0.1)
-            -B bias : if bias >= 0, instance x becomes [x; bias]; if < 0, no bias term added (default -1)
-            -wi weight: weights adjust the parameter C of different classes (see README for details)
-            -v n: n-fold cross validation mode
-            -q : quiet mode (no outputs)
+        -s type : set type of solver (default 1)
+          for multi-class classification
+             0 -- L2-regularized logistic regression (primal)
+             1 -- L2-regularized L2-loss support vector classification (dual)
+             2 -- L2-regularized L2-loss support vector classification (primal)
+             3 -- L2-regularized L1-loss support vector classification (dual)
+             4 -- support vector classification by Crammer and Singer
+             5 -- L1-regularized L2-loss support vector classification
+             6 -- L1-regularized logistic regression
+             7 -- L2-regularized logistic regression (dual)
+          for regression
+            11 -- L2-regularized L2-loss support vector regression (primal)
+            12 -- L2-regularized L2-loss support vector regression (dual)
+            13 -- L2-regularized L1-loss support vector regression (dual)
+          for outlier detection
+            21 -- one-class support vector machine (dual)
+        -c cost : set the parameter C (default 1)
+        -p epsilon : set the epsilon in loss function of SVR (default 0.1)
+        -e epsilon : set tolerance of termination criterion
+            -s 0 and 2
+                |f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2,
+                where f is the primal function, (default 0.01)
+            -s 11
+                |f'(w)|_2 <= eps*|f'(w0)|_2 (default 0.0001)
+            -s 1, 3, 4, 7, and 21
+                Dual maximal violation <= eps; similar to libsvm (default 0.1 except 0.01 for -s 21)
+            -s 5 and 6
+                |f'(w)|_inf <= eps*min(pos,neg)/l*|f'(w0)|_inf,
+                where f is the primal function (default 0.01)
+            -s 12 and 13
+                |f'(alpha)|_1 <= eps |f'(alpha0)|,
+                where f is the dual function (default 0.1)
+        -B bias : if bias >= 0, instance x becomes [x; bias]; if < 0, no bias term added (default -1)
+        -R : not regularize the bias; must with -B 1 to have the bias; DON'T use this unless you know what it is
+            (for -s 0, 2, 5, 6, 11)"
+        -wi weight: weights adjust the parameter C of different classes (see README for details)
+        -v n: n-fold cross validation mode
+        -C : find parameters (C for -s 0, 2 and C, p for -s 11)
+        -q : quiet mode (no outputs)
     """
     prob, param = None, None
-    if (    isinstance(arg1, (list, tuple))
-         or (   scipy
-            and isinstance(arg1, np.ndarray))):
+    if isinstance(arg1, (list, tuple)) or (scipy and isinstance(arg1, np.ndarray)):
         assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (np.ndarray, sparse.spmatrix)))
         y, x, options = arg1, arg2, arg3
         prob = problem(y, x)
@@ -224,34 +116,42 @@ def train(arg1, arg2=None, arg3=None):
             param = arg2
         else:
             param = parameter(arg2)
-    if prob is None or param is None:
+    if prob == None or param == None :
         raise TypeError("Wrong types for the arguments")
 
     prob.set_bias(param.bias)
     liblinear.set_print_string_function(param.print_func)
     err_msg = liblinear.check_parameter(prob, param)
-    if err_msg:
+    if err_msg :
         raise ValueError('Error: %s' % err_msg)
 
-    if param.flag_find_C:
+    if param.flag_find_parameters:
         nr_fold = param.nr_fold
         best_C = c_double()
-        best_rate = c_double()
-        max_C = 1024
+        best_p = c_double()
+        best_score = c_double()
         if param.flag_C_specified:
             start_C = param.C
         else:
             start_C = -1.0
-        liblinear.find_parameter_C(prob, param, nr_fold, start_C, max_C, best_C, best_rate)
-        print("Best C = %lf  CV accuracy = %g%%\n" % (best_C.value, 100.0 * best_rate.value))
-        return best_C.value, best_rate.value
+        if param.flag_p_specified:
+            start_p = param.p
+        else:
+            start_p = -1.0
+        liblinear.find_parameters(prob, param, nr_fold, start_C, start_p, best_C, best_p, best_score)
+        if param.solver_type in [solver_names.L2R_LR, solver_names.L2R_L2LOSS_SVC]:
+            print("Best C = %g  CV accuracy = %g%%\n"% (best_C.value, 100.0*best_score.value))
+        elif param.solver_type in [solver_names.L2R_L2LOSS_SVR]:
+            print("Best C = %g Best p = %g  CV MSE = %g\n"% (best_C.value, best_p.value, best_score.value))
+        return best_C.value,best_p.value,best_score.value
+
 
     elif param.flag_cross_validation:
         l, nr_fold = prob.l, param.nr_fold
         target = (c_double * l)()
         liblinear.cross_validation(prob, param, nr_fold, target)
         ACC, MSE, SCC = evaluations(prob.y[:l], target[:l])
-        if param.solver_type in [L2R_L2LOSS_SVR, L2R_L2LOSS_SVR_DUAL, L2R_L1LOSS_SVR_DUAL]:
+        if param.solver_type in [solver_names.L2R_L2LOSS_SVR, solver_names.L2R_L2LOSS_SVR_DUAL, solver_names.L2R_L1LOSS_SVR_DUAL]:
             print("Cross Validation Mean squared error = %g" % MSE)
             print("Cross Validation Squared correlation coefficient = %g" % SCC)
             return MSE
@@ -264,10 +164,9 @@ def train(arg1, arg2=None, arg3=None):
 
         return m
 
-
 def predict(y, x, m, options=""):
     """
-    predict(y, x, m [, options]) -> (p_labels, p_acc, p_vals)
+    predict(y, x, m [, options]) -> (pred_labels, pred_metrics, pred_values)
 
     y: a list/tuple/ndarray of l true labels (type must be int/double).
        It is used for calculating the accuracy. Use [] if true labels are
@@ -284,10 +183,10 @@ def predict(y, x, m, options=""):
         -q quiet mode (no outputs)
 
     The return tuple contains
-    p_labels: a list of predicted labels
-    p_acc: a tuple including  accuracy (for classification), mean-squared
+    pred_labels: a list of predicted labels
+    pred_metrics: a tuple of metrics including  accuracy (for classification), mean-squared
            error, and squared correlation coefficient (for regression).
-    p_vals: a list of decision values or probability estimates (if '-b 1'
+    pred_values: a list of decision values or probability estimates (if '-b 1'
             is specified). If k is the number of classes, for decision values,
             each element includes results of predicting k binary-class
             SVMs. if k = 2 and solver is not MCSVM_CS, only one decision value
@@ -301,8 +200,8 @@ def predict(y, x, m, options=""):
         print(s)
 
     if scipy and isinstance(x, np.ndarray):
-        x = scipy.ascontiguousarray(x) # enforce row-major
-    elif sparse and isinstance(x, sparse.spmatrix):
+        x = np.ascontiguousarray(x) # enforce row-major
+    elif scipy and isinstance(x, sparse.spmatrix):
         x = x.tocsr()
     elif not isinstance(x, (list, tuple)):
         raise TypeError("type of x: {0} is not supported!".format(type(x)))
@@ -321,7 +220,7 @@ def predict(y, x, m, options=""):
             info = print_null
         else:
             raise ValueError("Wrong options")
-        i += 1
+        i+=1
 
     solver_type = m.param.solver_type
     nr_class = m.get_nr_class()
@@ -329,7 +228,7 @@ def predict(y, x, m, options=""):
     is_prob_model = m.is_probability_model()
     bias = m.bias
     if bias >= 0:
-        biasterm = feature_node(nr_feature + 1, bias)
+        biasterm = feature_node(nr_feature+1, bias)
     else:
         biasterm = feature_node(-1, bias)
     pred_labels = []
@@ -346,7 +245,7 @@ def predict(y, x, m, options=""):
         prob_estimates = (c_double * nr_class)()
         for i in range(nr_instance):
             if scipy and isinstance(x, sparse.spmatrix):
-                indslice = slice(x.indptr[i], x.indptr[i + 1])
+                indslice = slice(x.indptr[i], x.indptr[i+1])
                 xi, idx = gen_feature_nodearray((x.indices[indslice], x.data[indslice]), feature_max=nr_feature)
             else:
                 xi, idx = gen_feature_nodearray(x[i], feature_max=nr_feature)
@@ -363,7 +262,7 @@ def predict(y, x, m, options=""):
         dec_values = (c_double * nr_classifier)()
         for i in range(nr_instance):
             if scipy and isinstance(x, sparse.spmatrix):
-                indslice = slice(x.indptr[i], x.indptr[i + 1])
+                indslice = slice(x.indptr[i], x.indptr[i+1])
                 xi, idx = gen_feature_nodearray((x.indices[indslice], x.data[indslice]), feature_max=nr_feature)
             else:
                 xi, idx = gen_feature_nodearray(x[i], feature_max=nr_feature)
@@ -381,6 +280,6 @@ def predict(y, x, m, options=""):
         info("Mean squared error = %g (regression)" % MSE)
         info("Squared correlation coefficient = %g (regression)" % SCC)
     else:
-        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(round(nr_instance * ACC / 100)), nr_instance))
+        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(round(nr_instance*ACC/100)), nr_instance))
 
     return pred_labels, (ACC, MSE, SCC), pred_values
