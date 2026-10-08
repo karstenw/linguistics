@@ -27,7 +27,9 @@ __all__ = ['liblinear', 'feature_node', 'gen_feature_nodearray', 'problem',
 #
 # I have deleted the windows and ubuntu parts because I cant compile them.
 #
-# If you can compile for either please reconstruct this section from the source files and adapt for ARM / INTEL
+# If you can compile for either please reconstruct this section from the
+# +oldinterface & source folders and adapt for ARM / INTEL
+#
 #
 
 dirname = path.dirname(path.abspath(__file__))

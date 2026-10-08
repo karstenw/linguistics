@@ -36,7 +36,7 @@ engine = Newsfeed()
 FEED = random.choice( list(FEEDS.keys()) )
 print("\n\nFEED:", FEED)
 
-for result in engine.search(FEEDS[FEED], cached=True):
+for result in engine.search(FEEDS[FEED], cached=False):
     print(result.title.upper())
     print(plaintext(result.text))  # Remove HTML formatting.
     print(result.url)
