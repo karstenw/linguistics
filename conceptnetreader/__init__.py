@@ -403,7 +403,8 @@ def query_translations( concept, lang, weight=0.6, maxedges=0 ):
 
     concept = concept.lower()
     concept = concept.replace("_", " ")
-    lang = lang.lower()
+    if lang:
+        lang = lang.lower()
     
     concepts = []
     resultConcepts = []
