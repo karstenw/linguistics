@@ -506,7 +506,7 @@ def query_idlist( conn, tablename, idfieldname, idlist ):
         classname = tablename.capitalize() + "Record"
         Record = namedtuple( classname, fieldnames )
         if kwdbg:
-            pdb.set_trace()
+            # pdb.set_trace()
             print("Please check created Record class...")
     
     fieldnamesselect = ','.join( fieldnames )
